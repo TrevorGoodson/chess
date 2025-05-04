@@ -8,6 +8,7 @@ package chess;
  */
 public class ChessBoard {
 
+    private ChessPiece[][] squares = new ChessPiece[8][8];
     public ChessBoard() {
         
     }
@@ -19,7 +20,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        throw new RuntimeException("Not implemented");
+        squares[position.getRow()][position.getColumn()] = piece;
     }
 
     /**
@@ -30,7 +31,18 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        throw new RuntimeException("Not implemented");
+        return squares[position.getRow()][position.getColumn()];
+    }
+
+    /**
+     * Checks whether a given position is on the board or not
+     * @param position the position to check
+     * @return boolean value: on the board: true, else: false
+     */
+    public boolean checkRange(ChessPosition position) {
+        int row = position.getRow();
+        int col = position.getColumn();
+        return (row >= 1) && (row <= 8) && (col >= 1) && (col <= 8);
     }
 
     /**
