@@ -73,9 +73,17 @@ public class ChessPiece {
                 ++numSteps;
                 nextPosition = new ChessPosition(row + (numSteps * direction[0]),
                                                   column + (numSteps * direction[1]));
-                if (board.checkRange(nextPosition) && board.getPiece(nextPosition) == null) {
+                if (!board.checkRange(nextPosition)) {
+                    continue;
+                }
+                if (board.getPiece(nextPosition) == null) {
+                    validMoves.add(new ChessMove(myPosition, nextPosition, null));
+                    continue;
+                }
+                if (pieceColor != board.getPieceColor(nextPosition)) {
                     validMoves.add(new ChessMove(myPosition, nextPosition, null));
                 }
+                break;
             } while (board.checkRange(nextPosition));
         }
         return validMoves;

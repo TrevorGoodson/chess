@@ -31,7 +31,23 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
+        if (!checkRange(position)) {
+            return null;
+        }
         return squares[position.getRow() - 1][position.getColumn() - 1];
+    }
+
+    /**
+     * Gets the color of a chess piece on the board
+     * @param position position of the chess piece
+     * @return null (if no piece is there) or the color of the piece (ChessGame.TeamColor)
+     */
+    public ChessGame.TeamColor getPieceColor(ChessPosition position) {
+        ChessPiece piece = getPiece(position);
+        if (piece == null) {
+            return null;
+        }
+        return piece.getTeamColor();
     }
 
     /**
