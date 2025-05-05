@@ -48,6 +48,7 @@ public class ChessPiece {
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
      * danger
+     * Also does not consider en passant
      *
      * @return Collection of valid moves
      */
@@ -93,6 +94,26 @@ public class ChessPiece {
                 new int[][]{{2,1}, {1,2}, {-1,2}, {2,-1}, {1,-2}, {-2,1}, {-1,-2}, {-2,-1}});
     }
 
+    private Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition) {
+        Collection<ChessMove> validMoves = new ArrayList<ChessMove>();
+        int row = myPosition.getRow();
+        int column = myPosition.getColumn();
+        int direction = (pieceColor == ChessGame.TeamColor.WHITE) ? 1 : -1;
+        int[] normalMove = new int[]{direction, 0};
+        int[][] attackDirections = new int[][]{{direction,1}, {direction,-1}};
+
+        for (var attackDirection : attackDirections) {
+            var attackCheck = new ChessPosition(row + attackDirection[0], column + attackDirection[1]);
+            if (board.checkRange(attackCheck) &&
+                    board.getPiece(attackCheck) != null &&
+                    pieceColor != board.getPieceColor(attackCheck)) {
+                //normalMove.add(attackDirection);
+            }
+        }
+        throw new RuntimeException("unfinished");
+        //return shortRangeMove(board, myPosition, normalMove);
+    }
+
     private Collection<ChessMove> longRangeMove(ChessBoard board, ChessPosition myPosition, int[][] directions) {
         Collection<ChessMove> validMoves = new ArrayList<ChessMove>();
         int row = myPosition.getRow();
@@ -104,17 +125,12 @@ public class ChessPiece {
                 ++numSteps;
                 nextPosition = new ChessPosition(row + (numSteps * direction[0]),
                                                   column + (numSteps * direction[1]));
-                if (!board.checkRange(nextPosition)) {
-                    continue;
-                }
-                if (board.getPiece(nextPosition) == null) {
-                    validMoves.add(new ChessMove(myPosition, nextPosition, null));
-                    continue;
-                }
-                if (pieceColor != board.getPieceColor(nextPosition)) {
+                if (checkMove(board, nextPosition)) {
                     validMoves.add(new ChessMove(myPosition, nextPosition, null));
                 }
-                break;
+                if (board.checkRange(nextPosition) && board.getPiece(nextPosition) != null) {
+                    break;
+                }
             } while (board.checkRange(nextPosition));
         }
         return validMoves;
@@ -126,13 +142,17 @@ public class ChessPiece {
         int column = myPosition.getColumn();
         for (int[] direction : directions) {
             ChessPosition nextPosition = new ChessPosition(row + direction[0], column + direction[1]);
-            if (!board.checkRange(nextPosition)) {
-                continue;
-            }
-            if (board.getPiece(nextPosition) == null || pieceColor != board.getPieceColor(nextPosition)) {
+            if (checkMove(board, nextPosition)) {
                 validMoves.add(new ChessMove(myPosition, nextPosition, null));
             }
         }
         return validMoves;
+    }
+
+    private boolean checkMove(ChessBoard board, ChessPosition move) {
+        if (!board.checkRange(move)) {
+            return false;
+        }
+        return (board.getPiece(move) == null || pieceColor != board.getPieceColor(move));
     }
 }
