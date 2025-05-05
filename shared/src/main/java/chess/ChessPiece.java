@@ -68,6 +68,9 @@ public class ChessPiece {
         if (type == PieceType.KNIGHT) {
             return knightMoves(board, myPosition);
         }
+        if (type == PieceType.PAWN) {
+            return pawnMoves(board, myPosition);
+        }
         throw new RuntimeException("Unknown piece type");
     }
 
@@ -99,19 +102,29 @@ public class ChessPiece {
         int row = myPosition.getRow();
         int column = myPosition.getColumn();
         int direction = (pieceColor == ChessGame.TeamColor.WHITE) ? 1 : -1;
-        int[] normalMove = new int[]{direction, 0};
-        int[][] attackDirections = new int[][]{{direction,1}, {direction,-1}};
 
-        for (var attackDirection : attackDirections) {
-            var attackCheck = new ChessPosition(row + attackDirection[0], column + attackDirection[1]);
-            if (board.checkRange(attackCheck) &&
-                    board.getPiece(attackCheck) != null &&
-                    pieceColor != board.getPieceColor(attackCheck)) {
-                //normalMove.add(attackDirection);
+        var normalMove = new ChessPosition(row + direction, column);
+        if (board.checkRange(normalMove) && board.getPiece(normalMove) == null) {
+            validMoves.add(new ChessMove(myPosition, normalMove, null));
+
+            if ((pieceColor == ChessGame.TeamColor.WHITE) && row == 2 ||
+               ((pieceColor == ChessGame.TeamColor.BLACK) && row == 7)) {
+                var doubleMove = new ChessPosition(row + (2*direction), column);
+                if (board.checkRange(doubleMove) && board.getPiece(doubleMove) == null) {
+                    validMoves.add(new ChessMove(myPosition, doubleMove, null));
+                }
             }
         }
-        throw new RuntimeException("unfinished");
-        //return shortRangeMove(board, myPosition, normalMove);
+
+        int[][] attackDirections = new int[][]{{direction,1}, {direction,-1}};
+        for (var attackDirection : attackDirections) {
+            var attackCheck = new ChessPosition(row + attackDirection[0], column + attackDirection[1]);
+            if (board.checkRange(attackCheck) && board.getPiece(attackCheck) != null &&
+                    pieceColor != board.getPieceColor(attackCheck)) {
+                validMoves.add(new ChessMove(myPosition, attackCheck, null));
+            }
+        }
+        return validMoves;
     }
 
     private Collection<ChessMove> longRangeMove(ChessBoard board, ChessPosition myPosition, int[][] directions) {
