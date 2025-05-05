@@ -101,21 +101,23 @@ public class ChessPiece {
         Collection<ChessMove> validMoves = new ArrayList<ChessMove>();
         int row = myPosition.getRow();
         int column = myPosition.getColumn();
-        int direction = (pieceColor == ChessGame.TeamColor.WHITE) ? 1 : -1;
+        boolean colorIsWhite = (pieceColor == ChessGame.TeamColor.WHITE);
+        int direction = colorIsWhite ? 1 : -1;
 
+        //checks for the normal/double move
         var normalMove = new ChessPosition(row + direction, column);
         if (board.checkRange(normalMove) && board.getPiece(normalMove) == null) {
             validMoves.add(new ChessMove(myPosition, normalMove, null));
 
-            if ((pieceColor == ChessGame.TeamColor.WHITE) && row == 2 ||
-               ((pieceColor == ChessGame.TeamColor.BLACK) && row == 7)) {
+            if (colorIsWhite && row == 2 || (!colorIsWhite && row == 7)) {
                 var doubleMove = new ChessPosition(row + (2*direction), column);
-                if (board.checkRange(doubleMove) && board.getPiece(doubleMove) == null) {
+                if (board.getPiece(doubleMove) == null) {
                     validMoves.add(new ChessMove(myPosition, doubleMove, null));
                 }
             }
         }
 
+        //checks for attacks
         int[][] attackDirections = new int[][]{{direction,1}, {direction,-1}};
         for (var attackDirection : attackDirections) {
             var attackCheck = new ChessPosition(row + attackDirection[0], column + attackDirection[1]);
@@ -124,6 +126,22 @@ public class ChessPiece {
                 validMoves.add(new ChessMove(myPosition, attackCheck, null));
             }
         }
+
+        //checks for promotion
+        if (!validMoves.isEmpty()) {
+            int firstMoveRow = validMoves.iterator().next().getEndPosition().getRow();
+            if ((colorIsWhite && firstMoveRow == 8) ||
+                    (!colorIsWhite && firstMoveRow == 1)) {
+                for (ChessMove move : new ArrayList<>(validMoves)) {
+                    move.setPromotionPiece(PieceType.KNIGHT);
+                    ChessPosition endPosition = move.getEndPosition();
+                    validMoves.add(new ChessMove(myPosition, endPosition, PieceType.BISHOP));
+                    validMoves.add(new ChessMove(myPosition, endPosition, PieceType.ROOK));
+                    validMoves.add(new ChessMove(myPosition, endPosition, PieceType.QUEEN));
+                }
+            }
+        }
+
         return validMoves;
     }
 
