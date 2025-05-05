@@ -58,7 +58,10 @@ public class ChessPiece {
         if (type == PieceType.ROOK) {
             return rookMoves(board, myPosition);
         }
-        return new ArrayList<>();
+        if (type == PieceType.QUEEN) {
+            return queenMoves(board, myPosition);
+        }
+        throw new RuntimeException("Unknown piece type");
     }
 
     private Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
@@ -67,6 +70,11 @@ public class ChessPiece {
 
     private Collection<ChessMove> rookMoves(ChessBoard board, ChessPosition myPosition) {
         return longRangeMove(board, myPosition, new int[][]{{0,1}, {0,-1}, {-1,0}, {1,0}});
+    }
+
+    private Collection<ChessMove> queenMoves(ChessBoard board, ChessPosition myPosition) {
+        return longRangeMove(board, myPosition,
+                             new int[][]{{0,1}, {0,-1}, {-1,0}, {1,0}, {1,1}, {1,-1}, {-1,1}, {-1,-1}});
     }
 
     private Collection<ChessMove> longRangeMove(ChessBoard board, ChessPosition myPosition, int[][] directions) {
