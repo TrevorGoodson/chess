@@ -59,26 +59,24 @@ public class ChessPiece {
     }
 
     private Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
+        return longRangeMove(board, myPosition, new int[][]{{1,1}, {1,-1}, {-1,1}, {-1,-1}});
+    }
+
+    private Collection<ChessMove> longRangeMove(ChessBoard board, ChessPosition myPosition, int[][] directions) {
         Collection<ChessMove> validMoves = new ArrayList<ChessMove>();
-        int currentRow = myPosition.getRow();
-        int currentCol = myPosition.getColumn();
-        for (int i = 1; i < 8; ++i) {
-            var upRight = new ChessPosition(currentRow + i, currentCol + i);
-            var upLeft = new ChessPosition(currentRow + i, currentCol - i);
-            var downRight = new ChessPosition(currentRow - i, currentCol + i);
-            var downLeft = new ChessPosition(currentRow - i, currentCol - i);
-            if (board.checkRange(upRight) && board.getPiece(upRight) == null) {
-                validMoves.add(new ChessMove(myPosition, upRight, null));
-            }
-            if (board.checkRange(upLeft) && board.getPiece(upLeft) == null) {
-                validMoves.add(new ChessMove(myPosition, upLeft, null));
-            }
-            if (board.checkRange(downRight) && board.getPiece(downRight) == null) {
-                validMoves.add(new ChessMove(myPosition, downRight, null));
-            }
-            if (board.checkRange(downLeft) && board.getPiece(downLeft) == null) {
-                validMoves.add(new ChessMove(myPosition, downLeft, null));
-            }
+        int row = myPosition.getRow();
+        int column = myPosition.getColumn();
+        for (int[] direction : directions) {
+            int numSteps = 0;
+            ChessPosition nextPosition = null;
+            do {
+                ++numSteps;
+                nextPosition = new ChessPosition(row + (numSteps * direction[0]),
+                                                  column + (numSteps * direction[1]));
+                if (board.checkRange(nextPosition) && board.getPiece(nextPosition) == null) {
+                    validMoves.add(new ChessMove(myPosition, nextPosition, null));
+                }
+            } while (board.checkRange(nextPosition));
         }
         return validMoves;
     }
