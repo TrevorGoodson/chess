@@ -59,7 +59,7 @@ public class ChessPiece {
     }
 
     private Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> validMoves = new HashSet<>();
+        Collection<ChessMove> validMoves = new ArrayList<ChessMove>();
         int currentRow = myPosition.getRow();
         int currentCol = myPosition.getColumn();
         for (int i = 1; i < 8; ++i) {
@@ -68,16 +68,16 @@ public class ChessPiece {
             var downRight = new ChessPosition(currentRow - i, currentCol + i);
             var downLeft = new ChessPosition(currentRow - i, currentCol - i);
             if (board.checkRange(upRight) && board.getPiece(upRight) == null) {
-                validMoves.add(new ChessMove(myPosition, upRight, type));
+                validMoves.add(new ChessMove(myPosition, upRight, null));
             }
             if (board.checkRange(upLeft) && board.getPiece(upLeft) == null) {
-                validMoves.add(new ChessMove(myPosition, upLeft, type));
+                validMoves.add(new ChessMove(myPosition, upLeft, null));
             }
             if (board.checkRange(downRight) && board.getPiece(downRight) == null) {
-                validMoves.add(new ChessMove(myPosition, downRight, type));
+                validMoves.add(new ChessMove(myPosition, downRight, null));
             }
             if (board.checkRange(downLeft) && board.getPiece(downLeft) == null) {
-                validMoves.add(new ChessMove(myPosition, downLeft, type));
+                validMoves.add(new ChessMove(myPosition, downLeft, null));
             }
         }
         return validMoves;
