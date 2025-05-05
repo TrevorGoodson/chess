@@ -61,6 +61,12 @@ public class ChessPiece {
         if (type == PieceType.QUEEN) {
             return queenMoves(board, myPosition);
         }
+        if (type == PieceType.KING) {
+            return kingMoves(board, myPosition);
+        }
+        if (type == PieceType.KNIGHT) {
+            return knightMoves(board, myPosition);
+        }
         throw new RuntimeException("Unknown piece type");
     }
 
@@ -75,6 +81,16 @@ public class ChessPiece {
     private Collection<ChessMove> queenMoves(ChessBoard board, ChessPosition myPosition) {
         return longRangeMove(board, myPosition,
                              new int[][]{{0,1}, {0,-1}, {-1,0}, {1,0}, {1,1}, {1,-1}, {-1,1}, {-1,-1}});
+    }
+
+    private Collection<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition) {
+        return shortRangeMove(board, myPosition,
+                              new int[][]{{0,1}, {0,-1}, {-1,0}, {1,0}, {1,1}, {1,-1}, {-1,1}, {-1,-1}});
+    }
+
+    private Collection<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition) {
+        return shortRangeMove(board, myPosition,
+                new int[][]{{2,1}, {1,2}, {-1,2}, {2,-1}, {1,-2}, {-2,1}, {-1,-2}, {-2,-1}});
     }
 
     private Collection<ChessMove> longRangeMove(ChessBoard board, ChessPosition myPosition, int[][] directions) {
@@ -100,6 +116,22 @@ public class ChessPiece {
                 }
                 break;
             } while (board.checkRange(nextPosition));
+        }
+        return validMoves;
+    }
+
+    private Collection<ChessMove> shortRangeMove(ChessBoard board, ChessPosition myPosition, int[][] directions) {
+        Collection<ChessMove> validMoves = new ArrayList<ChessMove>();
+        int row = myPosition.getRow();
+        int column = myPosition.getColumn();
+        for (int[] direction : directions) {
+            ChessPosition nextPosition = new ChessPosition(row + direction[0], column + direction[1]);
+            if (!board.checkRange(nextPosition)) {
+                continue;
+            }
+            if (board.getPiece(nextPosition) == null || pieceColor != board.getPieceColor(nextPosition)) {
+                validMoves.add(new ChessMove(myPosition, nextPosition, null));
+            }
         }
         return validMoves;
     }
