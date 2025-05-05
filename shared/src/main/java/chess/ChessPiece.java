@@ -55,11 +55,18 @@ public class ChessPiece {
         if (type == PieceType.BISHOP) {
             return bishopMoves(board, myPosition);
         }
-        return new ArrayList<>(); //note: just an empty list! (fix later)
+        if (type == PieceType.ROOK) {
+            return rookMoves(board, myPosition);
+        }
+        return new ArrayList<>();
     }
 
     private Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
         return longRangeMove(board, myPosition, new int[][]{{1,1}, {1,-1}, {-1,1}, {-1,-1}});
+    }
+
+    private Collection<ChessMove> rookMoves(ChessBoard board, ChessPosition myPosition) {
+        return longRangeMove(board, myPosition, new int[][]{{0,1}, {0,-1}, {-1,0}, {1,0}});
     }
 
     private Collection<ChessMove> longRangeMove(ChessBoard board, ChessPosition myPosition, int[][] directions) {
