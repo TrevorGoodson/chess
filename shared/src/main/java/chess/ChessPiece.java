@@ -56,4 +56,29 @@ public class ChessPiece {
         var moveCalculator = new ChessMoveCalculator(board, this, myPosition);
         return moveCalculator.calculateMoves();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        var piece = (ChessPiece) obj;
+        return (pieceColor == piece.pieceColor) && (type == piece.type);
+    }
+
+    @Override
+    public String toString() {
+        String pieceString = switch (type) {
+            case KING -> "K";
+            case QUEEN -> "Q";
+            case PAWN -> "P";
+            case ROOK -> "R";
+            case BISHOP -> "B";
+            case KNIGHT -> "N";
+        };
+        if (pieceColor == ChessGame.TeamColor.BLACK) {
+            pieceString = pieceString.toLowerCase();
+        }
+        return pieceString;
+    }
 }

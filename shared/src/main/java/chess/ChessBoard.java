@@ -1,5 +1,7 @@
 package chess;
 
+import java.util.Objects;
+
 /**
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
@@ -83,10 +85,47 @@ public class ChessBoard {
         addPiece(new ChessPosition(1, 3), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP));
         addPiece(new ChessPosition(1, 6), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP));
         addPiece(new ChessPosition(8, 3), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP));
-        addPiece(new ChessPosition(8, 3), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP));
+        addPiece(new ChessPosition(8, 6), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP));
         addPiece(new ChessPosition(1, 4), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN));
         addPiece(new ChessPosition(8, 4), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN));
         addPiece(new ChessPosition(1, 5), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING));
         addPiece(new ChessPosition(8, 5), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING));
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        var otherBoard = (ChessBoard) obj;
+        for (int row = 1; row <= 8; ++row) {
+            for (int col = 1; col <= 8; ++col) {
+                var pos = new ChessPosition(row, col);
+                if (!Objects.equals(getPiece(pos), otherBoard.getPiece(pos))) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        var boardString = new StringBuilder();
+
+        for (int row = 8; row >= 1; --row) {
+            for (int col = 1; col <= 8; ++col) {
+                var piece = getPiece(new ChessPosition(row, col));
+                boardString.append((piece == null) ? " " : piece.toString());
+                if (col != 8) {
+                    boardString.append(" ");
+                }
+            }
+            if (row != 1) {
+                boardString.append("\n");
+            }
+        }
+
+        return boardString.toString();
     }
 }
