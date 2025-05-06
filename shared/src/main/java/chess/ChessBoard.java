@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -10,7 +11,7 @@ import java.util.Objects;
  */
 public class ChessBoard {
 
-    private ChessPiece[][] squares = new ChessPiece[8][8];
+    private ChessPiece[][] board = new ChessPiece[8][8];
     public ChessBoard() {
         
     }
@@ -23,7 +24,7 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         if (checkRange(position)) {
-            squares[position.getRow() - 1][position.getColumn() - 1] = piece;
+            board[position.getRow() - 1][position.getColumn() - 1] = piece;
         }
     }
 
@@ -38,7 +39,7 @@ public class ChessBoard {
         if (!checkRange(position)) {
             return null;
         }
-        return squares[position.getRow() - 1][position.getColumn() - 1];
+        return board[position.getRow() - 1][position.getColumn() - 1];
     }
 
     /**
@@ -107,6 +108,11 @@ public class ChessBoard {
             }
         }
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(board);
     }
 
     @Override
