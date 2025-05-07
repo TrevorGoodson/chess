@@ -12,9 +12,8 @@ import java.util.Objects;
 public class ChessBoard {
 
     private ChessPiece[][] board = new ChessPiece[8][8];
-    public ChessBoard() {
-        
-    }
+
+    public ChessBoard() {}
 
     /**
      * Adds a chess piece to the chessboard
@@ -99,20 +98,12 @@ public class ChessBoard {
             return false;
         }
         var otherBoard = (ChessBoard) obj;
-        for (int row = 1; row <= 8; ++row) {
-            for (int col = 1; col <= 8; ++col) {
-                var pos = new ChessPosition(row, col);
-                if (!Objects.equals(getPiece(pos), otherBoard.getPiece(pos))) {
-                    return false;
-                }
-            }
-        }
-        return true;
+        return Arrays.deepEquals(board, otherBoard.board);
     }
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(board);
+        return Arrays.deepHashCode(board);
     }
 
     @Override

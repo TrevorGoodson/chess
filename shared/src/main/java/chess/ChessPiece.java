@@ -67,6 +67,11 @@ public class ChessPiece {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
+    }
+
+    @Override
     public String toString() {
         String pieceString = switch (type) {
             case KING -> "K";
