@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.*;
+import static chess.ChessPiece.PieceType.*;
 
 public class ChessMoveCalculator {
     private final ChessBoard board;
@@ -28,7 +29,7 @@ public class ChessMoveCalculator {
         if (type == ChessPiece.PieceType.KING) {
             return kingMoves();
         }
-        if (type == ChessPiece.PieceType.KNIGHT) {
+        if (type == KNIGHT) {
             return knightMoves();
         }
         if (type == ChessPiece.PieceType.PAWN) {
@@ -96,11 +97,11 @@ public class ChessMoveCalculator {
             if ((colorIsWhite && firstMoveRow == 8) ||
                     (!colorIsWhite && firstMoveRow == 1)) {
                 for (ChessMove move : new ArrayList<>(validMoves)) {
-                    move.setPromotionPiece(ChessPiece.PieceType.KNIGHT);
+                    move.setPromotionPiece(KNIGHT);
                     ChessPosition endPosition = move.getEndPosition();
-                    validMoves.add(new ChessMove(position, endPosition, ChessPiece.PieceType.BISHOP));
-                    validMoves.add(new ChessMove(position, endPosition, ChessPiece.PieceType.ROOK));
-                    validMoves.add(new ChessMove(position, endPosition, ChessPiece.PieceType.QUEEN));
+                    validMoves.add(new ChessMove(position, endPosition, BISHOP));
+                    validMoves.add(new ChessMove(position, endPosition, ROOK));
+                    validMoves.add(new ChessMove(position, endPosition, QUEEN));
                 }
             }
         }
