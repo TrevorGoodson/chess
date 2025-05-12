@@ -1,7 +1,6 @@
 package chess;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -65,10 +64,6 @@ public class ChessBoard {
         return (row >= 1) && (row <= 8) && (col >= 1) && (col <= 8);
     }
 
-    public boolean checkMove(ChessMove move) {
-        return checkRange(move.getStartPosition()) && checkRange(move.getEndPosition());
-    }
-
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
@@ -94,6 +89,18 @@ public class ChessBoard {
         addPiece(new ChessPosition(8, 4), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN));
         addPiece(new ChessPosition(1, 5), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING));
         addPiece(new ChessPosition(8, 5), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING));
+    }
+
+    public ChessBoard copy() {
+        var newBoard = new ChessBoard();
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                if (board[i][j] != null) {
+                    newBoard.board[i][j] = board[i][j].copy();
+                }
+            }
+        }
+        return newBoard;
     }
 
     @Override

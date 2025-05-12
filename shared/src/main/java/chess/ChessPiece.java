@@ -57,6 +57,10 @@ public class ChessPiece {
         return new ChessMoveCalculator(board, this, myPosition).calculateMoves();
     }
 
+    public ChessPiece copy() {
+        return new ChessPiece(pieceColor, type);
+    }
+
     @Override
     public String toString() {
         String pieceString = switch (type) {
