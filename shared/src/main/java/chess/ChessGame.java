@@ -10,6 +10,7 @@ import static chess.ChessGame.TeamColor.*;
  * signature of the existing methods.
  */
 public class ChessGame {
+    private ChessBoard board;
     private boolean whitesTurn = true;
 
     public ChessGame() {
@@ -98,7 +99,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        throw new RuntimeException("Not implemented");
+        this.board = board;
     }
 
     /**
@@ -107,6 +108,6 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        throw new RuntimeException("Not implemented");
+        return board;
     }
 }
