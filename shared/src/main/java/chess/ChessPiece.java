@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.*;
+import static chess.ChessGame.TeamColor.*;
 
 /**
  * Represents a single chess piece
@@ -53,8 +54,20 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        var moveCalculator = new ChessMoveCalculator(board, this, myPosition);
-        return moveCalculator.calculateMoves();
+        return new ChessMoveCalculator(board, this, myPosition).calculateMoves();
+    }
+
+    @Override
+    public String toString() {
+        String pieceString = switch (type) {
+            case KING -> "K";
+            case QUEEN -> "Q";
+            case PAWN -> "P";
+            case ROOK -> "R";
+            case BISHOP -> "B";
+            case KNIGHT -> "N";
+        };
+        return (pieceColor == WHITE) ? pieceString : pieceString.toLowerCase();
     }
 
     @Override
@@ -69,21 +82,5 @@ public class ChessPiece {
     @Override
     public int hashCode() {
         return Objects.hash(pieceColor, type);
-    }
-
-    @Override
-    public String toString() {
-        String pieceString = switch (type) {
-            case KING -> "K";
-            case QUEEN -> "Q";
-            case PAWN -> "P";
-            case ROOK -> "R";
-            case BISHOP -> "B";
-            case KNIGHT -> "N";
-        };
-        if (pieceColor == ChessGame.TeamColor.BLACK) {
-            pieceString = pieceString.toLowerCase();
-        }
-        return pieceString;
     }
 }

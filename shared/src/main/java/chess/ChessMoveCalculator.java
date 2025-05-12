@@ -55,7 +55,7 @@ public class ChessMoveCalculator {
         int column = startPosition.getColumn();
         int direction = (color == WHITE) ? 1 : -1;
 
-        //checks for the normal/double move
+        //checks forward moves
         var forwardMove = new ChessPosition(row + direction, column);
         if (board.checkRange(forwardMove) && board.getPiece(forwardMove) == null) {
             validMoves.add(new ChessMove(startPosition, forwardMove, null));
@@ -66,7 +66,7 @@ public class ChessMoveCalculator {
             }
         }
 
-        //checks for attacks
+        //checks attacks
         int[][] captureDirections = {{direction,1}, {direction,-1}};
         for (var capture : captureDirections) {
             var capturePosition = new ChessPosition(row + capture[0], column + capture[1]);
@@ -77,7 +77,7 @@ public class ChessMoveCalculator {
             }
         }
 
-        //checks for promotion
+        //checks for promotions
         if (!validMoves.isEmpty() &&
             validMoves.iterator().next().getEndPosition().getRow() == (color == WHITE ? 8 : 1)) {
             for (ChessMove move : new ArrayList<>(validMoves)) {

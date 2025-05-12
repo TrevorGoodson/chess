@@ -93,20 +93,6 @@ public class ChessBoard {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        var otherBoard = (ChessBoard) obj;
-        return Arrays.deepEquals(board, otherBoard.board);
-    }
-
-    @Override
-    public int hashCode() {
-        return Arrays.deepHashCode(board);
-    }
-
-    @Override
     public String toString() {
         var boardString = new StringBuilder();
 
@@ -124,5 +110,19 @@ public class ChessBoard {
         }
 
         return boardString.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        var otherBoard = (ChessBoard) obj;
+        return Arrays.deepEquals(board, otherBoard.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(board);
     }
 }
