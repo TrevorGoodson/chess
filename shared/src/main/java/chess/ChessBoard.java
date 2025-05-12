@@ -11,7 +11,7 @@ import java.util.Objects;
  */
 public class ChessBoard {
 
-    private ChessPiece[][] board = new ChessPiece[8][8];
+    private final ChessPiece[][] board = new ChessPiece[8][8];
 
     public ChessBoard() {}
 
@@ -32,7 +32,7 @@ public class ChessBoard {
      *
      * @param position The position to get the piece from
      * @return Either the piece at the position, or null if no piece is at that
-     * position
+     * position or if the position is out of range
      */
     public ChessPiece getPiece(ChessPosition position) {
         if (!checkRange(position)) {
@@ -63,6 +63,10 @@ public class ChessBoard {
         int row = position.getRow();
         int col = position.getColumn();
         return (row >= 1) && (row <= 8) && (col >= 1) && (col <= 8);
+    }
+
+    public boolean checkMove(ChessMove move) {
+        return checkRange(move.getStartPosition()) && checkRange(move.getEndPosition());
     }
 
     /**
