@@ -17,6 +17,11 @@ public class ChessGame {
 
     }
 
+    public ChessGame(ChessBoard board, boolean whitesTurn) {
+        this.board = board;
+        this.whitesTurn = whitesTurn;
+    }
+
     /**
      * @return Which team's turn it is
      */
@@ -46,14 +51,22 @@ public class ChessGame {
      *
      * @param startPosition the piece to get valid moves for
      * @return Set of valid moves for requested piece, or null if no piece at
-     * startPosition
+     * startPosition or startPosition is out of range
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        ChessPiece piece = board.getPiece(startPosition);
-        if (piece == null) {
+        if (!board.checkRange(startPosition)) {
             return null;
         }
-        Collection<ChessMove> pieceValidMoves = piece.pieceMoves(board, startPosition);
+        ChessPiece piece = board.getPiece(startPosition);
+        if (piece == null || piece.getTeamColor() != getTeamTurn()) {
+            return null;
+        }
+
+        Collection<ChessMove> possibleMoves = piece.pieceMoves(board, startPosition);
+
+        for (var possibleMove : possibleMoves) {
+            ChessGame testGame = this.copy();
+        }
 
 
 
@@ -69,20 +82,12 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
-        if (!board.checkRange(move.getStartPosition()) || !board.checkRange(move.getEndPosition())) {
-            throw new InvalidMoveException();
-        }
-
-        ChessPiece piece = board.getPiece(move.getStartPosition());
-        if (piece == null || piece.getTeamColor() != getTeamTurn()) {
-            throw new InvalidMoveException();
-        }
-
         Collection<ChessMove> moves = validMoves(start);
         if (!moves.contains(move)) {
             throw new InvalidMoveException();
         }
 
+        ChessPiece piece = board.getPiece(start);
         board.addPiece(start, null);
         board.addPiece(end, piece);
     }
