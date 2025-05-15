@@ -2,6 +2,8 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
+
 import static chess.ChessGame.TeamColor.*;
 
 /**
@@ -178,5 +180,17 @@ public class ChessGame {
         return new ChessGame(board.copy(), whitesTurn);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return whitesTurn == chessGame.whitesTurn && Objects.equals(board, chessGame.board);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(board, whitesTurn);
+    }
 }
