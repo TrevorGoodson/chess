@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import static chess.ChessGame.TeamColor.*;
 
@@ -63,14 +64,16 @@ public class ChessGame {
         }
 
         Collection<ChessMove> possibleMoves = piece.pieceMoves(board, startPosition);
-
+        Collection<ChessMove> validMoves = new ArrayList<>();
         for (var possibleMove : possibleMoves) {
-            ChessGame testGame = this.copy();
+            ChessGame testGame = copy();
+            testGame.makeMoveNoChecks(possibleMove);
+            if (!testGame.isInCheck(getTeamTurn())) {
+                validMoves.add(possibleMove);
+            }
         }
 
-
-
-        throw new RuntimeException("Not implemented");
+        return validMoves;
     }
 
     /**
@@ -87,9 +90,16 @@ public class ChessGame {
             throw new InvalidMoveException();
         }
 
+        makeMoveNoChecks(move);
+    }
+
+    private void makeMoveNoChecks(ChessMove move) {
+        ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
         ChessPiece piece = board.getPiece(start);
         board.addPiece(start, null);
         board.addPiece(end, piece);
+        whitesTurn = !whitesTurn;
     }
 
     /**
@@ -139,5 +149,9 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return board;
+    }
+
+    public ChessGame copy() {
+        return new ChessGame(board.copy(), whitesTurn);
     }
 }

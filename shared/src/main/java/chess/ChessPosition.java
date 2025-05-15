@@ -51,4 +51,8 @@ public class ChessPosition {
     public int hashCode() {
         return Objects.hash(row, col);
     }
+
+    public ChessPosition copy() {
+        return new ChessPosition(row, col);
+    }
 }

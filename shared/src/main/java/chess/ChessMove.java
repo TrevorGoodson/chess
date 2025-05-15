@@ -69,4 +69,8 @@ public class ChessMove {
     public int hashCode() {
         return Objects.hash(startPosition, endPosition, promotionPiece);
     }
+
+    public ChessMove copy() {
+        return new ChessMove(startPosition, endPosition, promotionPiece);
+    }
 }
