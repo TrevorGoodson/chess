@@ -143,12 +143,14 @@ public class ChessBoard {
         var boardString = new StringBuilder();
 
         for (int row = 8; row >= 1; --row) {
+            boardString.append("|");
             for (int col = 1; col <= 8; ++col) {
                 var piece = getPiece(new ChessPosition(row, col));
                 boardString.append((piece == null) ? " " : piece.toString());
-                if (col != 8) {
-                    boardString.append(" ");
-                }
+                boardString.append("|");
+//                if (col != 8) {
+//                    boardString.append(" ");
+//                }
             }
             if (row != 1) {
                 boardString.append("\n");

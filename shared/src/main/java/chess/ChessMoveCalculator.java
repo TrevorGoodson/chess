@@ -52,21 +52,31 @@ public class ChessMoveCalculator {
     private ArrayList<ChessMove> castleCheck() {
         var castleOptions = new ArrayList<ChessMove>();
         if (hasMoved) return castleOptions;
+
         int row = startPosition.getRow();
-        ChessPiece rightRook = board.getPiece(new ChessPosition(row,8));
-        if (rightRook != null && !rightRook.getHasMoved()) {
-            if (board.getPiece(new ChessPosition(row,7)) == null
-                    && board.getPiece(new ChessPosition(row,6)) == null) {
-                castleOptions.add(new ChessMove(startPosition, new ChessPosition(row, 7)));
+        int kingStartColumn = 5;
+
+        for (int i = 0; i < 2; ++i) {
+            int rookStepOneColumn = (i==0) ? 7 : 2;
+            int direction = (i==0) ? 1 : -1;
+            var kingStepOne = new ChessPosition(row, kingStartColumn + direction);
+            var rookStepOne = new ChessPosition(row, rookStepOneColumn);
+            var kingEndPosition = new ChessPosition(row,kingStartColumn + (direction * 2));
+
+            //checks if the rook is there & hasn't moved
+            var rook = board.getPiece(new ChessPosition(row, (i==0) ? 8 : 1));
+            if (rook == null || rook.getHasMoved()) {
+                continue;
             }
-        }
-        ChessPiece leftRook = board.getPiece(new ChessPosition(row,1));
-        if (leftRook != null && !leftRook.getHasMoved()) {
-            if (board.getPiece(new ChessPosition(row,2)) == null
-                    && board.getPiece(new ChessPosition(row,3)) == null
-                    && board.getPiece(new ChessPosition(row,4)) == null) {
-                castleOptions.add(new ChessMove(startPosition, new ChessPosition(row, 3)));
+
+            //checks if the spaces are clear between the king and the rook
+            if (board.getPiece(kingStepOne) != null
+                    || board.getPiece(kingEndPosition) != null
+                    || board.getPiece(rookStepOne) != null) {
+                continue;
             }
+
+            castleOptions.add(new ChessMove(startPosition, kingEndPosition));
         }
         return castleOptions;
     }
