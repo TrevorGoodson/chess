@@ -27,13 +27,6 @@ public class ChessGame {
         this.whitesTurn = whitesTurn;
     }
 
-    public void main() {
-        var game = new ChessGame();
-        game.board.addPiece(new ChessPosition(1, 6), null);
-        game.board.addPiece(new ChessPosition(1, 7), null);
-
-    }
-
     /**
      * @return Which team's turn it is
      */
@@ -80,10 +73,22 @@ public class ChessGame {
 
         Collection<ChessMove> possibleMoves = piece.pieceMoves(board, startPosition);
         Collection<ChessMove> validMoves = new ArrayList<>();
+        TeamColor color = board.getPieceColor(startPosition);
         for (var possibleMove : possibleMoves) {
+            if (checkIfCastle(possibleMove)) {
+                if (isInCheck(color)) {
+                    continue;
+                }
+                ChessGame testGame = copy();
+                var castleStepOne = new ChessPosition(startPosition.getRow(), ((possibleMove.getEndPosition().getColumn() == 7) ? 6 : 4));
+                testGame.makeMoveNoSafetyChecks(new ChessMove(startPosition, castleStepOne));
+                if (testGame.isInCheck(color)) {
+                    continue;
+                }
+            }
             ChessGame testGame = copy();
             testGame.makeMoveNoSafetyChecks(possibleMove);
-            if (!testGame.isInCheck(board.getPieceColor(startPosition))) {
+            if (!testGame.isInCheck(color)) {
                 validMoves.add(possibleMove);
             }
         }
@@ -99,7 +104,6 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPosition start = move.getStartPosition();
-        ChessPosition end = move.getEndPosition();
         Collection<ChessMove> moves = validMoves(start);
         if (moves == null || !moves.contains(move) || board.getPiece(start).getTeamColor() != (whitesTurn ? WHITE : BLACK)) {
             throw new InvalidMoveException();
@@ -176,7 +180,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        return isInCheck(teamColor) && !anyValidMoves(teamColor);
+        return isInCheck(teamColor) && checkIfNoValidMoves(teamColor);
     }
 
     /**
@@ -187,10 +191,10 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        return !anyValidMoves(teamColor) && !isInCheck(teamColor);
+        return checkIfNoValidMoves(teamColor) && !isInCheck(teamColor);
     }
 
-    private boolean anyValidMoves(TeamColor teamColor) {
+    private boolean checkIfNoValidMoves(TeamColor teamColor) {
         Collection<Pair<ChessPiece, ChessPosition>> teamPieces = board.allPiecesOnTeam(teamColor);
         //System.out.println(teamPieces);
         for (var pair : teamPieces) {
@@ -199,10 +203,10 @@ public class ChessGame {
             testGame.whitesTurn = (teamColor == WHITE);
             Collection<ChessMove> possibleMoves = testGame.validMoves(position);
             if (!possibleMoves.isEmpty()) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     /**
