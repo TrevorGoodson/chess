@@ -88,7 +88,7 @@ public class ChessGame {
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
         Collection<ChessMove> moves = validMoves(start);
-        if (!moves.contains(move)) {
+        if (moves == null || !moves.contains(move)) {
             throw new InvalidMoveException();
         }
 
@@ -100,7 +100,12 @@ public class ChessGame {
         ChessPosition end = move.getEndPosition();
         ChessPiece piece = board.getPiece(start);
         board.addPiece(start, null);
-        board.addPiece(end, piece);
+        if (move.getPromotionPiece() != null) {
+            board.addPiece(end, new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
+        }
+        else {
+            board.addPiece(end, piece);
+        }
         whitesTurn = !whitesTurn;
     }
 
@@ -116,9 +121,9 @@ public class ChessGame {
         for (var pair : opposingTeamPieces) {
             ChessPiece piece = pair.first();
             ChessPosition position = pair.second();
-            ChessGame testGame = copy();
             Collection<ChessMove> testMoves = piece.pieceMoves(board, position);
             for (var testMove : testMoves) {
+                ChessGame testGame = copy();
                 testGame.makeMoveNoSafetyChecks(testMove);
                 if (testGame.board.isKingGone(teamColor)) {
                     return true;
