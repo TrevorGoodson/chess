@@ -26,7 +26,7 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         if (checkRange(position)) {
-            board[position.getRow() - 1][position.getColumn() - 1] = piece;
+            board[8 - position.getRow()][position.getColumn() - 1] = piece;
         }
     }
 
@@ -41,7 +41,7 @@ public class ChessBoard {
         if (!checkRange(position)) {
             return null;
         }
-        return board[position.getRow() - 1][position.getColumn() - 1];
+        return board[8 - position.getRow()][position.getColumn() - 1];
     }
 
     /**
@@ -76,7 +76,7 @@ public class ChessBoard {
                     continue;
                 }
                 ChessPiece piece = board[row][col];
-                var position = new ChessPosition(row + 1, col + 1);
+                var position = new ChessPosition(8 - row, col + 1);
                 if (piece.getTeamColor() == color) {
                     pieces.add(new Pair<>(piece, position));
                 }

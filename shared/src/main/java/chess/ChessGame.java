@@ -58,19 +58,24 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         if (!board.checkRange(startPosition)) {
+            System.out.println("out of range");
             return null;
         }
         ChessPiece piece = board.getPiece(startPosition);
-        if (piece == null || piece.getTeamColor() != getTeamTurn()) {
+        if (piece == null) {
             return null;
         }
+        //this doesn't return null because the tests tries to make a move on the wrong turn :/
+//        if (piece.getTeamColor() != getTeamTurn()) {
+//            return new ArrayList<>();
+//        }
 
         Collection<ChessMove> possibleMoves = piece.pieceMoves(board, startPosition);
         Collection<ChessMove> validMoves = new ArrayList<>();
         for (var possibleMove : possibleMoves) {
             ChessGame testGame = copy();
             testGame.makeMoveNoSafetyChecks(possibleMove);
-            if (!testGame.isInCheck(getTeamTurn())) {
+            if (!testGame.isInCheck(board.getPieceColor(startPosition))) {
                 validMoves.add(possibleMove);
             }
         }
@@ -88,7 +93,7 @@ public class ChessGame {
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
         Collection<ChessMove> moves = validMoves(start);
-        if (moves == null || !moves.contains(move)) {
+        if (moves == null || !moves.contains(move) || board.getPiece(start).getTeamColor() != (whitesTurn ? WHITE : BLACK)) {
             throw new InvalidMoveException();
         }
 
