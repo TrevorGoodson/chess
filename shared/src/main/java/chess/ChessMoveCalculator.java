@@ -9,12 +9,14 @@ public class ChessMoveCalculator {
     private final ChessPosition startPosition;
     private final ChessPiece.PieceType type;
     private final ChessGame.TeamColor color;
+    private final boolean hasMoved;
 
     public ChessMoveCalculator(ChessBoard board, ChessPiece piece, ChessPosition position) {
         this.board = board;
         this.startPosition = position;
         type = piece.getPieceType();
         color = piece.getTeamColor();
+        hasMoved = piece.getHasMoved();
     }
 
     public Collection<ChessMove> calculateMoves() {
@@ -42,7 +44,31 @@ public class ChessMoveCalculator {
     }
 
     private Collection<ChessMove> kingMoves() {
-        return shortRangeMove(new int[][]{{0,1}, {0,-1}, {-1,0}, {1,0}, {1,1}, {1,-1}, {-1,1}, {-1,-1}});
+        var basicMoves = shortRangeMove(new int[][]{{0,1}, {0,-1}, {-1,0}, {1,0}, {1,1}, {1,-1}, {-1,1}, {-1,-1}});
+        basicMoves.addAll(castleCheck());
+        return basicMoves;
+    }
+
+    private ArrayList<ChessMove> castleCheck() {
+        var castleOptions = new ArrayList<ChessMove>();
+        if (hasMoved) return castleOptions;
+        int row = startPosition.getRow();
+        ChessPiece rightRook = board.getPiece(new ChessPosition(row,8));
+        if (rightRook != null && !rightRook.getHasMoved()) {
+            if (board.getPiece(new ChessPosition(row,7)) == null
+                    && board.getPiece(new ChessPosition(row,6)) == null) {
+                castleOptions.add(new ChessMove(startPosition, new ChessPosition(row, 7)));
+            }
+        }
+        ChessPiece leftRook = board.getPiece(new ChessPosition(row,1));
+        if (leftRook != null && !leftRook.getHasMoved()) {
+            if (board.getPiece(new ChessPosition(row,2)) == null
+                    && board.getPiece(new ChessPosition(row,3)) == null
+                    && board.getPiece(new ChessPosition(row,4)) == null) {
+                castleOptions.add(new ChessMove(startPosition, new ChessPosition(row, 3)));
+            }
+        }
+        return castleOptions;
     }
 
     private Collection<ChessMove> knightMoves() {
@@ -110,8 +136,8 @@ public class ChessMoveCalculator {
         return validMoves;
     }
 
-    private Collection<ChessMove> shortRangeMove(int[][] directions) {
-        Collection<ChessMove> validMoves = new ArrayList<>();
+    private ArrayList<ChessMove> shortRangeMove(int[][] directions) {
+        ArrayList<ChessMove> validMoves = new ArrayList<>();
         int row = startPosition.getRow();
         int column = startPosition.getColumn();
         for (int[] direction : directions) {

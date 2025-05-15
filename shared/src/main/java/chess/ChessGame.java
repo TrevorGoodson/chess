@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.Objects;
 
 import static chess.ChessGame.TeamColor.*;
+import static chess.ChessPiece.PieceType.*;
+import static java.lang.Math.abs;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -23,6 +25,13 @@ public class ChessGame {
     public ChessGame(ChessBoard board, boolean whitesTurn) {
         this.board = board;
         this.whitesTurn = whitesTurn;
+    }
+
+    public void main() {
+        var game = new ChessGame();
+        game.board.addPiece(new ChessPosition(1, 6), null);
+        game.board.addPiece(new ChessPosition(1, 7), null);
+
     }
 
     /**
@@ -58,7 +67,6 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         if (!board.checkRange(startPosition)) {
-            System.out.println("out of range");
             return null;
         }
         ChessPiece piece = board.getPiece(startPosition);
@@ -98,20 +106,43 @@ public class ChessGame {
         }
 
         makeMoveNoSafetyChecks(move);
+        whitesTurn = !whitesTurn;
     }
 
     private void makeMoveNoSafetyChecks(ChessMove move) {
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
+        boolean isCastle = checkIfCastle(move);
         ChessPiece piece = board.getPiece(start);
+        piece.setHasMoved(true);
+
+        if (isCastle) {
+            int castleRow = start.getRow();
+            int rookStartColumn = (end.getColumn() == 7) ? 8 : 1;
+            int rookEndColumn = (end.getColumn() == 7) ? 6 : 4;
+            var rookStart = new ChessPosition(castleRow, rookStartColumn);
+            var rookEnd = new ChessPosition(castleRow, rookEndColumn);
+            makeMoveNoSafetyChecks(new ChessMove(rookStart, rookEnd));
+        }
+
         board.addPiece(start, null);
+        TeamColor color = piece.getTeamColor();
         if (move.getPromotionPiece() != null) {
-            board.addPiece(end, new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
+            board.addPiece(end, new ChessPiece(color, move.getPromotionPiece()));
         }
         else {
             board.addPiece(end, piece);
         }
-        whitesTurn = !whitesTurn;
+    }
+
+    private boolean checkIfCastle(ChessMove move) {
+        ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
+        if (board.getPiece(start).getPieceType() != KING) {
+            return false;
+        }
+        int distance = abs(start.getColumn() - end.getColumn());
+        return (distance == 2);
     }
 
     /**
@@ -167,12 +198,6 @@ public class ChessGame {
             ChessGame testGame = copy();
             testGame.whitesTurn = (teamColor == WHITE);
             Collection<ChessMove> possibleMoves = testGame.validMoves(position);
-            if (possibleMoves == null) {
-                System.out.println(testGame.board.toString());
-                System.out.println(position.toString());
-                System.out.println(board.getPiece(position).toString());
-                throw new RuntimeException("Whoops");
-            }
             if (!possibleMoves.isEmpty()) {
                 return true;
             }

@@ -43,7 +43,6 @@ public class CastlingTests {
                 | | | | | | | | |
                 |R| | | |K| | |R|
                 """, ChessGame.TeamColor.WHITE);
-
         //check that with nothing in way, king can castle
         assertWhiteCanCastle(game1, true, true);
 

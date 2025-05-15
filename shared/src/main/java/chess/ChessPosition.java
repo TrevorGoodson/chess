@@ -35,7 +35,7 @@ public class ChessPosition {
     }
 
     public String toString() {
-        return String.valueOf((char) ('a' + row)) + col;
+        return String.valueOf((char) ('a' + row - 1)) + col;
     }
 
     @Override
