@@ -9,14 +9,16 @@ public class ChessMoveCalculator {
     private final ChessPosition startPosition;
     private final ChessPiece.PieceType type;
     private final ChessGame.TeamColor color;
+    private final ArrayList<ChessMove> gameMoveHistory;
     private final boolean hasMoved;
 
-    public ChessMoveCalculator(ChessBoard board, ChessPiece piece, ChessPosition position) {
+    public ChessMoveCalculator(ChessBoard board, ChessPiece piece, ChessPosition position, ArrayList<ChessMove> gameMoveHistory) {
         this.board = board;
         this.startPosition = position;
         type = piece.getPieceType();
         color = piece.getTeamColor();
         hasMoved = piece.getHasMoved();
+        this.gameMoveHistory = gameMoveHistory;
     }
 
     public Collection<ChessMove> calculateMoves() {
@@ -27,7 +29,6 @@ public class ChessMoveCalculator {
             case ROOK -> rookMoves();
             case PAWN -> pawnMoves();
             case KNIGHT -> knightMoves();
-            default -> throw new RuntimeException("Error: unknown piece type");
         };
     }
 
@@ -125,7 +126,36 @@ public class ChessMoveCalculator {
             }
         }
 
+        ChessMove enPassant = checkForEnPassant(direction);
+        if (enPassant != null) {
+            validMoves.add(enPassant);
+        }
+
         return validMoves;
+    }
+
+    private ChessMove checkForEnPassant(int direction) {
+        int row = startPosition.getRow();
+        int col = startPosition.getColumn();
+        int validEnPassantRow = (color == WHITE) ? 5 : 4;
+        if (row != validEnPassantRow || gameMoveHistory == null || gameMoveHistory.isEmpty()) {
+            return null;
+        }
+
+        for (int captureDirection = -1; captureDirection <= 1; captureDirection += 2) {
+            var capturePosition = new ChessPosition(row, col + captureDirection);
+            var capturePiece = board.getPiece(capturePosition);
+
+            if (capturePiece != null
+                    && capturePiece.getPieceType() == PAWN
+                    && gameMoveHistory.getLast().getEndPosition().equals(capturePosition)) {
+                System.out.println("here!");
+                var endPosition = new ChessPosition(row + direction, col + captureDirection);
+                return new ChessMove(startPosition, endPosition);
+            }
+        }
+
+        return null;
     }
 
     private Collection<ChessMove> longRangeMove(int[][] directions) {

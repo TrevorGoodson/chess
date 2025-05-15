@@ -17,14 +17,16 @@ import static java.lang.Math.abs;
 public class ChessGame {
     private ChessBoard board = new ChessBoard();
     private boolean whitesTurn = true;
+    private final ArrayList<ChessMove> history = new ArrayList<>();
 
     public ChessGame() {
-        board.resetBoard();
+        board.startGame(history);
     }
 
     public ChessGame(ChessBoard board, boolean whitesTurn) {
         this.board = board;
         this.whitesTurn = whitesTurn;
+        board.linkMoveHistory(history);
     }
 
     /**
@@ -41,6 +43,16 @@ public class ChessGame {
      */
     public void setTeamTurn(TeamColor team) {
         whitesTurn = (team == WHITE);
+    }
+
+    /**
+     * Sets this game's chessboard with a given board
+     *
+     * @param board the new board to use
+     */
+    public void setBoard(ChessBoard board) {
+        this.board = board;
+        board.linkMoveHistory(history);
     }
 
     /**
@@ -87,12 +99,12 @@ public class ChessGame {
                 }
             }
             ChessGame testGame = copy();
+            //testGame.board.linkMoveHistory(history);
             testGame.makeMoveNoSafetyChecks(possibleMove);
             if (!testGame.isInCheck(color)) {
                 validMoves.add(possibleMove);
             }
         }
-
         return validMoves;
     }
 
@@ -103,30 +115,37 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        board.checkLinkage();
         ChessPosition start = move.getStartPosition();
         Collection<ChessMove> moves = validMoves(start);
-        if (moves == null || !moves.contains(move) || board.getPiece(start).getTeamColor() != (whitesTurn ? WHITE : BLACK)) {
+
+        if (moves == null
+                || !moves.contains(move)
+                || board.getPiece(start).getTeamColor() != (whitesTurn ? WHITE : BLACK)) {
             throw new InvalidMoveException();
         }
-
         makeMoveNoSafetyChecks(move);
+        history.add(move);
+
         whitesTurn = !whitesTurn;
     }
 
     private void makeMoveNoSafetyChecks(ChessMove move) {
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
-        boolean isCastle = checkIfCastle(move);
         ChessPiece piece = board.getPiece(start);
         piece.setHasMoved(true);
 
-        if (isCastle) {
+        if (checkIfCastle(move)) {
             int castleRow = start.getRow();
             int rookStartColumn = (end.getColumn() == 7) ? 8 : 1;
             int rookEndColumn = (end.getColumn() == 7) ? 6 : 4;
             var rookStart = new ChessPosition(castleRow, rookStartColumn);
             var rookEnd = new ChessPosition(castleRow, rookEndColumn);
             makeMoveNoSafetyChecks(new ChessMove(rookStart, rookEnd));
+        }
+        else if (checkIfEnPassant(move)) {
+            board.addPiece(new ChessPosition(start.getRow(), end.getColumn()), null);
         }
 
         board.addPiece(start, null);
@@ -147,6 +166,15 @@ public class ChessGame {
         }
         int distance = abs(start.getColumn() - end.getColumn());
         return (distance == 2);
+    }
+
+    private boolean checkIfEnPassant(ChessMove move) {
+        ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
+        if (board.getPiece(start).getPieceType() != PAWN) {
+            return false;
+        }
+        return (start.getColumn() != end.getColumn()) && (board.getPiece(end) == null);
     }
 
     /**
@@ -207,15 +235,6 @@ public class ChessGame {
             }
         }
         return true;
-    }
-
-    /**
-     * Sets this game's chessboard with a given board
-     *
-     * @param board the new board to use
-     */
-    public void setBoard(ChessBoard board) {
-        this.board = board;
     }
 
     /**

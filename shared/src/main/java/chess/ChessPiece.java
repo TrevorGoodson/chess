@@ -13,17 +13,26 @@ public class ChessPiece {
 
     private final ChessGame.TeamColor pieceColor;
     private final PieceType type;
+    private final ArrayList<ChessMove> gameMoveHistory;
     private boolean hasMoved = false;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
+        gameMoveHistory = null;
     }
 
     public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type, boolean hasMoved) {
         this.hasMoved = hasMoved;
         this.type = type;
         this.pieceColor = pieceColor;
+        gameMoveHistory = null;
+    }
+
+    public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type, ArrayList<ChessMove> gameMoveHistory) {
+        this.type = type;
+        this.pieceColor = pieceColor;
+        this.gameMoveHistory = gameMoveHistory;
     }
 
     /**
@@ -60,6 +69,10 @@ public class ChessPiece {
         this.hasMoved = hasMoved;
     }
 
+    public ArrayList<ChessMove> getGameMoveHistory() {
+        return gameMoveHistory;
+    }
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -69,7 +82,7 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return new ChessMoveCalculator(board, this, myPosition).calculateMoves();
+        return new ChessMoveCalculator(board, this, myPosition, gameMoveHistory).calculateMoves();
     }
 
     public ChessPiece copy() {
