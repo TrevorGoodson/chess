@@ -1,6 +1,10 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import static chess.ChessGame.TeamColor;
+import static chess.ChessPiece.PieceType.*;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -64,6 +68,37 @@ public class ChessBoard {
         return (row >= 1) && (row <= 8) && (col >= 1) && (col <= 8);
     }
 
+    public Collection<Pair<ChessPiece, ChessPosition>> allPiecesOnTeam(TeamColor color) {
+        Collection<Pair<ChessPiece, ChessPosition>> pieces = new ArrayList<>();
+        for (int row = 0; row < 8; ++row) {
+            for (int col = 0; col < 8; ++col) {
+                if (board[row][col] == null) {
+                    continue;
+                }
+                ChessPiece piece = board[row][col];
+                var position = new ChessPosition(row, col);
+                if (piece.getTeamColor() == color) {
+                    pieces.add(new Pair<>(piece, position));
+                }
+            }
+        }
+        return pieces;
+    }
+
+    public boolean isKingGone(TeamColor color) {
+        for (var row : board) {
+            for (var piece : row) {
+                if (piece == null) {
+                    continue;
+                }
+                if (piece.getPieceType() == KING && piece.getTeamColor() == color) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
@@ -87,8 +122,8 @@ public class ChessBoard {
         addPiece(new ChessPosition(8, 6), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP));
         addPiece(new ChessPosition(1, 4), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN));
         addPiece(new ChessPosition(8, 4), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN));
-        addPiece(new ChessPosition(1, 5), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING));
-        addPiece(new ChessPosition(8, 5), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING));
+        addPiece(new ChessPosition(1, 5), new ChessPiece(ChessGame.TeamColor.WHITE, KING));
+        addPiece(new ChessPosition(8, 5), new ChessPiece(ChessGame.TeamColor.BLACK, KING));
     }
 
     public ChessBoard copy() {

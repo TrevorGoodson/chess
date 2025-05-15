@@ -11,11 +11,11 @@ import static chess.ChessGame.TeamColor.*;
  * signature of the existing methods.
  */
 public class ChessGame {
-    private ChessBoard board;
+    private ChessBoard board = new ChessBoard();
     private boolean whitesTurn = true;
 
     public ChessGame() {
-
+        board.resetBoard();
     }
 
     public ChessGame(ChessBoard board, boolean whitesTurn) {
@@ -67,7 +67,7 @@ public class ChessGame {
         Collection<ChessMove> validMoves = new ArrayList<>();
         for (var possibleMove : possibleMoves) {
             ChessGame testGame = copy();
-            testGame.makeMoveNoChecks(possibleMove);
+            testGame.makeMoveNoSafetyChecks(possibleMove);
             if (!testGame.isInCheck(getTeamTurn())) {
                 validMoves.add(possibleMove);
             }
@@ -90,10 +90,10 @@ public class ChessGame {
             throw new InvalidMoveException();
         }
 
-        makeMoveNoChecks(move);
+        makeMoveNoSafetyChecks(move);
     }
 
-    private void makeMoveNoChecks(ChessMove move) {
+    private void makeMoveNoSafetyChecks(ChessMove move) {
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
         ChessPiece piece = board.getPiece(start);
@@ -109,7 +109,21 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        TeamColor opposingTeamColor = (teamColor == WHITE) ? BLACK : WHITE;
+        Collection<Pair<ChessPiece, ChessPosition>> opposingTeamPieces = board.allPiecesOnTeam(opposingTeamColor);
+        for (var pair : opposingTeamPieces) {
+            ChessPiece piece = pair.first();
+            ChessPosition position = pair.second();
+            ChessGame testGame = copy();
+            Collection<ChessMove> testMoves = piece.pieceMoves(board, position);
+            for (var testMove : testMoves) {
+                testGame.makeMoveNoSafetyChecks(testMove);
+                if (testGame.board.isKingGone(teamColor)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -130,7 +144,16 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        Collection<Pair<ChessPiece, ChessPosition>> teamPieces = board.allPiecesOnTeam(teamColor);
+        for (var pair : teamPieces) {
+            ChessPiece piece = pair.first();
+            ChessPosition position = pair.second();
+            Collection<ChessMove> possibleMoves = validMoves(position);
+            if (!possibleMoves.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -154,4 +177,6 @@ public class ChessGame {
     public ChessGame copy() {
         return new ChessGame(board.copy(), whitesTurn);
     }
+
+
 }
