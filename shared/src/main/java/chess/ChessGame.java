@@ -135,7 +135,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        return isInCheck(teamColor) && isInStalemate(teamColor);
+        return isInCheck(teamColor) && !anyValidMoves(teamColor);
     }
 
     /**
@@ -146,16 +146,28 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
+        return !anyValidMoves(teamColor) && !isInCheck(teamColor);
+    }
+
+    private boolean anyValidMoves(TeamColor teamColor) {
         Collection<Pair<ChessPiece, ChessPosition>> teamPieces = board.allPiecesOnTeam(teamColor);
+        //System.out.println(teamPieces);
         for (var pair : teamPieces) {
-            ChessPiece piece = pair.first();
             ChessPosition position = pair.second();
-            Collection<ChessMove> possibleMoves = validMoves(position);
+            ChessGame testGame = copy();
+            testGame.whitesTurn = (teamColor == WHITE);
+            Collection<ChessMove> possibleMoves = testGame.validMoves(position);
+            if (possibleMoves == null) {
+                System.out.println(testGame.board.toString());
+                System.out.println(position.toString());
+                System.out.println(board.getPiece(position).toString());
+                throw new RuntimeException("Whoops");
+            }
             if (!possibleMoves.isEmpty()) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     /**

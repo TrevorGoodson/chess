@@ -76,7 +76,7 @@ public class ChessBoard {
                     continue;
                 }
                 ChessPiece piece = board[row][col];
-                var position = new ChessPosition(row, col);
+                var position = new ChessPosition(row + 1, col + 1);
                 if (piece.getTeamColor() == color) {
                     pieces.add(new Pair<>(piece, position));
                 }
