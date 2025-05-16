@@ -44,11 +44,11 @@ public class ChessMoveCalculator {
 
     private Collection<ChessMove> kingMoves() {
         var basicMoves = shortRangeMove(new int[][]{{0,1}, {0,-1}, {-1,0}, {1,0}, {1,1}, {1,-1}, {-1,1}, {-1,-1}});
-        basicMoves.addAll(castleCheck());
+        basicMoves.addAll(checkForCastle());
         return basicMoves;
     }
 
-    private ArrayList<ChessMove> castleCheck() {
+    private ArrayList<ChessMove> checkForCastle() {
         var castleOptions = new ArrayList<ChessMove>();
         if (gameMoveHistory == null || has_Moved(startPosition)) {
             return castleOptions;
@@ -70,7 +70,7 @@ public class ChessMoveCalculator {
             //checks if the rook is there & hasn't moved
             var rookPosition = new ChessPosition(row, (i==0) ? 8 : 1);
             var rook = board.getPiece(rookPosition);
-            if (rook == null || has_Moved(rookPosition)) {
+            if (rook == null || has_Moved(rookPosition) || rook.getPieceType() != ROOK) {
                 continue;
             }
 
