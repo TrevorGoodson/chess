@@ -50,7 +50,7 @@ public class ChessMoveCalculator {
 
     private ArrayList<ChessMove> castleCheck() {
         var castleOptions = new ArrayList<ChessMove>();
-        if (has_Moved(startPosition)) return castleOptions;
+        if (gameMoveHistory == null || has_Moved(startPosition)) return castleOptions;
 
         int row = startPosition.getRow();
         int kingStartColumn = 5;
