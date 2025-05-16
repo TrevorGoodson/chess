@@ -10,14 +10,12 @@ public class ChessMoveCalculator {
     private final ChessPiece.PieceType type;
     private final ChessGame.TeamColor color;
     private final ArrayList<ChessMove> gameMoveHistory;
-    private final boolean hasMoved;
 
     public ChessMoveCalculator(ChessBoard board, ChessPiece piece, ChessPosition position, ArrayList<ChessMove> gameMoveHistory) {
         this.board = board;
         this.startPosition = position;
         type = piece.getPieceType();
         color = piece.getTeamColor();
-        hasMoved = piece.getHasMoved();
         this.gameMoveHistory = gameMoveHistory;
     }
 
@@ -52,7 +50,7 @@ public class ChessMoveCalculator {
 
     private ArrayList<ChessMove> castleCheck() {
         var castleOptions = new ArrayList<ChessMove>();
-        if (hasMoved) return castleOptions;
+        if (has_Moved(startPosition)) return castleOptions;
 
         int row = startPosition.getRow();
         int kingStartColumn = 5;
@@ -65,8 +63,9 @@ public class ChessMoveCalculator {
             var kingEndPosition = new ChessPosition(row,kingStartColumn + (direction * 2));
 
             //checks if the rook is there & hasn't moved
-            var rook = board.getPiece(new ChessPosition(row, (i==0) ? 8 : 1));
-            if (rook == null || rook.getHasMoved()) {
+            var rookPosition = new ChessPosition(row, (i==0) ? 8 : 1);
+            var rook = board.getPiece(rookPosition);
+            if (rook == null || has_Moved(rookPosition)) {
                 continue;
             }
 
@@ -80,6 +79,15 @@ public class ChessMoveCalculator {
             castleOptions.add(new ChessMove(startPosition, kingEndPosition));
         }
         return castleOptions;
+    }
+
+    private boolean has_Moved(ChessPosition position) {
+        for (var move : gameMoveHistory) {
+            if (move.getStartPosition().equals(position)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Collection<ChessMove> knightMoves() {
@@ -149,7 +157,6 @@ public class ChessMoveCalculator {
             if (capturePiece != null
                     && capturePiece.getPieceType() == PAWN
                     && gameMoveHistory.getLast().getEndPosition().equals(capturePosition)) {
-                System.out.println("here!");
                 var endPosition = new ChessPosition(row + direction, col + captureDirection);
                 return new ChessMove(startPosition, endPosition);
             }

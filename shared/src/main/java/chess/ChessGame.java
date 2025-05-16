@@ -134,7 +134,6 @@ public class ChessGame {
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
         ChessPiece piece = board.getPiece(start);
-        piece.setHasMoved(true);
 
         if (checkIfCastle(move)) {
             int castleRow = start.getRow();
