@@ -115,7 +115,6 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        board.checkLinkage();
         ChessPosition start = move.getStartPosition();
         Collection<ChessMove> moves = validMoves(start);
 

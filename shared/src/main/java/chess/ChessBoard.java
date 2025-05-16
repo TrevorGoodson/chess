@@ -151,16 +151,6 @@ public class ChessBoard {
         }
     }
 
-    public void checkLinkage() {
-        for (var row : board) {
-            for (var piece : row) {
-                if (piece != null && piece.getGameMoveHistory() == null) {
-                    throw new RuntimeException("Piece not linked");
-                }
-            }
-        }
-    }
-
     public ChessBoard copy() {
         var newBoard = new ChessBoard();
         for (int i = 0; i < 8; ++i) {

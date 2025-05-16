@@ -50,10 +50,15 @@ public class ChessMoveCalculator {
 
     private ArrayList<ChessMove> castleCheck() {
         var castleOptions = new ArrayList<ChessMove>();
-        if (gameMoveHistory == null || has_Moved(startPosition)) return castleOptions;
+        if (gameMoveHistory == null || has_Moved(startPosition)) {
+            return castleOptions;
+        }
 
-        int row = startPosition.getRow();
+        int row = (color == WHITE) ? 1 : 8;
         int kingStartColumn = 5;
+        if (!new ChessPosition(row, kingStartColumn).equals(startPosition)) {
+            return castleOptions;
+        }
 
         for (int i = 0; i < 2; ++i) {
             int rookStepOneColumn = (i==0) ? 7 : 2;
