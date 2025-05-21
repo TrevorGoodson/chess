@@ -1,8 +1,10 @@
 package dataaccess;
 
 import model.GameData;
-import java.util.TreeSet;
+import java.util.ArrayList;
 
 public class GameDataDAO {
-    private TreeSet<GameData> gameData;
+    private final ArrayList<GameData> gameData = new ArrayList<>();
+
+    public GameDataDAO() {}
 }

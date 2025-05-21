@@ -1,10 +1,12 @@
 package dataaccess;
 
 import model.UserData;
-import java.util.TreeSet;
+import java.util.ArrayList;
 
 public class UserDataDAO {
-    private TreeSet<UserData> userData;
+    private final ArrayList<UserData> userData = new ArrayList<>();
+
+    public UserDataDAO() {}
 
 
 }
