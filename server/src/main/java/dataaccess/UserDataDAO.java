@@ -26,7 +26,10 @@ public class UserDataDAO {
      * Adds a new user to the database.
      * @param newUser the user data to be added
      */
-    public void createUser(UserData newUser) {
+    public void createUser(UserData newUser) throws DataAccessException {
+        if (getUser(newUser.username()) != null) {
+            throw new DataAccessException("Username already taken.");
+        }
         userData.add(newUser);
     }
 
