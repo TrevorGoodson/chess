@@ -2,6 +2,8 @@ package dataaccess;
 
 import chess.ChessGame;
 import model.GameData;
+import chess.ChessGame.TeamColor;
+import static chess.ChessGame.TeamColor.*;
 import java.util.ArrayList;
 
 public class GameDataDAO {
@@ -20,15 +22,11 @@ public class GameDataDAO {
     /**
      * Creates a new game and adds it to the database.
      * @param gameName the name of the game
-     * @param username the username of the creator
-     * @param startAsWhite a boolean value indicating whether the user wants to start as white or not
      * @return the game ID of the new chess game
      */
-    public int createGame(String gameName, String username, boolean startAsWhite) {
-        String whiteUsername = (startAsWhite) ? username : null;
-        String blackUsername = (startAsWhite) ? null : username;
+    public int createGame(String gameName) {
         int gameID = generateGameID();
-        gameData.add(new GameData(gameID, whiteUsername, blackUsername, gameName, new ChessGame()));
+        gameData.add(new GameData(gameID, null, null, gameName, new ChessGame()));
         return gameID;
     }
 
@@ -57,31 +55,29 @@ public class GameDataDAO {
     }
 
     /**
-     * Adds a user to a chess game in the database.
-     * @param gameID the game to be joined
-     * @param username the username of the user who is joining the game
-     * @throws DataAccessException if the game isn't found or the game is full
+     * Adds a user to a chess game
+     * @param gameID of the chess game
+     * @param username of the user
+     * @param color that the user wants to play as
+     * @throws DataAccessException if the gameID doesn't match any in the database or there's already a player playing that color
      */
-    public void addUser(int gameID, String username) throws DataAccessException {
-        for (var gameDatum : gameData) {
-            if (gameDatum.gameID() != gameID) {
-                continue;
-            }
-            if (gameDatum.blackUsername() == null) {
-                GameData newGame = gameDatum.changeBlackUsername(username);
-                gameData.remove(gameDatum);
-                gameData.add(newGame);
-                return;
-            }
-            if (gameDatum.whiteUsername() == null) {
-                GameData newGame = gameDatum.changeWhiteUsername(username);
-                gameData.remove(gameDatum);
-                gameData.add(newGame);
-                return;
-            }
+    public void addUser(int gameID, String username, TeamColor color) throws DataAccessException {
+        var game = findGame(gameID);
+        if (game == null) {
+            throw new DataAccessException("Game not found!");
+        }
+        var player = switch (color) {
+            case WHITE -> game.whiteUsername();
+            case BLACK -> game.blackUsername();
+        };
+        if (player != null) {
             throw new DataAccessException("Game already full!");
         }
-        throw new DataAccessException("Game not found!");
+        String whiteUser = (color == WHITE) ? username : game.whiteUsername();
+        String blackUser = (color == BLACK) ? username : game.blackUsername();
+        var newGame = new GameData(gameID, whiteUser, blackUser, game.gameName(), game.game());
+        gameData.remove(game);
+        gameData.add(newGame);
     }
 
     /**
