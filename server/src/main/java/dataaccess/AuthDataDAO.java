@@ -17,10 +17,8 @@ public class AuthDataDAO {
      * @throws DataAccessException if the AuthToken is already registered
      */
     public void addAuthData(AuthData authData) throws DataAccessException {
-        for (var authDatum : this.authData) {
-            if (authData.authToken().equals(authDatum.authToken())) {
-                throw new DataAccessException("AuthToken already in use.");
-            }
+        if (getAuthData(authData.authToken()) != null) {
+            throw new DataAccessException("AuthToken already in use.");
         }
         this.authData.add(authData);
     }
