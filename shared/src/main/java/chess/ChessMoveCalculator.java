@@ -50,7 +50,7 @@ public class ChessMoveCalculator {
 
     private ArrayList<ChessMove> checkForCastle() {
         var castleOptions = new ArrayList<ChessMove>();
-        if (gameMoveHistory == null || has_Moved(startPosition)) {
+        if (gameMoveHistory == null || hasMoved(startPosition)) {
             return castleOptions;
         }
 
@@ -70,7 +70,7 @@ public class ChessMoveCalculator {
             //checks if the rook is there & hasn't moved
             var rookPosition = new ChessPosition(row, (i==0) ? 8 : 1);
             var rook = board.getPiece(rookPosition);
-            if (rook == null || has_Moved(rookPosition) || rook.getPieceType() != ROOK) {
+            if (rook == null || hasMoved(rookPosition) || rook.getPieceType() != ROOK) {
                 continue;
             }
 
@@ -86,7 +86,7 @@ public class ChessMoveCalculator {
         return castleOptions;
     }
 
-    private boolean has_Moved(ChessPosition position) {
+    private boolean hasMoved(ChessPosition position) {
         for (var move : gameMoveHistory) {
             if (move.getStartPosition().equals(position)) {
                 return true;

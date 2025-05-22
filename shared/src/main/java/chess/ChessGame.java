@@ -78,10 +78,6 @@ public class ChessGame {
         if (piece == null) {
             return null;
         }
-        //this doesn't return null because the tests tries to make a move on the wrong turn :/
-//        if (piece.getTeamColor() != getTeamTurn()) {
-//            return new ArrayList<>();
-//        }
 
         Collection<ChessMove> possibleMoves = piece.pieceMoves(board, startPosition);
         Collection<ChessMove> validMoves = new ArrayList<>();

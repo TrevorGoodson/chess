@@ -173,9 +173,6 @@ public class ChessBoard {
                 var piece = getPiece(new ChessPosition(row, col));
                 boardString.append((piece == null) ? " " : piece.toString());
                 boardString.append("|");
-//                if (col != 8) {
-//                    boardString.append(" ");
-//                }
             }
             if (row != 1) {
                 boardString.append("\n");
