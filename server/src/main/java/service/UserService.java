@@ -36,7 +36,7 @@ public class UserService {
         String newAuthToken;
         do {
             newAuthToken = UUID.randomUUID().toString();
-        } while (authDataDAO.getAuthData(newAuthToken) == null);
+        } while (authDataDAO.getAuthData(newAuthToken) != null);
         return newAuthToken;
     }
 
@@ -45,7 +45,7 @@ public class UserService {
         if (user == null) {
             throw new WrongUsernameException();
         }
-        if (user.password().equals(r.password())) {
+        if (!user.password().equals(r.password())) {
             throw new WrongPasswordException();
         }
         return new LoginResult(r.username(), generateToken());
