@@ -4,7 +4,7 @@ import model.UserData;
 import java.util.ArrayList;
 
 public class UserDataDAO {
-    private final ArrayList<UserData> userData = new ArrayList<>();
+    private final static ArrayList<UserData> userData = new ArrayList<>();
 
     public UserDataDAO() {}
 

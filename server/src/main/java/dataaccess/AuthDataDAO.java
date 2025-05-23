@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 
 public class AuthDataDAO {
-    private final ArrayList<AuthData> authData = new ArrayList<AuthData>();
+    private final static ArrayList<AuthData> authData = new ArrayList<AuthData>();
 
     public AuthDataDAO() {}
 
@@ -20,7 +20,7 @@ public class AuthDataDAO {
         if (getAuthData(authData.authToken()) != null) {
             throw new DataAccessException("AuthToken already in use.");
         }
-        this.authData.add(authData);
+        AuthDataDAO.authData.add(authData);
     }
 
     /**
@@ -43,9 +43,9 @@ public class AuthDataDAO {
      * @throws DataAccessException if the AuthToken is not registered
      */
     public void deleteAuthData(AuthData authData) throws DataAccessException {
-        for (var authDatum : this.authData) {
+        for (var authDatum : AuthDataDAO.authData) {
             if (authData.equals(authDatum)) {
-                this.authData.remove(authData);
+                AuthDataDAO.authData.remove(authData);
                 return;
             }
         }

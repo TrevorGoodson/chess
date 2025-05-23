@@ -7,7 +7,7 @@ import static chess.ChessGame.TeamColor.*;
 import java.util.ArrayList;
 
 public class GameDataDAO {
-    private final ArrayList<GameData> gameData = new ArrayList<>();
+    private final static ArrayList<GameData> gameData = new ArrayList<>();
 
     public GameDataDAO() {}
 

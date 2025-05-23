@@ -1,15 +1,8 @@
 package test.java.service;
 
 import org.junit.jupiter.api.Test;
-import requestresult.LoginRequest;
-import requestresult.LogoutRequest;
-import requestresult.RegisterRequest;
-import requestresult.RegisterResult;
-import service.NotLoggedInException;
-import service.UserService;
-import service.UsernameTakenException;
-import service.WrongPasswordException;
-
+import requestresult.*;
+import service.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTests {
