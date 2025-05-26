@@ -1,25 +1,18 @@
 package handler;
 
 import com.google.gson.Gson;
-import requestresult.RegisterResult;
+import requestresult.RegisterRequest;
 import service.UserService;
-import service.UsernameTakenException;
 import spark.*;
 
-public class RegisterHandler implements Route {
+public class RegisterHandler extends Handler {
     @Override
-    public Object handle(Request request, Response response) throws Exception {
-        var registerRequest = new Gson().fromJson(request.body(), requestresult.RegisterRequest.class);
-        RegisterResult registerResult;
-        try {
-            registerResult = new UserService().register(registerRequest);
-        } catch (UsernameTakenException e) {
-            response.status(403);
-            return new Gson().toJson(new ErrorMessage("Error: username is already taken"));
-        } catch (Exception e) {
-            response.status(400);
-            return new Gson().toJson(new ErrorMessage("Unknown error: " + e));
-        }
-        return new Gson().toJson(registerResult);
+    protected Record parseRequest(Request req) {
+        return new Gson().fromJson(req.body(), RegisterRequest.class);
+    }
+
+    @Override
+    protected Record handleRequest(Record request) {
+        return new UserService().register((RegisterRequest) request);
     }
 }

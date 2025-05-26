@@ -1,12 +1,18 @@
 package handler;
 
+import com.google.gson.Gson;
+import requestresult.LoginRequest;
+import service.UserService;
 import spark.Request;
-import spark.Response;
-import spark.Route;
 
-public class LoginHandler implements Route {
+public class LoginHandler extends Handler {
     @Override
-    public Object handle(Request request, Response response) throws Exception {
-        return null;
+    protected Record parseRequest(Request req) {
+        return new Gson().fromJson(req.body(), LoginRequest.class);
+    }
+
+    @Override
+    protected Record handleRequest(Record request) {
+        return new UserService().login((LoginRequest) request);
     }
 }

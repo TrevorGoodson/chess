@@ -10,7 +10,6 @@ public class LogoutHandler extends Handler {
     @Override
     protected Record parseRequest(Request req) {
         return new LogoutRequest(req.headers("Authorization"));
-        //return new Gson().fromJson(req.headers().iterator().next(), LogoutRequest.class);
     }
 
     @Override

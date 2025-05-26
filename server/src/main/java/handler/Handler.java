@@ -20,7 +20,7 @@ public abstract class Handler implements Route {
         catch (UsernameTakenException e) {
             response.status(403);
             return new Gson().toJson(new ErrorMessage("Error: username is already taken"));
-        } catch (NotLoggedInException e) {
+        } catch (NotLoggedInException | WrongPasswordException e) {
             response.status(401);
             return new Gson().toJson(new ErrorMessage("Error: unauthorized"));
         } catch (Exception e) {
