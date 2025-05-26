@@ -5,10 +5,14 @@ import spark.Response;
 import spark.Route;
 import service.ClearService;
 
-public class ClearHandler implements Route {
+public class ClearHandler extends Handler {
     @Override
-    public Object handle(Request request, Response response) throws Exception {
-        new ClearService().clear();
+    protected Record parseRequest(Request req) {
         return null;
+    }
+
+    @Override
+    protected Record handleRequest(Record request) {
+        return new ClearService().clear();
     }
 }
