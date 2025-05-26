@@ -1,7 +1,6 @@
 package handler;
 
 import com.google.gson.Gson;
-import requestresult.RegisterRequest;
 import requestresult.RegisterResult;
 import service.UserService;
 import service.UsernameTakenException;
@@ -15,9 +14,11 @@ public class RegisterHandler implements Route {
         try {
             registerResult = new UserService().register(registerRequest);
         } catch (UsernameTakenException e) {
-            return request;
+            response.status(403);
+            return new Gson().toJson(new ErrorMessage("Username is already taken"));
+        } catch (Exception e) {
+            return new Gson().toJson(new ErrorMessage("Unknown error: " + e));
         }
-
         return new Gson().toJson(registerResult);
     }
 }
