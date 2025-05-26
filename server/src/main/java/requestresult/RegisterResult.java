@@ -2,4 +2,4 @@ package requestresult;
 
 import model.AuthData;
 
-public record RegisterResult(AuthData authData) {}
+public record RegisterResult(String username, String authToken) {}

@@ -29,7 +29,7 @@ public class UserService {
         catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return new RegisterResult(authData);
+        return new RegisterResult(authData.username(), authData.authToken());
     }
 
     private String generateToken() {
