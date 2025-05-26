@@ -1,12 +1,20 @@
 package handler;
 
+import com.google.gson.Gson;
+import requestresult.LogoutRequest;
+import service.UserService;
 import spark.Request;
-import spark.Response;
-import spark.Route;
 
-public class LogoutHandler implements Route {
+
+public class LogoutHandler extends Handler {
     @Override
-    public Object handle(Request request, Response response) throws Exception {
-        return null;
+    protected Record parseRequest(Request req) {
+        return new LogoutRequest(req.headers("Authorization"));
+        //return new Gson().fromJson(req.headers().iterator().next(), LogoutRequest.class);
+    }
+
+    @Override
+    protected Record handleRequest(Record request) {
+        return new UserService().logout((LogoutRequest) request);
     }
 }

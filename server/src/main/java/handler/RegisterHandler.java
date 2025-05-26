@@ -15,8 +15,9 @@ public class RegisterHandler implements Route {
             registerResult = new UserService().register(registerRequest);
         } catch (UsernameTakenException e) {
             response.status(403);
-            return new Gson().toJson(new ErrorMessage("Username is already taken"));
+            return new Gson().toJson(new ErrorMessage("Error: username is already taken"));
         } catch (Exception e) {
+            response.status(400);
             return new Gson().toJson(new ErrorMessage("Unknown error: " + e));
         }
         return new Gson().toJson(registerResult);
