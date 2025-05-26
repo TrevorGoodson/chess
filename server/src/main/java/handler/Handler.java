@@ -10,6 +10,8 @@ public abstract class Handler implements Route {
     protected abstract Record parseRequest(Request req);
     protected abstract Record handleRequest(Record request);
 
+    private record ErrorMessage(String message) {}
+
     @Override
     public Object handle(Request req, Response response) throws Exception {
         var request = parseRequest(req);

@@ -1,12 +1,22 @@
 package handler;
 
+import com.google.gson.Gson;
+import requestresult.CreateGameRequest;
+import service.GameService;
 import spark.Request;
-import spark.Response;
-import spark.Route;
 
-public class CreateGameHandler implements Route {
+
+public class CreateGameHandler extends Handler {
     @Override
-    public Object handle(Request request, Response response) throws Exception {
-        return null;
+    protected Record parseRequest(Request req) {
+        record PartialRequest(String gameName) {}
+        var gameName = new Gson().fromJson(req.body(), PartialRequest.class);
+        String authToken = req.headers("Authorization");
+        return new CreateGameRequest(authToken, gameName.gameName());
+    }
+
+    @Override
+    protected Record handleRequest(Record request) {
+        return new GameService().createGame((CreateGameRequest) request);
     }
 }

@@ -1,8 +1,6 @@
 package handler;
 
 import spark.Request;
-import spark.Response;
-import spark.Route;
 import service.ClearService;
 
 public class ClearHandler extends Handler {
