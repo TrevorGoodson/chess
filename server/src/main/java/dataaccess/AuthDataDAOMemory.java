@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 
 public class AuthDataDAOMemory implements AuthDataDAO {
-    private final static ArrayList<AuthData> authData = new ArrayList<AuthData>();
+    private static ArrayList<AuthData> authData = new ArrayList<AuthData>();
 
     public AuthDataDAOMemory() {}
 

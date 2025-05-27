@@ -28,7 +28,7 @@ public class GameService extends Service {
 
     /**
      * Adds a user to a chess game.
-     * @param joinRequest A record that holds the AuthToken of the user, the team to be joined (chess.ChessGame.TeamColor), and the ID of the desired game.
+     * @param joinRequest A record that holds an AuthToken, the team to be joined (chess.ChessGame.TeamColor), and the ID of the desired game.
      * @return An empty record.
      * @throws NotLoggedInException If the user is not logged in.
      * @throws GameNotFoundException If the game ID is invalid
