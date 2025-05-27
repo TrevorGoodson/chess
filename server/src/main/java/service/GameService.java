@@ -4,6 +4,8 @@ import dataaccess.*;
 import model.GameData;
 import requestresult.*;
 
+import java.util.ArrayList;
+
 public class GameService {
     AuthDataDAO authDataDAO = new AuthDataDAO();
     GameDataDAO gameDataDAO = new GameDataDAO();
@@ -39,6 +41,14 @@ public class GameService {
         if (authDataDAO.getAuthData(l.authToken()) == null) {
             throw new NotLoggedInException();
         }
-        return new ListResult(gameDataDAO.getAllGames());
+        ArrayList<GameData> games = gameDataDAO.getAllGames();
+        var listResult = new ListResult(new ArrayList<>());
+        for (var game : games) {
+            listResult.games().add(new ListSingleGame(game.gameID(),
+                                                      game.gameName(),
+                                                      game.whiteUsername(),
+                                                      game.blackUsername()));
+        }
+        return listResult;
     }
 }
