@@ -1,13 +1,11 @@
 package service;
 
-import dataaccess.AuthDataDAO;
-import dataaccess.GameDataDAO;
-import dataaccess.UserDataDAO;
+import dataaccess.*;
 
 public abstract class Service {
-    protected AuthDataDAO authDataDAO = new AuthDataDAO();
-    protected GameDataDAO gameDataDAO = new GameDataDAO();
-    protected UserDataDAO userDataDAO = new UserDataDAO();
+    protected AuthDataDAO authDataDAO = new AuthDataDAOMemory();
+    protected GameDataDAO gameDataDAO = new GameDataDAOMemory();
+    protected UserDataDAO userDataDAO = new UserDataDAOMemory();
 
     protected static void assertRequestComplete(Record record) throws IncompleteRequestException {
         if (record == null) {

@@ -1,8 +1,5 @@
 package service;
 
-import dataaccess.AuthDataDAO;
-import dataaccess.GameDataDAO;
-import dataaccess.UserDataDAO;
 import requestresult.ClearResult;
 
 public class ClearService extends Service {
