@@ -8,16 +8,16 @@ public interface UserDataDAO {
      * @param username the username of the user.
      * @return the user data or null if none is found.
      */
-    public UserData getUser(String username);
+    UserData getUser(String username);
 
     /**
      * Adds a new user to the database.
      * @param newUser the user data to be added
      */
-    public void createUser(UserData newUser) throws DataAccessException;
+    void createUser(UserData newUser) throws DataAccessException;
 
     /**
      * Clears all users from the database.
      */
-    public void clear();
+    void clear();
 }

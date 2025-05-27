@@ -9,26 +9,42 @@ import java.util.ArrayList;
 public class GameService extends Service {
     public GameService() {}
 
-    public CreateGameResult createGame(CreateGameRequest c) throws NotLoggedInException, IncompleteRequestException {
-        assertRequestComplete(c);
-        var authData = authDataDAO.getAuthData(c.authToken());
+    /**
+     * Creates a chess game. Does not add the creating user as a player.
+     * @param createGameRequest A record that holds the AuthToken of user and the name of the game to be created
+     * @return A record that holds the game ID
+     * @throws NotLoggedInException If the user is not logged in
+     * @throws IncompleteRequestException If any input fields are null
+     */
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws NotLoggedInException, IncompleteRequestException {
+        assertRequestComplete(createGameRequest);
+        var authData = authDataDAO.getAuthData(createGameRequest.authToken());
         if (authData == null) {
             throw new NotLoggedInException();
         }
-        return new CreateGameResult(gameDataDAO.createGame(c.gameName()));
+        int gameID = gameDataDAO.createGame(createGameRequest.gameName());
+        return new CreateGameResult(gameID);
     }
 
-    public JoinGameResult joinGame(JoinGameRequest j) throws NotLoggedInException, GameNotFoundException, IncompleteRequestException {
-        assertRequestComplete(j);
-        var authData = authDataDAO.getAuthData(j.authToken());
+    /**
+     * Adds a user to a chess game.
+     * @param joinRequest A record that holds the AuthToken of the user, the team to be joined (chess.ChessGame.TeamColor), and the ID of the desired game.
+     * @return An empty record.
+     * @throws NotLoggedInException If the user is not logged in.
+     * @throws GameNotFoundException If the game ID is invalid
+     * @throws IncompleteRequestException If any input fields are null.
+     */
+    public JoinGameResult joinGame(JoinGameRequest joinRequest) throws NotLoggedInException, GameNotFoundException, IncompleteRequestException {
+        assertRequestComplete(joinRequest);
+        var authData = authDataDAO.getAuthData(joinRequest.authToken());
         if (authData == null) {
             throw new NotLoggedInException();
         }
-        GameData game = gameDataDAO.findGame(j.gameID());
+        GameData game = gameDataDAO.findGame(joinRequest.gameID());
         if (game == null) {
             throw new GameNotFoundException();
         }
-        String currentUser = switch (j.playerColor()) {
+        String currentUser = switch (joinRequest.playerColor()) {
             case WHITE -> game.whiteUsername();
             case BLACK -> game.blackUsername();
         };
@@ -36,16 +52,23 @@ public class GameService extends Service {
             throw new GameFullException();
         }
         try {
-            gameDataDAO.addUser(j.gameID(), authData.username(), j.playerColor());
+            gameDataDAO.addUser(joinRequest.gameID(), authData.username(), joinRequest.playerColor());
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
         return new JoinGameResult();
     }
 
-    public ListResult listGames(ListRequest l) throws NotLoggedInException, IncompleteRequestException {
-        assertRequestComplete(l);
-        if (authDataDAO.getAuthData(l.authToken()) == null) {
+    /**
+     * Gets the list of games from the database.
+     * @param listRequest A record that holds the user's AuthToken
+     * @return The list of games (ArrayList<> of a record that holds the game ID, the game name, and the username for both players in the game)
+     * @throws NotLoggedInException If the user is not logged in.
+     * @throws IncompleteRequestException If any input fields are null.
+     */
+    public ListResult listGames(ListRequest listRequest) throws NotLoggedInException, IncompleteRequestException {
+        assertRequestComplete(listRequest);
+        if (authDataDAO.getAuthData(listRequest.authToken()) == null) {
             throw new NotLoggedInException();
         }
         ArrayList<GameData> games = gameDataDAO.getAllGames();
