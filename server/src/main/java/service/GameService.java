@@ -13,6 +13,9 @@ public class GameService {
     public GameService() {}
 
     public CreateGameResult createGame(CreateGameRequest c) throws NotLoggedInException {
+        if (c.authToken() == null || c.gameName() == null) {
+            throw new IncompleteRequestException();
+        }
         var authData = authDataDAO.getAuthData(c.authToken());
         if (authData == null) {
             throw new NotLoggedInException();
@@ -20,7 +23,10 @@ public class GameService {
         return new CreateGameResult(gameDataDAO.createGame(c.gameName()));
     }
 
-    public JoinGameResult joinGame(JoinGameRequest j) throws NotLoggedInException, GameNotFoundException{
+    public JoinGameResult joinGame(JoinGameRequest j) throws NotLoggedInException, GameNotFoundException, IncompleteRequestException {
+        if (j.gameID() == null || j.authToken() == null || j.playerColor() == null) {
+            throw new IncompleteRequestException();
+        }
         var authData = authDataDAO.getAuthData(j.authToken());
         if (authData == null) {
             throw new NotLoggedInException();
@@ -28,6 +34,13 @@ public class GameService {
         GameData game = gameDataDAO.findGame(j.gameID());
         if (game == null) {
             throw new GameNotFoundException();
+        }
+        String currentUser = switch (j.playerColor()) {
+            case WHITE -> game.whiteUsername();
+            case BLACK -> game.blackUsername();
+        };
+        if (currentUser != null) {
+            throw new GameFullException();
         }
         try {
             gameDataDAO.addUser(j.gameID(), authData.username(), j.playerColor());

@@ -14,7 +14,7 @@ public abstract class Handler implements Route {
 
     @Override
     public Object handle(Request req, Response response) throws Exception {
-        var request = parseRequest(req);
+        Record request = parseRequest(req);
         Record result;
         try {
             result = handleRequest(request);
@@ -22,11 +22,17 @@ public abstract class Handler implements Route {
         catch (UsernameTakenException e) {
             response.status(403);
             return new Gson().toJson(new ErrorMessage("Error: username is already taken"));
-        } catch (NotLoggedInException | WrongPasswordException e) {
+        } catch (GameFullException e) {
+            response.status(403);
+            return new Gson().toJson(new ErrorMessage("Error: team already assigned"));
+        } catch (NotLoggedInException | WrongPasswordException | WrongUsernameException e) {
             response.status(401);
             return new Gson().toJson(new ErrorMessage("Error: unauthorized"));
-        } catch (Exception e) {
+        } catch (IncompleteRequestException e) {
             response.status(400);
+            return new Gson().toJson(new ErrorMessage("Error: bad request"));
+        } catch (Exception e) {
+            response.status(405);
             return new Gson().toJson(new ErrorMessage("Unknown error: " + e));
         }
         return new Gson().toJson(result);

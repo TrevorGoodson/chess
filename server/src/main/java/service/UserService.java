@@ -13,6 +13,9 @@ public class UserService {
     public UserService() {}
 
     public RegisterResult register(RegisterRequest r) throws UsernameTakenException {
+        if (r.username() == null || r.password() == null) {
+            throw new IncompleteRequestException();
+        }
         if (userDataDAO.getUser(r.username()) != null) {
             throw new UsernameTakenException();
         }
@@ -40,7 +43,10 @@ public class UserService {
         return newAuthToken;
     }
 
-    public LoginResult login(LoginRequest r) throws WrongUsernameException, WrongPasswordException {
+    public LoginResult login(LoginRequest r) throws WrongUsernameException, WrongPasswordException, IncompleteRequestException {
+        if (r.username() == null || r.password() == null) {
+            throw new IncompleteRequestException();
+        }
         var user = userDataDAO.getUser(r.username());
         if (user == null) {
             throw new WrongUsernameException();
