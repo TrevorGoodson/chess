@@ -23,6 +23,12 @@ public class AuthDataDAO {
         AuthDataDAO.authData.add(authData);
     }
 
+    public void printData() {
+        for (var authDatum : authData) {
+            System.out.println("AuthData:" + authDatum);
+        }
+    }
+
     /**
      * Finds an AuthData in the database
      * @param authToken the corresponding AuthToken
@@ -43,9 +49,11 @@ public class AuthDataDAO {
      * @throws DataAccessException if the AuthToken is not registered
      */
     public void deleteAuthData(AuthData authData) throws DataAccessException {
-        for (var authDatum : AuthDataDAO.authData) {
+        var iterator = AuthDataDAO.authData.iterator();
+        while (iterator.hasNext()) {
+            var authDatum = iterator.next();
             if (authData.equals(authDatum)) {
-                AuthDataDAO.authData.remove(authData);
+                iterator.remove();
                 return;
             }
         }

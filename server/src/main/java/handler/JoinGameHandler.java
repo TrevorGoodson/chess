@@ -25,7 +25,7 @@ public class JoinGameHandler extends Handler {
     }
 
     @Override
-    protected Record handleRequest(Record request) {
+    protected Record handleRequest(Record request) throws IncompleteRequestException {
         return new GameService().joinGame((JoinGameRequest) request);
     }
 }

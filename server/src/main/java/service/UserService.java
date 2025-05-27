@@ -12,10 +12,25 @@ public class UserService {
 
     public UserService() {}
 
-    public RegisterResult register(RegisterRequest r) throws UsernameTakenException {
-        if (r.username() == null || r.password() == null) {
+    private static void assertNoFieldsNull(Record record) throws IncompleteRequestException {
+        if (record == null) {
             throw new IncompleteRequestException();
         }
+
+        for (var component : record.getClass().getRecordComponents()) {
+            try {
+                var value = component.getAccessor().invoke(record);
+                if (value == null) {
+                    throw new IncompleteRequestException();
+                }
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException("Reflection failure when checking record fields", e);
+            }
+        }
+    }
+
+    public RegisterResult register(RegisterRequest r) throws UsernameTakenException, IncompleteRequestException {
+        assertNoFieldsNull(r);
         if (userDataDAO.getUser(r.username()) != null) {
             throw new UsernameTakenException();
         }
@@ -44,9 +59,7 @@ public class UserService {
     }
 
     public LoginResult login(LoginRequest r) throws WrongUsernameException, WrongPasswordException, IncompleteRequestException {
-        if (r.username() == null || r.password() == null) {
-            throw new IncompleteRequestException();
-        }
+        assertNoFieldsNull(r);
         var user = userDataDAO.getUser(r.username());
         if (user == null) {
             throw new WrongUsernameException();
@@ -54,10 +67,19 @@ public class UserService {
         if (!user.password().equals(r.password())) {
             throw new WrongPasswordException();
         }
-        return new LoginResult(r.username(), generateToken());
+        String authToken = generateToken();
+        var authData = new AuthData(authToken, r.username());
+        try {
+            authDataDAO.addAuthData(authData);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return new LoginResult(r.username(), authToken);
     }
 
-    public LogoutResult logout(LogoutRequest r) throws NotLoggedInException {
+    public LogoutResult logout(LogoutRequest r) throws NotLoggedInException, IncompleteRequestException {
+        assertNoFieldsNull(r);
         var authData = authDataDAO.getAuthData(r.authToken());
         if (authData == null) {
             throw new NotLoggedInException();

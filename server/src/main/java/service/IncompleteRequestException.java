@@ -1,6 +1,6 @@
 package service;
 
-public class IncompleteRequestException extends RuntimeException {
+public class IncompleteRequestException extends Exception {
   public IncompleteRequestException(String message) {
         super(message);
     }
