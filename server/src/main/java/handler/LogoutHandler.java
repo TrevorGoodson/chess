@@ -2,6 +2,7 @@ package handler;
 
 import com.google.gson.Gson;
 import requestresult.LogoutRequest;
+import service.IncompleteRequestException;
 import service.UserService;
 import spark.Request;
 
@@ -13,7 +14,7 @@ public class LogoutHandler extends Handler {
     }
 
     @Override
-    protected Record handleRequest(Record request) {
+    protected Record handleRequest(Record request) throws IncompleteRequestException {
         return new UserService().logout((LogoutRequest) request);
     }
 }

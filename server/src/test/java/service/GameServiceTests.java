@@ -10,11 +10,15 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GameServiceTests {
     @Test
     public void createGame() {
-        var gameService = new GameService();
-        var userService = new UserService();
-        RegisterResult r = userService.register(new RegisterRequest("Trevor", "123", ""));
-        CreateGameResult g = gameService.createGame(new CreateGameRequest(r.authToken(), "Game 1"));
-        System.out.println(g.gameID());
+        try {
+            var gameService = new GameService();
+            var userService = new UserService();
+            RegisterResult r = userService.register(new RegisterRequest("Trevor", "123", ""));
+            CreateGameResult g = gameService.createGame(new CreateGameRequest(r.authToken(), "Game 1"));
+            System.out.println(g.gameID());
+        } catch (IncompleteRequestException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -25,17 +29,21 @@ public class GameServiceTests {
 
     @Test
     public void listGames() {
-        var gameService = new GameService();
-        var userService = new UserService();
-        var clearService = new ClearService();
-        clearService.clear();
-        RegisterResult r = userService.register(new RegisterRequest("Heather", "123", ""));
-        gameService.createGame(new CreateGameRequest(r.authToken(), "Game 1"));
-        gameService.createGame(new CreateGameRequest(r.authToken(), "Game 2"));
-        gameService.createGame(new CreateGameRequest(r.authToken(), "Game 3"));
-        gameService.createGame(new CreateGameRequest(r.authToken(), "Game 4"));
-        ListResult l = gameService.listGames(new ListRequest(r.authToken()));
-        assertEquals(4, l.games().size());
+        try {
+            var gameService = new GameService();
+            var userService = new UserService();
+            var clearService = new ClearService();
+            clearService.clear();
+            RegisterResult r = userService.register(new RegisterRequest("Heather", "123", ""));
+            gameService.createGame(new CreateGameRequest(r.authToken(), "Game 1"));
+            gameService.createGame(new CreateGameRequest(r.authToken(), "Game 2"));
+            gameService.createGame(new CreateGameRequest(r.authToken(), "Game 3"));
+            gameService.createGame(new CreateGameRequest(r.authToken(), "Game 4"));
+            ListResult l = gameService.listGames(new ListRequest(r.authToken()));
+            assertEquals(4, l.games().size());
+        } catch (IncompleteRequestException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -46,14 +54,18 @@ public class GameServiceTests {
 
     @Test
     public void joinGame() {
-        var userService = new UserService();
-        var gameService = new GameService();
-        RegisterResult r1 = userService.register(new RegisterRequest("Gavin", "123", ""));
-        RegisterResult r2 = userService.register(new RegisterRequest("Ian", "123", ""));
-        CreateGameResult g = gameService.createGame(new CreateGameRequest(r1.authToken(), "Game 1"));
-        gameService.joinGame(new JoinGameRequest(r1.authToken(), WHITE, g.gameID()));
-        gameService.joinGame(new JoinGameRequest(r2.authToken(), BLACK, g.gameID()));
-        ListResult l = gameService.listGames(new ListRequest(r1.authToken()));
-        System.out.println(l.games());
+        try {
+            var userService = new UserService();
+            var gameService = new GameService();
+            RegisterResult r1 = userService.register(new RegisterRequest("Gavin", "123", ""));
+            RegisterResult r2 = userService.register(new RegisterRequest("Ian", "123", ""));
+            CreateGameResult g = gameService.createGame(new CreateGameRequest(r1.authToken(), "Game 1"));
+            gameService.joinGame(new JoinGameRequest(r1.authToken(), WHITE, g.gameID()));
+            gameService.joinGame(new JoinGameRequest(r2.authToken(), BLACK, g.gameID()));
+            ListResult l = gameService.listGames(new ListRequest(r1.authToken()));
+            System.out.println(l.games());
+        } catch (IncompleteRequestException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

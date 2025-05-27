@@ -1,5 +1,6 @@
 package handler;
 
+import service.IncompleteRequestException;
 import spark.Request;
 import service.ClearService;
 

@@ -5,11 +5,7 @@ import dataaccess.GameDataDAO;
 import dataaccess.UserDataDAO;
 import requestresult.ClearResult;
 
-public class ClearService {
-    AuthDataDAO authDataDAO = new AuthDataDAO();
-    GameDataDAO gameDataDAO = new GameDataDAO();
-    UserDataDAO userDataDAO = new UserDataDAO();
-
+public class ClearService extends Service {
     public ClearService() {}
 
     public ClearResult clear() {

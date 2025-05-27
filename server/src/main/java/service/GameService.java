@@ -6,16 +6,11 @@ import requestresult.*;
 
 import java.util.ArrayList;
 
-public class GameService {
-    AuthDataDAO authDataDAO = new AuthDataDAO();
-    GameDataDAO gameDataDAO = new GameDataDAO();
-
+public class GameService extends Service {
     public GameService() {}
 
-    public CreateGameResult createGame(CreateGameRequest c) throws NotLoggedInException {
-        if (c.authToken() == null || c.gameName() == null) {
-            throw new IncompleteRequestException();
-        }
+    public CreateGameResult createGame(CreateGameRequest c) throws NotLoggedInException, IncompleteRequestException {
+        assertRequestComplete(c);
         var authData = authDataDAO.getAuthData(c.authToken());
         if (authData == null) {
             throw new NotLoggedInException();
@@ -24,9 +19,7 @@ public class GameService {
     }
 
     public JoinGameResult joinGame(JoinGameRequest j) throws NotLoggedInException, GameNotFoundException, IncompleteRequestException {
-        if (j.gameID() == null || j.authToken() == null || j.playerColor() == null) {
-            throw new IncompleteRequestException();
-        }
+        assertRequestComplete(j);
         var authData = authDataDAO.getAuthData(j.authToken());
         if (authData == null) {
             throw new NotLoggedInException();
@@ -50,7 +43,8 @@ public class GameService {
         return new JoinGameResult();
     }
 
-    public ListResult listGames(ListRequest l) throws NotLoggedInException {
+    public ListResult listGames(ListRequest l) throws NotLoggedInException, IncompleteRequestException {
+        assertRequestComplete(l);
         if (authDataDAO.getAuthData(l.authToken()) == null) {
             throw new NotLoggedInException();
         }

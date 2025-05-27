@@ -3,6 +3,7 @@ package handler;
 import com.google.gson.Gson;
 import requestresult.CreateGameRequest;
 import service.GameService;
+import service.IncompleteRequestException;
 import spark.Request;
 
 
@@ -16,7 +17,7 @@ public class CreateGameHandler extends Handler {
     }
 
     @Override
-    protected Record handleRequest(Record request) {
+    protected Record handleRequest(Record request) throws IncompleteRequestException {
         return new GameService().createGame((CreateGameRequest) request);
     }
 }

@@ -6,31 +6,11 @@ import requestresult.RegisterRequest;
 import requestresult.*;
 import java.util.UUID;
 
-public class UserService {
-    UserDataDAO userDataDAO = new UserDataDAO();
-    AuthDataDAO authDataDAO = new AuthDataDAO();
-
+public class UserService extends Service {
     public UserService() {}
 
-    private static void assertNoFieldsNull(Record record) throws IncompleteRequestException {
-        if (record == null) {
-            throw new IncompleteRequestException();
-        }
-
-        for (var component : record.getClass().getRecordComponents()) {
-            try {
-                var value = component.getAccessor().invoke(record);
-                if (value == null) {
-                    throw new IncompleteRequestException();
-                }
-            } catch (ReflectiveOperationException e) {
-                throw new RuntimeException("Reflection failure when checking record fields", e);
-            }
-        }
-    }
-
     public RegisterResult register(RegisterRequest r) throws UsernameTakenException, IncompleteRequestException {
-        assertNoFieldsNull(r);
+        assertRequestComplete(r);
         if (userDataDAO.getUser(r.username()) != null) {
             throw new UsernameTakenException();
         }
@@ -39,15 +19,33 @@ public class UserService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        String authToken = logUserIn(r.username());
+        return new RegisterResult(r.username(), authToken);
+    }
+
+    public LoginResult login(LoginRequest r) throws WrongUsernameException, WrongPasswordException, IncompleteRequestException {
+        assertRequestComplete(r);
+        var user = userDataDAO.getUser(r.username());
+        if (user == null) {
+            throw new WrongUsernameException();
+        }
+        if (!user.password().equals(r.password())) {
+            throw new WrongPasswordException();
+        }
+        String authToken = logUserIn(r.username());
+        return new LoginResult(r.username(), authToken);
+    }
+
+    private String logUserIn(String username) {
         String authToken = generateToken();
-        var authData = new AuthData(authToken, r.username());
+        var authData = new AuthData(authToken, username);
         try {
             authDataDAO.addAuthData(authData);
         }
         catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return new RegisterResult(authData.username(), authData.authToken());
+        return authToken;
     }
 
     private String generateToken() {
@@ -58,28 +56,8 @@ public class UserService {
         return newAuthToken;
     }
 
-    public LoginResult login(LoginRequest r) throws WrongUsernameException, WrongPasswordException, IncompleteRequestException {
-        assertNoFieldsNull(r);
-        var user = userDataDAO.getUser(r.username());
-        if (user == null) {
-            throw new WrongUsernameException();
-        }
-        if (!user.password().equals(r.password())) {
-            throw new WrongPasswordException();
-        }
-        String authToken = generateToken();
-        var authData = new AuthData(authToken, r.username());
-        try {
-            authDataDAO.addAuthData(authData);
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return new LoginResult(r.username(), authToken);
-    }
-
     public LogoutResult logout(LogoutRequest r) throws NotLoggedInException, IncompleteRequestException {
-        assertNoFieldsNull(r);
+        assertRequestComplete(r);
         var authData = authDataDAO.getAuthData(r.authToken());
         if (authData == null) {
             throw new NotLoggedInException();

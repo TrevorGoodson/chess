@@ -2,6 +2,7 @@ package handler;
 
 import com.google.gson.Gson;
 import requestresult.LoginRequest;
+import service.IncompleteRequestException;
 import service.UserService;
 import spark.Request;
 
@@ -12,7 +13,7 @@ public class LoginHandler extends Handler {
     }
 
     @Override
-    protected Record handleRequest(Record request) {
+    protected Record handleRequest(Record request) throws IncompleteRequestException {
         return new UserService().login((LoginRequest) request);
     }
 }
