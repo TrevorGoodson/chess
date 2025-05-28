@@ -3,9 +3,9 @@ package service;
 import dataaccess.*;
 
 public abstract class Service {
-    protected AuthDataDAO authDataDAO = new AuthDataDAOMemory();
-    protected GameDataDAO gameDataDAO = new GameDataDAOMemory();
-    protected UserDataDAO userDataDAO = new UserDataDAOMemory();
+    protected static AuthDataDAO authDataDAO = new AuthDataDAOMemory();
+    protected static GameDataDAO gameDataDAO = new GameDataDAOMemory();
+    protected static UserDataDAO userDataDAO = new UserDataDAOMemory();
 
     protected static void assertRequestComplete(Record record) throws IncompleteRequestException {
         if (record == null) {

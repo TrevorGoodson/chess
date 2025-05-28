@@ -7,7 +7,7 @@ import static chess.ChessGame.TeamColor.*;
 import java.util.ArrayList;
 
 public class GameDataDAOMemory implements GameDataDAO{
-    private static ArrayList<GameData> gameData = new ArrayList<>();
+    private final static ArrayList<GameData> gameData = new ArrayList<>();
 
     /**
      * {@inheritDoc}
