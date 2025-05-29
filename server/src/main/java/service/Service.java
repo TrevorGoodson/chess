@@ -4,7 +4,7 @@ import dataaccess.*;
 import model.AuthData;
 
 public abstract class Service {
-    protected static AuthDataDAO authDataDAO = new AuthDataDAOSQL();
+    protected static AuthDataDAO authDataDAO = new AuthDataDAOMemory();
     protected static GameDataDAO gameDataDAO = new GameDataDAOMemory();
     protected static UserDataDAO userDataDAO = new UserDataDAOMemory();
 
