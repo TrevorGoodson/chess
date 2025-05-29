@@ -3,8 +3,7 @@ package dataaccess;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
-
-import java.util.ArrayList;
+import java.util.*;
 
 public class GameDataDAOSQL extends DataAccessSQL implements GameDataDAO{
     @Override
@@ -30,23 +29,17 @@ public class GameDataDAOSQL extends DataAccessSQL implements GameDataDAO{
 
     @Override
     public GameData findGame(int gameID) throws DataAccessException {
-        String sqlStatement = "SELECT whiteUsername, blackUsername, gameName, chessGameJSON FROM GameData WHERE gameID = ?";
-        try (var conn = DatabaseManager.getConnection();
-             var ps = conn.prepareStatement(sqlStatement)) {
-            ps.setInt(1, gameID);
-            try (var rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return new GameData(gameID,
-                                        rs.getString("whiteUsername"),
-                                        rs.getString("blackUsername"),
-                                        rs.getString("gameName"),
-                                        deSerializeGame(rs.getString("chessGameJSON")));
-                }
-            }
-        } catch (Exception e) {
-            throw new DataAccessException("Unable to read data:" + e.getMessage(), e);
+        List<Map<String, Object>> table = executeSelect("GameData", "gameID", gameID);
+        if (table.isEmpty()) {
+            return null;
         }
-        return null;
+        Map<String, Object> gameData = table.getFirst();
+        ChessGame game = deSerializeGame((String) gameData.get("chessGameJSON"));
+        return new GameData(gameID,
+                            (String) gameData.get("whiteUsername"),
+                            (String) gameData.get("blackUsername"),
+                            (String) gameData.get("gameName"),
+                            game);
     }
 
     @Override
