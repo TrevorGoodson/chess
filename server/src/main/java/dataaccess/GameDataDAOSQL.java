@@ -2,7 +2,6 @@ package dataaccess;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import model.AuthData;
 import model.GameData;
 
 import java.util.ArrayList;
@@ -32,7 +31,8 @@ public class GameDataDAOSQL extends DataAccessSQL implements GameDataDAO{
     @Override
     public GameData findGame(int gameID) throws DataAccessException {
         String sqlStatement = "SELECT whiteUsername, blackUsername, gameName, chessGameJSON FROM GameData WHERE gameID = ?";
-        try (var conn = DatabaseManager.getConnection(); var ps = conn.prepareStatement(sqlStatement)) {
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(sqlStatement)) {
             ps.setInt(1, gameID);
             try (var rs = ps.executeQuery()) {
                 if (rs.next()) {
