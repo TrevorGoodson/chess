@@ -20,14 +20,14 @@ public interface GameDataDAO {
      * @param gameName the name of the game
      * @return the game ID of the new chess game
      */
-    int createGame(String gameName);
+    int createGame(String gameName) throws DataAccessException;
 
     /**
      * Finds a chess game in the database.
      * @param gameID the game ID
      * @return the corresponding GameData or null if the game is not found
      */
-    GameData findGame(int gameID);
+    GameData findGame(int gameID) throws DataAccessException;
 
     /**
      * Adds a user to a chess game

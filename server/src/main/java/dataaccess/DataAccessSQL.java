@@ -1,5 +1,7 @@
 package dataaccess;
 
+import model.AuthData;
+
 import java.sql.*;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;

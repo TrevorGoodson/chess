@@ -245,6 +245,17 @@ public class ChessGame {
     }
 
     @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append((whitesTurn) ? "White" : "Black");
+        stringBuilder.append("'s turn.\nHistory: ");
+        stringBuilder.append(history.toString());
+        stringBuilder.append("\n");
+        stringBuilder.append(board.toString());
+        return stringBuilder.toString();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
             return false;

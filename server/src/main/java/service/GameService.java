@@ -20,7 +20,12 @@ public class GameService extends Service {
     public CreateGameResult createGame(CreateGameRequest createGameRequest) throws NotLoggedInException, IncompleteRequestException {
         assertRequestComplete(createGameRequest);
         verifyUser(createGameRequest.authToken());
-        int gameID = gameDataDAO.createGame(createGameRequest.gameName());
+        int gameID;
+        try {
+            gameID = gameDataDAO.createGame(createGameRequest.gameName());
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
         return new CreateGameResult(gameID);
     }
 
@@ -35,7 +40,12 @@ public class GameService extends Service {
     public JoinGameResult joinGame(JoinGameRequest joinRequest) throws NotLoggedInException, GameNotFoundException, IncompleteRequestException {
         assertRequestComplete(joinRequest);
         AuthData authData = verifyUser(joinRequest.authToken());
-        GameData game = gameDataDAO.findGame(joinRequest.gameID());
+        GameData game;
+        try {
+            game = gameDataDAO.findGame(joinRequest.gameID());
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
         if (game == null) {
             throw new GameNotFoundException();
         }
