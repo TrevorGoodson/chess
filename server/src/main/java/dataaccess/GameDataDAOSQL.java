@@ -72,7 +72,8 @@ public class GameDataDAOSQL extends DataAccessSQL implements GameDataDAO {
         if (gameData.get(desiredTeam) != null) {
             throw new DataAccessException("Game already full");
         }
-
+        String sqlStatement = "UPDATE GameData SET " + desiredTeam + " = ? WHERE gameID = ?";
+        executeUpdate(sqlStatement, username, gameID);
     }
 
     @Override

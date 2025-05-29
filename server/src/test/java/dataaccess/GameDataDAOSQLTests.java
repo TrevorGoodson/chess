@@ -121,4 +121,16 @@ public class GameDataDAOSQLTests {
             throw new RuntimeException(e);
         }
     }
+
+    @Test
+    public void reAddUserTest() {
+        try {
+            gameDataDAO.clear();
+            int gameID = gameDataDAO.createGame("sample_game_name");
+            gameDataDAO.addUser(gameID, "username1", WHITE);
+            assertThrows(DataAccessException.class, () -> gameDataDAO.addUser(gameID, "username2", WHITE));
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
