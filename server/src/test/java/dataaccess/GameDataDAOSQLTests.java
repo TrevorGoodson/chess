@@ -38,6 +38,7 @@ public class GameDataDAOSQLTests {
         try {
             gameDataDAO.clear();
             int gameID = gameDataDAO.createGame("sample_game_name");
+            assertNotEquals(0, gameID);
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }

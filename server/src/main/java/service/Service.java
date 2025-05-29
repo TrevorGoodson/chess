@@ -5,8 +5,8 @@ import model.AuthData;
 
 public abstract class Service {
     protected static AuthDataDAO authDataDAO = new AuthDataDAOSQL();
-    protected static GameDataDAO gameDataDAO = new GameDataDAOSQL();
-    protected static UserDataDAO userDataDAO = new UserDataDAOSQL();
+    protected static GameDataDAO gameDataDAO = new GameDataDAOMemory();
+    protected static UserDataDAO userDataDAO = new UserDataDAOMemory();
 
     protected static void assertRequestComplete(Record record) throws IncompleteRequestException {
         if (record == null) {
