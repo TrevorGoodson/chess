@@ -27,5 +27,5 @@ public interface AuthDataDAO {
     /**
      * Clears all AuthData from the database
      */
-    void clear();
+    void clear() throws DataAccessException;
 }

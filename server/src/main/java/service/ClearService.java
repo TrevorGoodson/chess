@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.DataAccessException;
 import requestresult.ClearResult;
 
 public class ClearService extends Service {
@@ -10,9 +11,13 @@ public class ClearService extends Service {
      * @return An empty record to indicate success
      */
     public ClearResult clear() {
-        authDataDAO.clear();
-        gameDataDAO.clear();
-        userDataDAO.clear();
+        try {
+            authDataDAO.clear();
+            gameDataDAO.clear();
+            userDataDAO.clear();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
         return new ClearResult();
     }
 }

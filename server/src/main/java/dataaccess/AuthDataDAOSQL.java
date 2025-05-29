@@ -36,8 +36,9 @@ public class AuthDataDAOSQL extends DataAccessSQL implements AuthDataDAO{
     }
 
     @Override
-    public void clear() {
-
+    public void clear() throws DataAccessException {
+        var statement = "TRUNCATE AuthData";
+        executeUpdate(statement);
     }
 
     @Override
