@@ -1,5 +1,6 @@
 package dataaccess;
 
+import model.UserData;
 import org.junit.jupiter.api.Test;
 
 public class UserDataDAOSQLTests {
@@ -14,8 +15,13 @@ public class UserDataDAOSQLTests {
         }
     }
 
-//    @Test
-//    public void addUserTest() {
-//        userDataDAO.createUser(new );
-//    }
+    @Test
+    public void createUserTest() {
+        try {
+            userDataDAO.clear();
+            userDataDAO.createUser(new UserData("Sydney", "1234", ""));
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

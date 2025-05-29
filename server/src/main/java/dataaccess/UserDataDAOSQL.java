@@ -18,7 +18,9 @@ public class UserDataDAOSQL extends DataAccessSQL implements UserDataDAO {
 
     @Override
     public void createUser(UserData newUser) throws DataAccessException {
-
+        String sqlStatement = "INSERT INTO UserData (username, passwordHash, email) VALUES (?, ?, ?)";
+        //FIXME: actually hash the password
+        executeUpdate(sqlStatement, newUser.username(), newUser.password(), newUser.email());
     }
 
     @Override
