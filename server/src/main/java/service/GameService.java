@@ -19,7 +19,9 @@ public class GameService extends Service {
      * @throws NotLoggedInException If the user is not logged in
      * @throws IncompleteRequestException If any input fields are null
      */
-    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws NotLoggedInException, IncompleteRequestException, DataAccessException {
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws NotLoggedInException,
+                                                                                   IncompleteRequestException,
+                                                                                   DataAccessException {
         assertRequestComplete(createGameRequest);
         verifyUser(createGameRequest.authToken());
         int gameID = gameDataDAO.createGame(createGameRequest.gameName());
@@ -34,7 +36,10 @@ public class GameService extends Service {
      * @throws GameNotFoundException If the game ID is invalid
      * @throws IncompleteRequestException If any input fields are null.
      */
-    public JoinGameResult joinGame(JoinGameRequest joinRequest) throws NotLoggedInException, GameNotFoundException, IncompleteRequestException, DataAccessException {
+    public JoinGameResult joinGame(JoinGameRequest joinRequest) throws NotLoggedInException,
+                                                                       GameNotFoundException,
+                                                                       IncompleteRequestException,
+                                                                       DataAccessException {
         assertRequestComplete(joinRequest);
         AuthData authData = verifyUser(joinRequest.authToken());
 
