@@ -32,4 +32,20 @@ public class AuthDataDAOSQLTests {
         }
     }
 
+    @Test
+    public void deleteTest() {
+        AuthDataDAO authDataDAO = new AuthDataDAOSQL();
+        try {
+            String authToken = "sample_auth_token3";
+            String username = "sample_username3";
+            authDataDAO.addAuthData(new AuthData(authToken, username));
+            AuthData a = authDataDAO.getAuthData(authToken);
+            authDataDAO.deleteAuthData(a);
+            AuthData b = authDataDAO.getAuthData(authToken);
+            assertNull(b);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
