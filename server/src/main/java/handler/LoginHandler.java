@@ -1,6 +1,7 @@
 package handler;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import requestresultrecords.LoginRequest;
 import service.IncompleteRequestException;
 import service.UserService;
@@ -13,7 +14,7 @@ public class LoginHandler extends Handler {
     }
 
     @Override
-    protected Record handleRequest(Record request) throws IncompleteRequestException {
+    protected Record handleRequest(Record request) throws IncompleteRequestException, DataAccessException {
         return new UserService().login((LoginRequest) request);
     }
 }

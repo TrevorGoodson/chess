@@ -9,7 +9,7 @@ import spark.Route;
 
 public abstract class Handler implements Route {
     protected abstract Record parseRequest(Request req);
-    protected abstract Record handleRequest(Record request) throws IncompleteRequestException;
+    protected abstract Record handleRequest(Record request) throws IncompleteRequestException, DataAccessException;
 
     private record ErrorMessage(String message) {}
 

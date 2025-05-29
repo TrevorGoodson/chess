@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.DataAccessException;
 import org.junit.jupiter.api.Test;
 import requestresultrecords.*;
 
@@ -15,7 +16,7 @@ public class GameServiceTests {
             RegisterResult r = userService.register(new RegisterRequest("Trevor", "123", ""));
             CreateGameResult g = gameService.createGame(new CreateGameRequest(r.authToken(), "Game 1"));
             System.out.println(g.gameID());
-        } catch (IncompleteRequestException e) {
+        } catch (IncompleteRequestException | DataAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -40,7 +41,7 @@ public class GameServiceTests {
             gameService.createGame(new CreateGameRequest(r.authToken(), "Game 4"));
             ListResult l = gameService.listGames(new ListRequest(r.authToken()));
             assertEquals(4, l.games().size());
-        } catch (IncompleteRequestException e) {
+        } catch (IncompleteRequestException | DataAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -63,8 +64,13 @@ public class GameServiceTests {
             gameService.joinGame(new JoinGameRequest(r2.authToken(), BLACK, g.gameID()));
             ListResult l = gameService.listGames(new ListRequest(r1.authToken()));
             System.out.println(l.games());
-        } catch (IncompleteRequestException e) {
+        } catch (IncompleteRequestException | DataAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Test
+    public void joinGameNotLoggedIn() {
+
     }
 }

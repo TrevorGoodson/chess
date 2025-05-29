@@ -2,6 +2,7 @@ package handler;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import requestresultrecords.JoinGameRequest;
 import service.GameService;
 import service.IncompleteRequestException;
@@ -25,7 +26,7 @@ public class JoinGameHandler extends Handler {
     }
 
     @Override
-    protected Record handleRequest(Record request) throws IncompleteRequestException {
+    protected Record handleRequest(Record request) throws IncompleteRequestException, DataAccessException {
         return new GameService().joinGame((JoinGameRequest) request);
     }
 }

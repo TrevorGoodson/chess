@@ -1,6 +1,7 @@
 package handler;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import requestresultrecords.RegisterRequest;
 import service.IncompleteRequestException;
 import service.UserService;
@@ -13,7 +14,7 @@ public class RegisterHandler extends Handler {
     }
 
     @Override
-    protected Record handleRequest(Record request) throws IncompleteRequestException {
+    protected Record handleRequest(Record request) throws IncompleteRequestException, DataAccessException {
         return new UserService().register((RegisterRequest) request);
     }
 }

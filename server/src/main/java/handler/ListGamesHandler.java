@@ -1,5 +1,6 @@
 package handler;
 
+import dataaccess.DataAccessException;
 import requestresultrecords.ListRequest;
 import service.GameService;
 import service.IncompleteRequestException;
@@ -13,7 +14,7 @@ public class ListGamesHandler extends Handler {
     }
 
     @Override
-    protected Record handleRequest(Record request) throws IncompleteRequestException {
+    protected Record handleRequest(Record request) throws IncompleteRequestException, DataAccessException {
         return new GameService().listGames((ListRequest) request);
     }
 }

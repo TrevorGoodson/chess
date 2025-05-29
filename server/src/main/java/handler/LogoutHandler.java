@@ -1,5 +1,6 @@
 package handler;
 
+import dataaccess.DataAccessException;
 import requestresultrecords.LogoutRequest;
 import service.IncompleteRequestException;
 import service.UserService;
@@ -13,7 +14,7 @@ public class LogoutHandler extends Handler {
     }
 
     @Override
-    protected Record handleRequest(Record request) throws IncompleteRequestException {
+    protected Record handleRequest(Record request) throws IncompleteRequestException, DataAccessException {
         return new UserService().logout((LogoutRequest) request);
     }
 }

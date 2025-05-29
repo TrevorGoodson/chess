@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.DataAccessException;
 import org.junit.jupiter.api.Test;
 import requestresultrecords.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,7 +13,7 @@ public class UserServiceTests {
             RegisterResult r = new UserService().register(new RegisterRequest("Ian", "FrogLog", "t@gmail.com"));
             assertEquals("Ian", r.username());
             System.out.println("Auth token:" + r.authToken());
-        } catch (IncompleteRequestException e) {
+        } catch (IncompleteRequestException | DataAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -25,7 +26,7 @@ public class UserServiceTests {
             assertThrows(UsernameTakenException.class, () -> {
                 userService.register(new RegisterRequest("Trevor", "abcd", "b@a.com"));
             });
-        } catch (IncompleteRequestException e) {
+        } catch (IncompleteRequestException | DataAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -36,7 +37,7 @@ public class UserServiceTests {
             var userService = new UserService();
             RegisterResult r = userService.register(new RegisterRequest("Miles", "FrogLog", ""));
             userService.logout(new LogoutRequest(r.authToken()));
-        } catch (IncompleteRequestException e) {
+        } catch (IncompleteRequestException | DataAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -51,10 +52,10 @@ public class UserServiceTests {
     public void login() {
         try {
             var userService = new UserService();
-            RegisterResult r = userService.register(new RegisterRequest("Trevor", "FrogLog", ""));
+            RegisterResult r = userService.register(new RegisterRequest("Bartholomew", "FrogLog", ""));
             userService.logout(new LogoutRequest(r.authToken()));
-            userService.login(new LoginRequest("Trevor", "FrogLog"));
-        } catch (IncompleteRequestException e) {
+            userService.login(new LoginRequest("Bartholomew", "FrogLog"));
+        } catch (IncompleteRequestException | DataAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -63,10 +64,10 @@ public class UserServiceTests {
     public void loginWrongPassword() {
         try {
             var userService = new UserService();
-            RegisterResult r = userService.register(new RegisterRequest("Heather", "FrogLog", ""));
+            RegisterResult r = userService.register(new RegisterRequest("Jeanette", "FrogLog", ""));
             userService.logout(new LogoutRequest(r.authToken()));
-            assertThrows(WrongPasswordException.class, () -> userService.login(new LoginRequest("Heather", "Wrong Password!")));
-        } catch (IncompleteRequestException e) {
+            assertThrows(WrongPasswordException.class, () -> userService.login(new LoginRequest("Jeanette", "Wrong Password!")));
+        } catch (IncompleteRequestException | DataAccessException e) {
             throw new RuntimeException(e);
         }
     }

@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.DataAccessException;
 import org.junit.jupiter.api.Test;
 import requestresultrecords.*;
 
@@ -15,7 +16,7 @@ public class ClearServiceTest {
             assertThrows(NotLoggedInException.class, () -> new GameService().listGames(new ListRequest(user.authToken())));
             var user2 = new UserService().register(new RegisterRequest("Connor2", "FrogLog", "t@gmail.com"));
             assertEquals(0, new GameService().listGames(new ListRequest(user2.authToken())).games().size());
-        } catch (IncompleteRequestException e) {
+        } catch (IncompleteRequestException | DataAccessException e) {
             throw new RuntimeException(e);
         }
     }
