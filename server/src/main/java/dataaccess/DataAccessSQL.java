@@ -1,8 +1,10 @@
 package dataaccess;
 
 import model.AuthData;
+import model.GameData;
 
 import java.sql.*;
+import java.util.*;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
@@ -60,5 +62,34 @@ public abstract class DataAccessSQL {
         } catch (SQLException e) {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }
+    }
+
+    protected List<Map<String, Object>> executeSelect(String tableName, String columnName, Object condition) throws DataAccessException {
+        String sqlStatement = "SELECT * FROM " + tableName + " WHERE " + columnName + " = ?";
+        ArrayList<Map<String, Object>> returnTable = new ArrayList<>();
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(sqlStatement)) {
+
+            if (condition == null) {
+                ps.setNull(1, NULL);
+            } else {
+                ps.setObject(1, condition);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                ResultSetMetaData meta = rs.getMetaData();
+                int numColumns = meta.getColumnCount();
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    for (int i = 1; i <= numColumns; ++i) {
+                        row.put(meta.getColumnName(i), rs.getObject(i));
+                    }
+                    returnTable.add(row);
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Unable to read data:" + e.getMessage(), e);
+        }
+        return returnTable;
     }
 }
