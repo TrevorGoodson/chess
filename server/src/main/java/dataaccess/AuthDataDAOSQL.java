@@ -15,7 +15,6 @@ public class AuthDataDAOSQL extends DataAccessSQL implements AuthDataDAO{
 
     @Override
     public AuthData getAuthData(String authToken) throws DataAccessException {
-        String sqlStatement = "SELECT authToken, username FROM AuthData WHERE authToken=?";
         List<Map<String, Object>> table = executeSelect("AuthData", "authToken", authToken);
         if (table.isEmpty()) {
             return null;
