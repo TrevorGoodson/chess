@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import requestresultrecords.JoinGameRequest;
 import service.GameService;
-import service.IncompleteRequestException;
+import service.exceptions.IncompleteRequestException;
 import spark.Request;
 
 import static chess.ChessGame.TeamColor.*;

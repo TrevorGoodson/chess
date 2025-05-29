@@ -3,7 +3,7 @@ package handler;
 import dataaccess.DataAccessException;
 import requestresultrecords.ListRequest;
 import service.GameService;
-import service.IncompleteRequestException;
+import service.exceptions.IncompleteRequestException;
 import spark.Request;
 
 

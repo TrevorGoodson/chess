@@ -1,4 +1,4 @@
-package service;
+package service.exceptions;
 
 public class UsernameTakenException extends RuntimeException {
     public UsernameTakenException(String message) {

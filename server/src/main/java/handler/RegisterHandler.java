@@ -3,7 +3,7 @@ package handler;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import requestresultrecords.RegisterRequest;
-import service.IncompleteRequestException;
+import service.exceptions.IncompleteRequestException;
 import service.UserService;
 import spark.*;
 

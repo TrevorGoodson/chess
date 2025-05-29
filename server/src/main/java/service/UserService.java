@@ -4,6 +4,8 @@ import model.*;
 import dataaccess.*;
 import requestresultrecords.RegisterRequest;
 import requestresultrecords.*;
+import service.exceptions.*;
+
 import java.util.UUID;
 
 public class UserService extends Service {

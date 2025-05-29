@@ -3,6 +3,11 @@ package service;
 import dataaccess.DataAccessException;
 import org.junit.jupiter.api.Test;
 import requestresultrecords.*;
+import service.exceptions.IncompleteRequestException;
+import service.exceptions.NotLoggedInException;
+import service.exceptions.UsernameTakenException;
+import service.exceptions.WrongPasswordException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTests {

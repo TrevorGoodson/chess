@@ -2,6 +2,8 @@ package service;
 
 import dataaccess.*;
 import model.AuthData;
+import service.exceptions.IncompleteRequestException;
+import service.exceptions.NotLoggedInException;
 
 public abstract class Service {
     protected static AuthDataDAO authDataDAO = new AuthDataDAOMemory();

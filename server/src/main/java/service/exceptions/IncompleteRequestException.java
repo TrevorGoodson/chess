@@ -1,4 +1,4 @@
-package service;
+package service.exceptions;
 
 public class IncompleteRequestException extends Exception {
   public IncompleteRequestException(String message) {

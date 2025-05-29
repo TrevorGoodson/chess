@@ -1,11 +1,19 @@
 package dataaccess;
 
 import model.UserData;
+import java.util.*;
 
 public class UserDataDAOSQL extends DataAccessSQL implements UserDataDAO {
     @Override
-    public UserData getUser(String username) {
-        return null;
+    public UserData getUser(String username) throws DataAccessException {
+        List<Map<String, Object>> table = executeSelect("UserData", "username", username);
+        if (table.isEmpty()) {
+            throw new DataAccessException("Username not found");
+        }
+        Map<String, Object> userData = table.getFirst();
+        return new UserData((String) userData.get("username"),
+                            (String) userData.get("password"),
+                            (String) userData.get("email"));
     }
 
     @Override
@@ -14,8 +22,9 @@ public class UserDataDAOSQL extends DataAccessSQL implements UserDataDAO {
     }
 
     @Override
-    public void clear() {
-
+    public void clear() throws DataAccessException {
+        String sqlStatement = "TRUNCATE UserData";
+        executeUpdate(sqlStatement);
     }
 
     @Override

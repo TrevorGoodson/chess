@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import requestresultrecords.CreateGameRequest;
 import service.GameService;
-import service.IncompleteRequestException;
+import service.exceptions.IncompleteRequestException;
 import spark.Request;
 
 

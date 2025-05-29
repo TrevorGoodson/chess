@@ -3,6 +3,9 @@ package service;
 import dataaccess.DataAccessException;
 import org.junit.jupiter.api.Test;
 import requestresultrecords.*;
+import service.exceptions.GameFullException;
+import service.exceptions.IncompleteRequestException;
+import service.exceptions.NotLoggedInException;
 
 import static chess.ChessGame.TeamColor.*;
 import static org.junit.jupiter.api.Assertions.*;

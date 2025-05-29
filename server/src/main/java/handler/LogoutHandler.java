@@ -2,7 +2,7 @@ package handler;
 
 import dataaccess.DataAccessException;
 import requestresultrecords.LogoutRequest;
-import service.IncompleteRequestException;
+import service.exceptions.IncompleteRequestException;
 import service.UserService;
 import spark.Request;
 
