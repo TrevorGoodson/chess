@@ -1,3 +1,3 @@
-package requestresult;
+package requestresultrecords;
 
 public record JoinGameResult() {}

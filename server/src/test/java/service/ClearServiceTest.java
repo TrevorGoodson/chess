@@ -1,8 +1,7 @@
 package service;
 
 import org.junit.jupiter.api.Test;
-import requestresult.*;
-import service.*;
+import requestresultrecords.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 

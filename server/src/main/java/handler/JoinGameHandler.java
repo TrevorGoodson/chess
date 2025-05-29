@@ -2,7 +2,7 @@ package handler;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import requestresult.JoinGameRequest;
+import requestresultrecords.JoinGameRequest;
 import service.GameService;
 import service.IncompleteRequestException;
 import spark.Request;

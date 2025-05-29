@@ -1,7 +1,7 @@
 package service;
 
 import dataaccess.DataAccessException;
-import requestresult.ClearResult;
+import requestresultrecords.ClearResult;
 
 public class ClearService extends Service {
     public ClearService() {}
@@ -10,14 +10,10 @@ public class ClearService extends Service {
      * Deletes all data in database
      * @return An empty record to indicate success
      */
-    public ClearResult clear() {
-        try {
-            authDataDAO.clear();
-            gameDataDAO.clear();
-            userDataDAO.clear();
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
+    public ClearResult clear() throws DataAccessException {
+        authDataDAO.clear();
+        gameDataDAO.clear();
+        userDataDAO.clear();
         return new ClearResult();
     }
 }

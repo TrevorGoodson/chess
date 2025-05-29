@@ -35,19 +35,16 @@ public abstract class DataAccessSQL {
 
     protected abstract String[] getCreateStatements();
 
-    protected int executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection();
-             var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)
+    protected int executeUpdate(String statement, Object... parameters) throws DataAccessException {
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(statement, RETURN_GENERATED_KEYS)
         ) {
-            for (var i = 1; i <= params.length; i++) {
-                var param = params[i - 1];
-                switch (param) {
-                    case String p -> ps.setString(i, p);
-                    case Integer p -> ps.setInt(i, p);
-                    case null -> ps.setNull(i, NULL);
-                    default -> {
-                        throw new DataAccessException("Unsupported data type used in SQL statement.");
-                    }
+            for (int i = 1; i <= parameters.length; i++) {
+                var parameter = parameters[i - 1];
+                if (parameter == null) {
+                    ps.setNull(i, NULL);
+                } else {
+                    ps.setObject(i, parameter);
                 }
             }
 
@@ -67,8 +64,8 @@ public abstract class DataAccessSQL {
     protected List<Map<String, Object>> executeSelect(String tableName, String columnName, Object condition) throws DataAccessException {
         String sqlStatement = "SELECT * FROM " + tableName + " WHERE " + columnName + " = ?";
         ArrayList<Map<String, Object>> returnTable = new ArrayList<>();
-        try (var conn = DatabaseManager.getConnection();
-             var ps = conn.prepareStatement(sqlStatement)) {
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sqlStatement)) {
 
             if (condition == null) {
                 ps.setNull(1, NULL);

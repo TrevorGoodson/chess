@@ -1,6 +1,7 @@
 package handler;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import service.*;
 import spark.Request;
 import spark.Response;
@@ -31,6 +32,9 @@ public abstract class Handler implements Route {
         } catch (IncompleteRequestException e) {
             response.status(400);
             return new Gson().toJson(new ErrorMessage("Error: bad request"));
+        } catch (DataAccessException e) {
+            response.status(500);
+            return new Gson().toJson(new ErrorMessage("Error: something went wrong with the database"));
         } catch (Exception e) {
             response.status(405);
             return new Gson().toJson(new ErrorMessage("Unknown error: " + e));

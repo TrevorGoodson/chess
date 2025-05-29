@@ -1,4 +1,4 @@
-package requestresult;
+package requestresultrecords;
 
 import chess.ChessGame.TeamColor;
 

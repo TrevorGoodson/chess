@@ -1,7 +1,7 @@
 package handler;
 
 import com.google.gson.Gson;
-import requestresult.LoginRequest;
+import requestresultrecords.LoginRequest;
 import service.IncompleteRequestException;
 import service.UserService;
 import spark.Request;

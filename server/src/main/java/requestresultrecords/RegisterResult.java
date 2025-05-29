@@ -1,5 +1,3 @@
-package requestresult;
-
-import model.AuthData;
+package requestresultrecords;
 
 public record RegisterResult(String username, String authToken) {}

@@ -3,10 +3,11 @@ package service;
 import dataaccess.*;
 import model.AuthData;
 import model.GameData;
-import requestresult.*;
+import requestresultrecords.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import static chess.ChessGame.TeamColor.*;
 
 public class GameService extends Service {
     public GameService() {}
@@ -18,15 +19,10 @@ public class GameService extends Service {
      * @throws NotLoggedInException If the user is not logged in
      * @throws IncompleteRequestException If any input fields are null
      */
-    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws NotLoggedInException, IncompleteRequestException {
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws NotLoggedInException, IncompleteRequestException, DataAccessException {
         assertRequestComplete(createGameRequest);
         verifyUser(createGameRequest.authToken());
-        int gameID;
-        try {
-            gameID = gameDataDAO.createGame(createGameRequest.gameName());
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
+        int gameID = gameDataDAO.createGame(createGameRequest.gameName());
         return new CreateGameResult(gameID);
     }
 
@@ -38,30 +34,20 @@ public class GameService extends Service {
      * @throws GameNotFoundException If the game ID is invalid
      * @throws IncompleteRequestException If any input fields are null.
      */
-    public JoinGameResult joinGame(JoinGameRequest joinRequest) throws NotLoggedInException, GameNotFoundException, IncompleteRequestException {
+    public JoinGameResult joinGame(JoinGameRequest joinRequest) throws NotLoggedInException, GameNotFoundException, IncompleteRequestException, DataAccessException {
         assertRequestComplete(joinRequest);
         AuthData authData = verifyUser(joinRequest.authToken());
-        GameData game;
-        try {
-            game = gameDataDAO.findGame(joinRequest.gameID());
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
+
+        GameData game= gameDataDAO.findGame(joinRequest.gameID());
         if (game == null) {
             throw new GameNotFoundException();
         }
-        String currentUser = switch (joinRequest.playerColor()) {
-            case WHITE -> game.whiteUsername();
-            case BLACK -> game.blackUsername();
-        };
+
+        String currentUser = (joinRequest.playerColor() == WHITE) ? game.whiteUsername() : game.blackUsername();
         if (currentUser != null) {
             throw new GameFullException();
         }
-        try {
-            gameDataDAO.addUser(joinRequest.gameID(), authData.username(), joinRequest.playerColor());
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
+        gameDataDAO.addUser(joinRequest.gameID(), authData.username(), joinRequest.playerColor());
         return new JoinGameResult();
     }
 
@@ -72,24 +58,20 @@ public class GameService extends Service {
      * @throws NotLoggedInException If the user is not logged in.
      * @throws IncompleteRequestException If any input fields are null.
      */
-    public ListResult listGames(ListRequest listRequest) throws NotLoggedInException, IncompleteRequestException {
+    public ListResult listGames(ListRequest listRequest) throws NotLoggedInException, IncompleteRequestException, DataAccessException {
         assertRequestComplete(listRequest);
-        List<GameData> games;
-        try {
-            if (authDataDAO.getAuthData(listRequest.authToken()) == null) {
-                throw new NotLoggedInException();
-            }
-            games = gameDataDAO.getAllGames();
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+        if (authDataDAO.getAuthData(listRequest.authToken()) == null) {
+            throw new NotLoggedInException();
         }
-        var listResult = new ListResult(new ArrayList<>());
+
+        List<GameData> games = gameDataDAO.getAllGames();
+        List<ListSingleGame> gameList = new ArrayList<>();
         for (var game : games) {
-            listResult.games().add(new ListSingleGame(game.gameID(),
-                                                      game.gameName(),
-                                                      game.whiteUsername(),
-                                                      game.blackUsername()));
+            gameList.add(new ListSingleGame(game.gameID(),
+                                            game.gameName(),
+                                            game.whiteUsername(),
+                                            game.blackUsername()));
         }
-        return listResult;
+        return new ListResult(gameList);
     }
 }

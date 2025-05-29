@@ -1,6 +1,6 @@
 package handler;
 
-import requestresult.LogoutRequest;
+import requestresultrecords.LogoutRequest;
 import service.IncompleteRequestException;
 import service.UserService;
 import spark.Request;

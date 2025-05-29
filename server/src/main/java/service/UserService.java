@@ -2,8 +2,8 @@ package service;
 
 import model.*;
 import dataaccess.*;
-import requestresult.RegisterRequest;
-import requestresult.*;
+import requestresultrecords.RegisterRequest;
+import requestresultrecords.*;
 import java.util.UUID;
 
 public class UserService extends Service {
@@ -16,21 +16,17 @@ public class UserService extends Service {
      * @throws UsernameTakenException If the username is already in the database.
      * @throws IncompleteRequestException If any input fields are null.
      */
-    public RegisterResult register(RegisterRequest registerRequest) throws UsernameTakenException, IncompleteRequestException {
+    public RegisterResult register(RegisterRequest registerRequest) throws UsernameTakenException, IncompleteRequestException, DataAccessException {
         assertRequestComplete(registerRequest);
         if (userDataDAO.getUser(registerRequest.username()) != null) {
             throw new UsernameTakenException();
         }
-        try {
-            userDataDAO.createUser(new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email()));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        userDataDAO.createUser(new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email()));
         String authToken = logUserIn(registerRequest.username());
         return new RegisterResult(registerRequest.username(), authToken);
     }
 
-    public LoginResult login(LoginRequest r) throws WrongUsernameException, WrongPasswordException, IncompleteRequestException {
+    public LoginResult login(LoginRequest r) throws WrongUsernameException, WrongPasswordException, IncompleteRequestException, DataAccessException {
         assertRequestComplete(r);
         var user = userDataDAO.getUser(r.username());
         if (user == null) {
@@ -43,38 +39,25 @@ public class UserService extends Service {
         return new LoginResult(r.username(), authToken);
     }
 
-    private String logUserIn(String username) {
+    private String logUserIn(String username) throws DataAccessException {
         String authToken = generateToken();
         var authData = new AuthData(authToken, username);
-        try {
-            authDataDAO.addAuthData(authData);
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        authDataDAO.addAuthData(authData);
         return authToken;
     }
 
-    private String generateToken() {
-        try {
-            String newAuthToken;
-            do {
-                newAuthToken = UUID.randomUUID().toString();
-            } while (authDataDAO.getAuthData(newAuthToken) != null);
-            return newAuthToken;
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
+    private String generateToken() throws DataAccessException {
+        String newAuthToken;
+        do {
+            newAuthToken = UUID.randomUUID().toString();
+        } while (authDataDAO.getAuthData(newAuthToken) != null);
+        return newAuthToken;
     }
 
-    public LogoutResult logout(LogoutRequest r) throws NotLoggedInException, IncompleteRequestException {
+    public LogoutResult logout(LogoutRequest r) throws NotLoggedInException, IncompleteRequestException, DataAccessException {
         assertRequestComplete(r);
         AuthData authData = verifyUser(r.authToken());
-        try {
-            authDataDAO.deleteAuthData(authData);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
+        authDataDAO.deleteAuthData(authData);
         return new LogoutResult();
     }
 }

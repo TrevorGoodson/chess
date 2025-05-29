@@ -1,6 +1,6 @@
 package handler;
 
-import requestresult.ListRequest;
+import requestresultrecords.ListRequest;
 import service.GameService;
 import service.IncompleteRequestException;
 import spark.Request;

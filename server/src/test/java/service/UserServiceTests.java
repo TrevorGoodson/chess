@@ -1,7 +1,7 @@
 package service;
 
 import org.junit.jupiter.api.Test;
-import requestresult.*;
+import requestresultrecords.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTests {

@@ -17,6 +17,7 @@ public class AuthDataDAOSQLTests {
             throw new RuntimeException(e);
         }
     }
+
     @Test
     public void insertTest() {
         try {
