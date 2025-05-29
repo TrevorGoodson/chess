@@ -12,7 +12,7 @@ public class UserDataDAOSQL extends DataAccessSQL implements UserDataDAO {
         }
         Map<String, Object> userData = table.getFirst();
         return new UserData((String) userData.get("username"),
-                            (String) userData.get("password"),
+                            (String) userData.get("passwordHash"),
                             (String) userData.get("email"));
     }
 
