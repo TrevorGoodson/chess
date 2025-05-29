@@ -2,8 +2,6 @@ package dataaccess;
 
 import model.AuthData;
 
-import javax.xml.crypto.Data;
-
 public class AuthDataDAOSQL extends DataAccessSQL implements AuthDataDAO{
     @Override
     public void addAuthData(AuthData authData) throws DataAccessException {

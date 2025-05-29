@@ -27,19 +27,20 @@ public class GameDataDAOSQL extends DataAccessSQL implements GameDataDAO{
     }
 
     @Override
-    public void clear() {
-
+    public void clear() throws DataAccessException {
+        String sqlStatement = "TRUNCATE GameData";
+        executeUpdate(sqlStatement);
     }
 
     @Override
     protected String[] getCreateStatements() {
         return new String[] {
-                """
+            """
             CREATE TABLE IF NOT EXISTS  GameData (
               `gameID` int NOT NULL AUTO_INCREMENT,
               `whiteUsername` varchar(256),
-              `whiteUsername` varchar(256),
-              `whiteUsername` varchar(256) NOT NULL,
+              `blackUsername` varchar(256),
+              `gameName` varchar(256) NOT NULL,
               `gameJSON` varchar(1024) NOT NULL,
               PRIMARY KEY (`gameID`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
