@@ -56,4 +56,27 @@ public class GameDataDAOSQLTests {
             throw new RuntimeException(e);
         }
     }
+
+    @Test
+    public void selectAllGamesTest() {
+        try {
+            gameDataDAO.clear();
+            for (int i = 0; i < 5; ++i) {
+                gameDataDAO.createGame("sample_game_name_" + i);
+            }
+            assertEquals(5, gameDataDAO.getAllGames().size());
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void selectALlGamesEmpty() {
+        try {
+            gameDataDAO.clear();
+            assertEquals(0, gameDataDAO.getAllGames().size());
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

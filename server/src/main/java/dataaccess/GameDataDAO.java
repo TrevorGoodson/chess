@@ -2,8 +2,7 @@ package dataaccess;
 
 import chess.ChessGame;
 import model.GameData;
-
-import java.util.ArrayList;
+import java.util.List;
 
 import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
@@ -13,7 +12,7 @@ public interface GameDataDAO {
      * Retrieves all chess games from database.
      * @return All chess games as ArrayList<GameData>
      */
-    ArrayList<GameData> getAllGames();
+    List<GameData> getAllGames() throws DataAccessException;
 
     /**
      * Creates a new game and adds it to the database.

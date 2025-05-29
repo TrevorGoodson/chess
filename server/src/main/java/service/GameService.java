@@ -6,6 +6,7 @@ import model.GameData;
 import requestresult.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class GameService extends Service {
     public GameService() {}
@@ -73,14 +74,15 @@ public class GameService extends Service {
      */
     public ListResult listGames(ListRequest listRequest) throws NotLoggedInException, IncompleteRequestException {
         assertRequestComplete(listRequest);
+        List<GameData> games;
         try {
             if (authDataDAO.getAuthData(listRequest.authToken()) == null) {
                 throw new NotLoggedInException();
             }
+            games = gameDataDAO.getAllGames();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
-        ArrayList<GameData> games = gameDataDAO.getAllGames();
         var listResult = new ListResult(new ArrayList<>());
         for (var game : games) {
             listResult.games().add(new ListSingleGame(game.gameID(),

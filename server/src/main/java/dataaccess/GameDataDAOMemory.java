@@ -4,7 +4,7 @@ import chess.ChessGame;
 import model.GameData;
 import chess.ChessGame.TeamColor;
 import static chess.ChessGame.TeamColor.*;
-import java.util.ArrayList;
+import java.util.*;
 
 public class GameDataDAOMemory implements GameDataDAO{
     private static ArrayList<GameData> gameData = new ArrayList<>();
@@ -13,7 +13,7 @@ public class GameDataDAOMemory implements GameDataDAO{
      * {@inheritDoc}
      */
     @Override
-    public ArrayList<GameData> getAllGames() {
+    public List<GameData> getAllGames() {
         return gameData;
     }
 

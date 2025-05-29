@@ -3,19 +3,37 @@ package dataaccess;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
+
+import java.sql.*;
 import java.util.*;
 
-public class GameDataDAOSQL extends DataAccessSQL implements GameDataDAO{
+public class GameDataDAOSQL extends DataAccessSQL implements GameDataDAO {
     @Override
-    public ArrayList<GameData> getAllGames() {
-        return null;
+    public List<GameData> getAllGames() throws DataAccessException {
+        List<GameData> gameList = new ArrayList<>();
+        String sqlStatement = "SELECT * FROM GameData";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sqlStatement);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                ChessGame game = deSerializeGame(rs.getString("chessGameJSON"));
+                gameList.add(new GameData(rs.getInt("gameID"),
+                             rs.getString("whiteUsername"),
+                             rs.getString("blackUsername"),
+                             rs.getString("gameName"),
+                             game));
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to read data:" + e.getMessage(), e);
+        }
+        return gameList;
     }
 
     @Override
     public int createGame(String gameName) throws DataAccessException {
         ChessGame chessGame = new ChessGame();
         String sqlStatement = "INSERT INTO GameData (whiteUsername, blackUsername, gameName, chessGameJSON) VALUES (?, ?, ?, ?)";
-        int gameID = executeUpdate(sqlStatement, null, null,gameName, serializeGame(chessGame));
+        int gameID = executeUpdate(sqlStatement, null, null, gameName, serializeGame(chessGame));
         return gameID;
     }
 
