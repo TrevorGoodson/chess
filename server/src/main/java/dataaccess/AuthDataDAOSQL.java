@@ -2,6 +2,8 @@ package dataaccess;
 
 import model.AuthData;
 
+import java.util.*;
+
 public class AuthDataDAOSQL extends DataAccessSQL implements AuthDataDAO{
     @Override
     public void addAuthData(AuthData authData) throws DataAccessException {
@@ -14,17 +16,12 @@ public class AuthDataDAOSQL extends DataAccessSQL implements AuthDataDAO{
     @Override
     public AuthData getAuthData(String authToken) throws DataAccessException {
         String sqlStatement = "SELECT authToken, username FROM AuthData WHERE authToken=?";
-        try (var conn = DatabaseManager.getConnection(); var ps = conn.prepareStatement(sqlStatement)) {
-            ps.setString(1, authToken);
-            try (var rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return new AuthData(rs.getString("authToken"), rs.getString("username"));
-                }
-            }
-        } catch (Exception e) {
-            throw new DataAccessException("Unable to read data:" + e.getMessage(), e);
+        List<Map<String, Object>> table = executeSelect("AuthData", "authToken", authToken);
+        if (table.isEmpty()) {
+            return null;
         }
-        return null;
+        String username = (String) table.getFirst().get("username");
+        return new AuthData(authToken, username);
     }
 
     @Override

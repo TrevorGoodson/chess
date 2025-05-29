@@ -44,7 +44,6 @@ public class GameDataDAOSQL extends DataAccessSQL implements GameDataDAO{
 
     @Override
     public void addUser(int gameID, String username, ChessGame.TeamColor color) throws DataAccessException {
-
     }
 
     @Override
