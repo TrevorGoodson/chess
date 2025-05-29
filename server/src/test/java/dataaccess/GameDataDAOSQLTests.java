@@ -24,6 +24,12 @@ public class GameDataDAOSQLTests {
         ChessGame game = new ChessGame();
         ChessGame game2 = gameDataDAO.deSerializeGame(gameDataDAO.serializeGame(game));
         assertEquals(game, game2);
+    }
+
+    @Test
+    public void chessGameSerializationAfterMoveTest() {
+        ChessGame game = new ChessGame();
+        ChessGame game2 = gameDataDAO.deSerializeGame(gameDataDAO.serializeGame(game));
         try {
             ChessMove move = new ChessMove(new ChessPosition(2, 1), new ChessPosition(4, 1));
             game.makeMove(move);
