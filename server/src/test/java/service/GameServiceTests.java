@@ -70,7 +70,17 @@ public class GameServiceTests {
     }
 
     @Test
-    public void joinGameNotLoggedIn() {
-
+    public void joinGameButTaken() {
+        try {
+            var userService = new UserService();
+            var gameService = new GameService();
+            RegisterResult r1 = userService.register(new RegisterRequest("Nick", "123", ""));
+            RegisterResult r2 = userService.register(new RegisterRequest("Robert", "123", ""));
+            CreateGameResult g = gameService.createGame(new CreateGameRequest(r1.authToken(), "Game 1"));
+            gameService.joinGame(new JoinGameRequest(r1.authToken(), WHITE, g.gameID()));
+            assertThrows(GameFullException.class, () ->gameService.joinGame(new JoinGameRequest(r2.authToken(), WHITE, g.gameID())));
+        } catch (IncompleteRequestException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
