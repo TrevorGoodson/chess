@@ -1,4 +1,4 @@
-package test.java.dataaccess;
+package dataaccess;
 
 import dataaccess.*;
 import model.AuthData;

@@ -7,6 +7,8 @@ import model.GameData;
 import java.sql.*;
 import java.util.*;
 
+import static chess.ChessGame.TeamColor.*;
+
 public class GameDataDAOSQL extends DataAccessSQL implements GameDataDAO {
     @Override
     public List<GameData> getAllGames() throws DataAccessException {
@@ -33,8 +35,7 @@ public class GameDataDAOSQL extends DataAccessSQL implements GameDataDAO {
     public int createGame(String gameName) throws DataAccessException {
         ChessGame chessGame = new ChessGame();
         String sqlStatement = "INSERT INTO GameData (whiteUsername, blackUsername, gameName, chessGameJSON) VALUES (?, ?, ?, ?)";
-        int gameID = executeUpdate(sqlStatement, null, null, gameName, serializeGame(chessGame));
-        return gameID;
+        return executeUpdate(sqlStatement, null, null, gameName, serializeGame(chessGame));
     }
 
     public String serializeGame(ChessGame game) {
@@ -62,6 +63,16 @@ public class GameDataDAOSQL extends DataAccessSQL implements GameDataDAO {
 
     @Override
     public void addUser(int gameID, String username, ChessGame.TeamColor color) throws DataAccessException {
+        List<Map<String, Object>> table = executeSelect("GameData", "gameID", gameID);
+        if (table.isEmpty()) {
+            throw new DataAccessException("Game not found");
+        }
+        Map<String, Object> gameData = table.getFirst();
+        String desiredTeam = (color == WHITE) ? "whiteUsername" : "blackUsername";
+        if (gameData.get(desiredTeam) != null) {
+            throw new DataAccessException("Game already full");
+        }
+
     }
 
     @Override
