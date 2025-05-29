@@ -56,19 +56,20 @@ public class UserService extends Service {
     }
 
     private String generateToken() {
-        String newAuthToken;
-        do {
-            newAuthToken = UUID.randomUUID().toString();
-        } while (authDataDAO.getAuthData(newAuthToken) != null);
-        return newAuthToken;
+        try {
+            String newAuthToken;
+            do {
+                newAuthToken = UUID.randomUUID().toString();
+            } while (authDataDAO.getAuthData(newAuthToken) != null);
+            return newAuthToken;
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public LogoutResult logout(LogoutRequest r) throws NotLoggedInException, IncompleteRequestException {
         assertRequestComplete(r);
-        var authData = authDataDAO.getAuthData(r.authToken());
-        if (authData == null) {
-            throw new NotLoggedInException();
-        }
+        AuthData authData = verifyUser(r.authToken());
         try {
             authDataDAO.deleteAuthData(authData);
         } catch (DataAccessException e) {

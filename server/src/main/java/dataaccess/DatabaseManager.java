@@ -21,8 +21,8 @@ public class DatabaseManager {
     static public void createDatabase() throws DataAccessException {
         var statement = "CREATE DATABASE IF NOT EXISTS " + databaseName;
         try (Connection conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
-             PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
-            preparedStatement.executeUpdate();
+             Statement sql = conn.createStatement()) {
+            sql.executeUpdate(statement);
         } catch (SQLException ex) {
             throw new DataAccessException("failed to create database", ex);
         }
@@ -47,7 +47,7 @@ public class DatabaseManager {
             conn.setCatalog(databaseName);
             return conn;
         } catch (SQLException ex) {
-            throw new DataAccessException("failed to get connection", ex);
+            throw new DataAccessException("Failed to create database: " + ex.getMessage(), ex);
         }
     }
 

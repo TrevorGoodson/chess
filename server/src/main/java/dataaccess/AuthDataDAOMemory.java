@@ -25,7 +25,7 @@ public class AuthDataDAOMemory implements AuthDataDAO {
      * {@inheritDoc}
      */
     @Override
-    public AuthData getAuthData(String authToken) {
+    public AuthData getAuthData(String authToken) throws DataAccessException{
         for (var authDatum : authData) {
             if (authToken.equals(authDatum.authToken())) {
                 return authDatum;

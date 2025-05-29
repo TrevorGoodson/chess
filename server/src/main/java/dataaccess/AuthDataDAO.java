@@ -15,7 +15,7 @@ public interface AuthDataDAO {
      * @param authToken the corresponding AuthToken
      * @return AuthData if found or null if not
      */
-    AuthData getAuthData(String authToken);
+    AuthData getAuthData(String authToken) throws DataAccessException;
 
     /**
      * Removes an AuthData to the database.

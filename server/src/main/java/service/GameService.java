@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.*;
+import model.AuthData;
 import model.GameData;
 import requestresult.*;
 
@@ -18,10 +19,7 @@ public class GameService extends Service {
      */
     public CreateGameResult createGame(CreateGameRequest createGameRequest) throws NotLoggedInException, IncompleteRequestException {
         assertRequestComplete(createGameRequest);
-        var authData = authDataDAO.getAuthData(createGameRequest.authToken());
-        if (authData == null) {
-            throw new NotLoggedInException();
-        }
+        verifyUser(createGameRequest.authToken());
         int gameID = gameDataDAO.createGame(createGameRequest.gameName());
         return new CreateGameResult(gameID);
     }
@@ -36,10 +34,7 @@ public class GameService extends Service {
      */
     public JoinGameResult joinGame(JoinGameRequest joinRequest) throws NotLoggedInException, GameNotFoundException, IncompleteRequestException {
         assertRequestComplete(joinRequest);
-        var authData = authDataDAO.getAuthData(joinRequest.authToken());
-        if (authData == null) {
-            throw new NotLoggedInException();
-        }
+        AuthData authData = verifyUser(joinRequest.authToken());
         GameData game = gameDataDAO.findGame(joinRequest.gameID());
         if (game == null) {
             throw new GameNotFoundException();
@@ -68,8 +63,12 @@ public class GameService extends Service {
      */
     public ListResult listGames(ListRequest listRequest) throws NotLoggedInException, IncompleteRequestException {
         assertRequestComplete(listRequest);
-        if (authDataDAO.getAuthData(listRequest.authToken()) == null) {
-            throw new NotLoggedInException();
+        try {
+            if (authDataDAO.getAuthData(listRequest.authToken()) == null) {
+                throw new NotLoggedInException();
+            }
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
         }
         ArrayList<GameData> games = gameDataDAO.getAllGames();
         var listResult = new ListResult(new ArrayList<>());

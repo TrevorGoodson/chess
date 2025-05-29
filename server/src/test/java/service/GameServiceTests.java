@@ -1,5 +1,6 @@
 package test.java.service;
 
+import dataaccess.DataAccessException;
 import org.junit.jupiter.api.Test;
 import requestresult.*;
 import service.*;
