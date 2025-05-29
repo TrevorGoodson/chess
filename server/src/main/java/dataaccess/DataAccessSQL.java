@@ -8,7 +8,7 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public abstract class DataAccessSQL {
-    protected final int NO_GENERATED_KEY = 0;
+    protected final static int NO_GENERATED_KEY = 0;
 
     public DataAccessSQL() {
         try {

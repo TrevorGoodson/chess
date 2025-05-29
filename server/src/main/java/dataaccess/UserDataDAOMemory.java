@@ -4,7 +4,7 @@ import model.UserData;
 import java.util.ArrayList;
 
 public class UserDataDAOMemory implements UserDataDAO {
-    private final static ArrayList<UserData> userData = new ArrayList<>();
+    private static ArrayList<UserData> userData = new ArrayList<>();
 
     public UserDataDAOMemory() {}
 
