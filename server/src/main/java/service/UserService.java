@@ -2,6 +2,7 @@ package service;
 
 import model.*;
 import dataaccess.*;
+import org.mindrot.jbcrypt.BCrypt;
 import requestresultrecords.RegisterRequest;
 import requestresultrecords.*;
 import service.exceptions.*;
@@ -23,18 +24,19 @@ public class UserService extends Service {
         if (userDataDAO.getUser(registerRequest.username()) != null) {
             throw new UsernameTakenException();
         }
-        userDataDAO.createUser(new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email()));
+        String hashedPassword = hashPassword(registerRequest.password());
+        userDataDAO.createUser(new UserData(registerRequest.username(), hashedPassword, registerRequest.email()));
         String authToken = logUserIn(registerRequest.username());
         return new RegisterResult(registerRequest.username(), authToken);
     }
 
     public LoginResult login(LoginRequest r) throws WrongUsernameException, WrongPasswordException, IncompleteRequestException, DataAccessException {
         assertRequestComplete(r);
-        var user = userDataDAO.getUser(r.username());
+        UserData user = userDataDAO.getUser(r.username());
         if (user == null) {
             throw new WrongUsernameException();
         }
-        if (!user.password().equals(r.password())) {
+        if (!user.password().equals(hashPassword(r.password()))) {
             throw new WrongPasswordException();
         }
         String authToken = logUserIn(r.username());
@@ -46,6 +48,10 @@ public class UserService extends Service {
         var authData = new AuthData(authToken, username);
         authDataDAO.addAuthData(authData);
         return authToken;
+    }
+
+    private String hashPassword(String password) {
+        return BCrypt.hashpw(password, BCrypt.gensalt());
     }
 
     private String generateToken() throws DataAccessException {
