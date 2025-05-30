@@ -55,7 +55,7 @@ public class UserDataDAOSQLTests {
     public void getNullUser() {
         try {
             userDataDAO.clear();
-            assertThrows(DataAccessException.class, () -> userDataDAO.getUser("username"));
+            assertNull(userDataDAO.getUser("username"));
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }

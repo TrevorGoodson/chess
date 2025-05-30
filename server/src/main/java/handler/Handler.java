@@ -34,9 +34,9 @@ public abstract class Handler implements Route {
             return new Gson().toJson(new ErrorMessage("Error: bad request"));
         } catch (DataAccessException e) {
             response.status(500);
-            return new Gson().toJson(new ErrorMessage("Error: something went wrong with the database"));
-        } catch (Exception e) {
-            response.status(405);
+            return new Gson().toJson(new ErrorMessage("Error: internal server error"));
+        } catch (Error | Exception e) {
+            response.status(500);
             return new Gson().toJson(new ErrorMessage("Unknown error: " + e));
         }
         return new Gson().toJson(result);
