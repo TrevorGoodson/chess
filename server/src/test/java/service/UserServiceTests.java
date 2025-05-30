@@ -1,6 +1,8 @@
 package service;
 
 import dataaccess.DataAccessException;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import requestresultrecords.*;
 import service.exceptions.IncompleteRequestException;
@@ -11,6 +13,14 @@ import service.exceptions.WrongPasswordException;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTests {
+    @BeforeEach
+    public void clearData() {
+        try {
+            new ClearService().clear();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Test
     public void registerNewUser() {
@@ -29,7 +39,7 @@ public class UserServiceTests {
             var userService = new UserService();
             RegisterResult r1 = userService.register(new RegisterRequest("Gavin", "1234", "a@b.com"));
             assertThrows(UsernameTakenException.class, () -> {
-                userService.register(new RegisterRequest("Trevor", "abcd", "b@a.com"));
+                userService.register(new RegisterRequest("Gavin", "abcd", "b@a.com"));
             });
         } catch (IncompleteRequestException | DataAccessException e) {
             throw new RuntimeException(e);

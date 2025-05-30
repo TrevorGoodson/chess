@@ -1,6 +1,8 @@
 package service;
 
 import dataaccess.DataAccessException;
+import dataaccess.GameDataDAOSQL;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import requestresultrecords.*;
 import service.exceptions.GameFullException;
@@ -11,6 +13,17 @@ import static chess.ChessGame.TeamColor.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GameServiceTests {
+    @BeforeAll
+    public static void clearGames() {
+        try {
+            new GameDataDAOSQL().clear();
+            new GameDataDAOSQL().clear();
+            new GameDataDAOSQL().clear();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Test
     public void createGame() {
         try {

@@ -8,7 +8,7 @@ public class UserDataDAOSQL extends DataAccessSQL implements UserDataDAO {
     public UserData getUser(String username) throws DataAccessException {
         List<Map<String, Object>> table = executeSelect("UserData", "username", username);
         if (table.isEmpty()) {
-            throw new DataAccessException("Username not found");
+            return null;
         }
         Map<String, Object> userData = table.getFirst();
         return new UserData((String) userData.get("username"),
@@ -19,7 +19,7 @@ public class UserDataDAOSQL extends DataAccessSQL implements UserDataDAO {
     @Override
     public void createUser(UserData newUser) throws DataAccessException {
         String sqlStatement = "INSERT INTO UserData (username, passwordHash, email) VALUES (?, ?, ?)";
-        //FIXME: actually hash the password
+        //note: password hashing happens in UserService
         executeUpdate(sqlStatement, newUser.username(), newUser.password(), newUser.email());
     }
 

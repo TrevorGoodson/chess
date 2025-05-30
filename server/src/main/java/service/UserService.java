@@ -30,13 +30,17 @@ public class UserService extends Service {
         return new RegisterResult(registerRequest.username(), authToken);
     }
 
-    public LoginResult login(LoginRequest r) throws WrongUsernameException, WrongPasswordException, IncompleteRequestException, DataAccessException {
+    public LoginResult login(LoginRequest r) throws WrongUsernameException,
+                                                    WrongPasswordException,
+                                                    IncompleteRequestException,
+                                                    DataAccessException {
         assertRequestComplete(r);
         UserData user = userDataDAO.getUser(r.username());
         if (user == null) {
             throw new WrongUsernameException();
         }
-        if (!user.password().equals(hashPassword(r.password()))) {
+        //String hashedInputPassword = hashPassword(r.password());
+        if (!BCrypt.checkpw(r.password(), user.password())) {
             throw new WrongPasswordException();
         }
         String authToken = logUserIn(r.username());
@@ -50,7 +54,15 @@ public class UserService extends Service {
         return authToken;
     }
 
-    private String hashPassword(String password) {
+    public static void main(String[] args) {
+        String password1 = UserService.hashPassword("test_password");
+        String password2 = UserService.hashPassword("test_password");
+        System.out.println(password1);
+        System.out.println(password2);
+        System.out.println(BCrypt.checkpw("test_password", password1));
+    }
+
+    private static String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());
     }
 
