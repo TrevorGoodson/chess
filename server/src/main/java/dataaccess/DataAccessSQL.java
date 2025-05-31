@@ -67,6 +67,7 @@ public abstract class DataAccessSQL {
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sqlStatement)) {
 
+            //AI assisted
             if (condition == null) {
                 ps.setNull(1, NULL);
             } else {

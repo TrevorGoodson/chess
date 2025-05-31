@@ -69,6 +69,7 @@ public class ChessPiece {
         return new ChessMoveCalculator(board, this, myPosition, gameMoveHistory).calculateMoves();
     }
 
+    //AI assisted
     public ChessPiece copy() {
         return new ChessPiece(pieceColor, type, gameMoveHistory);
     }
