@@ -6,13 +6,24 @@ import java.util.stream.Collectors;
 
 public class ServerFacade {
     private static final String SERVER_URL = "http//localhost:8080";
+    private String authToken;
 
-    public void createGame() {
-
+    private void ensureLoggedIn() throws NotLoggedInException {
+        if (authToken == null) {
+            throw new NotLoggedInException();
+        }
     }
 
-    public void clear() {
+    public Integer createGame(String gameName) throws ResponseException {
+        return makeHTTPRequest("POST",
+                               "/game",
+                               gameName,
+                               authToken,
+                               Integer.class);
+    }
 
+    public void clear() throws ResponseException {
+        makeHTTPRequest("delete", "/db", null, authToken, null);
     }
 
     public void joinGame() {
@@ -35,20 +46,31 @@ public class ServerFacade {
 
     }
 
-    private <T> T makeHTTPRequest(String httpMethod, String path, Object requestBody, Class<T> responseType) throws ResponseException {
+    private <T> T makeHTTPRequest(String httpMethod, String path, Object requestBody, String authToken, Class<T> responseType) throws ResponseException {
         try {
             URL url = (new URI(SERVER_URL + path)).toURL();
             var httpConnection = (HttpURLConnection) url.openConnection();
+
             httpConnection.setRequestMethod(httpMethod);
+            authorize(authToken, httpConnection);
             addBody(requestBody, httpConnection);
+
             httpConnection.connect();
             ensureSuccessful(httpConnection);
+
             return readBody(httpConnection, responseType);
         } catch (URISyntaxException | MalformedURLException e) {
             throw new RuntimeException("Bad path", e);
         } catch (IOException e) {
             throw new RuntimeException("Connection failed", e);
         }
+    }
+
+    private static void authorize(String authToken, HttpURLConnection httpConnection) {
+        if (authToken == null) {
+            return;
+        }
+        httpConnection.addRequestProperty("Authorization", authToken);
     }
 
     private static void addBody(Object requestBody, HttpURLConnection httpConnection) throws IOException {
