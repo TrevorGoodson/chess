@@ -9,19 +9,17 @@ import java.util.Scanner;
 
 import static java.lang.Integer.parseInt;
 
-public class UserInterface {
-    private static final String[] PRE_LOGIN_COMMANDS = {"help", "quit", "login", "register"};
-    private static final int OS_ASSIGNED_PORT = 0;
+public class PreLoggedInUI {
+    private static final String DEFAULT_PROMPT = "Welcome to Chess!\nType \"help\" for options\n";
 
     public static void main(String[] args) {
-        new UserInterface().run(parseInt(args[0]));
+        new PreLoggedInUI().run(parseInt(args[0]));
     }
 
     public void run(int port) {
         ServerFacade serverFacade = new ServerFacade(port);
-        String prompt = "Welcome to Chess!\nType \"help\" for options\n";
+        String prompt = DEFAULT_PROMPT;
         Scanner inputScanner = new Scanner(System.in);
-        String[] commandSet = PRE_LOGIN_COMMANDS;
 
         while (true) {
             System.out.print(prompt);
@@ -36,8 +34,8 @@ public class UserInterface {
                 case "quit" -> {
                     return;
                 }
-                case "register" -> prompt = register(serverFacade, inputScanner);
-                case "login" -> prompt = login(serverFacade, inputScanner);
+                case "register" -> prompt = register(serverFacade, inputScanner) + DEFAULT_PROMPT;
+                case "login" -> prompt = login(serverFacade, inputScanner) + DEFAULT_PROMPT;
                 default -> prompt = "Unknown command, please try again!\n";
             }
         }
@@ -56,8 +54,8 @@ public class UserInterface {
             registerResult = serverFacade.register(registerRequest);
         } catch (UsernameTakenException e) {
             return "Username already taken!\n";
-        } catch (Exception e) {
-            return "Unknown error:" + e.getMessage();
+        } catch (ResponseException e) {
+            return "Unknown error:" + e.getMessage() + "\n";
         }
         return registerResult.authToken();
     }
@@ -76,7 +74,7 @@ public class UserInterface {
         } catch (WrongUsernameException e) {
             return "Unknown username!\n";
         } catch (ResponseException e) {
-            throw new RuntimeException(e);
+            return "Unknown error:" + e.getMessage() + "\n";
         }
         return loginResult.authToken();
     }
