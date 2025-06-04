@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessGame;
 import exceptions.ResponseException;
 import org.junit.jupiter.api.*;
 import requestresultrecords.*;
@@ -157,6 +158,83 @@ public class ServerFacadeTests {
             serverFacade.clear();
             CreateGameRequest createGameRequest = new CreateGameRequest("bad authToken", "game1");
             assertThrows(ResponseException.class, () -> serverFacade.createGame(createGameRequest));
+        } catch (ResponseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(9)
+    public void listGamesTest() {
+        try {
+            int port = server.port();
+            var serverFacade = new ServerFacade(port);
+            serverFacade.clear();
+            RegisterRequest registerRequest = new RegisterRequest("Trevor", "1234", "1");
+            RegisterResult registerResult = serverFacade.register(registerRequest);
+            String authToken = registerResult.authToken();
+            CreateGameRequest createGameRequest = new CreateGameRequest(authToken, "game1");
+            serverFacade.createGame(createGameRequest);
+            var listRequest = new ListRequest(authToken);
+            ListResult listResult = serverFacade.listGames(listRequest);
+            assertNotEquals(0, listResult.games().size());
+        } catch (ResponseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(10)
+    public void listNoGamesTest() {
+        try {
+            int port = server.port();
+            var serverFacade = new ServerFacade(port);
+            serverFacade.clear();
+            RegisterRequest registerRequest = new RegisterRequest("Trevor", "1234", "1");
+            RegisterResult registerResult = serverFacade.register(registerRequest);
+            String authToken = registerResult.authToken();
+            var listRequest = new ListRequest(authToken);
+            ListResult listResult = serverFacade.listGames(listRequest);
+            assertEquals(0, listResult.games().size());
+        } catch (ResponseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(11)
+    public void joinGameTest() {
+        try {
+            int port = server.port();
+            var serverFacade = new ServerFacade(port);
+            serverFacade.clear();
+            RegisterRequest registerRequest = new RegisterRequest("Trevor", "1234", "1");
+            RegisterResult registerResult = serverFacade.register(registerRequest);
+            String authToken = registerResult.authToken();
+            var createGameRequest = new CreateGameRequest(authToken, "game1");
+            CreateGameResult createGameResult = serverFacade.createGame(createGameRequest);
+            JoinGameRequest joinGameRequest = new JoinGameRequest(authToken, ChessGame.TeamColor.WHITE, createGameResult.gameID());
+            assertNotNull(serverFacade.joinGame(joinGameRequest));
+        } catch (ResponseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(12)
+    public void joinFullGameTest() {
+        try {
+            int port = server.port();
+            var serverFacade = new ServerFacade(port);
+            serverFacade.clear();
+            RegisterRequest registerRequest = new RegisterRequest("Trevor", "1234", "1");
+            RegisterResult registerResult = serverFacade.register(registerRequest);
+            String authToken = registerResult.authToken();
+            var createGameRequest = new CreateGameRequest(authToken, "game1");
+            CreateGameResult createGameResult = serverFacade.createGame(createGameRequest);
+            JoinGameRequest joinGameRequest = new JoinGameRequest(authToken, ChessGame.TeamColor.WHITE, createGameResult.gameID());
+            serverFacade.joinGame(joinGameRequest);
+            assertThrows(ResponseException.class, () -> serverFacade.joinGame(joinGameRequest));
         } catch (ResponseException e) {
             throw new RuntimeException(e);
         }

@@ -1,5 +1,6 @@
 package serverfacade;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 
 import java.io.*;
@@ -8,6 +9,9 @@ import java.util.stream.Collectors;
 import exceptions.*;
 import requestresultrecords.*;
 import usererrorexceptions.NotLoggedInException;
+
+import static chess.ChessGame.TeamColor.BLACK;
+import static chess.ChessGame.TeamColor.WHITE;
 
 public class ServerFacade {
     private static final String SERVER_URL = "http://localhost:";
@@ -38,16 +42,26 @@ public class ServerFacade {
         makeHTTPRequest("DELETE", "db", null, null, null);
     }
 
-    public void joinGame() {
-
+    public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws ResponseException {
+        record PartialRequest(String playerColor, Integer gameID) {}
+        String color = switch (joinGameRequest.playerColor()) {
+            case WHITE -> "WHITE";
+            case BLACK -> "BLACK";
+        };
+        var partialRequest = new PartialRequest(color, joinGameRequest.gameID());
+        return makeHTTPRequest("PUT", "game", partialRequest, joinGameRequest.authToken(), JoinGameResult.class);
     }
 
-    public void listGames() {
-
+    public ListResult listGames(ListRequest listRequest) throws ResponseException {
+        return makeHTTPRequest("GET", "game", null, listRequest.authToken(), ListResult.class);
     }
 
     public LoginResult login(LoginRequest loginRequest) throws ResponseException {
-        return makeHTTPRequest("POST", "session", loginRequest, null, LoginResult.class);
+        return makeHTTPRequest("POST",
+                               "session",
+                               loginRequest,
+                               null,
+                               LoginResult.class);
     }
 
     public void logout(LogoutRequest logoutRequest) throws ResponseException {
