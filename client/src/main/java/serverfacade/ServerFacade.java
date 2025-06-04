@@ -7,11 +7,18 @@ import java.net.*;
 import java.util.stream.Collectors;
 import exceptions.*;
 import requestresultrecords.*;
-import usererrorexceptions.NotLoggedInException;
+import usererrorexceptions.WrongPasswordException;
+import usererrorexceptions.WrongUsernameException;
 
 public class ServerFacade {
     private static final String SERVER_URL = "http://localhost:";
     private final String port;
+
+    private record ErrorMessage(String message, int code) {
+        public ErrorMessage(String message) {
+            this(message, 0);
+        }
+    }
 
     public ServerFacade(int port) {
         this.port = port + "";
@@ -20,12 +27,12 @@ public class ServerFacade {
     public static void main(String[] args) {
         try {
             new ServerFacade(8080).clear();
-        } catch (ResponseException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws ResponseException, NotLoggedInException {
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws ResponseException, WrongPasswordException {
         record PartialRequest(String gameName) {}
         return makeHTTPRequest("POST",
                                "game",
@@ -34,11 +41,11 @@ public class ServerFacade {
                                CreateGameResult.class);
     }
 
-    public void clear() throws ResponseException {
+    public void clear() throws ResponseException, WrongPasswordException {
         makeHTTPRequest("DELETE", "db", null, null, null);
     }
 
-    public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws ResponseException {
+    public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws ResponseException, WrongPasswordException {
         record PartialRequest(String playerColor, Integer gameID) {}
         String color = switch (joinGameRequest.playerColor()) {
             case WHITE -> "WHITE";
@@ -52,7 +59,7 @@ public class ServerFacade {
                                JoinGameResult.class);
     }
 
-    public ListResult listGames(ListRequest listRequest) throws ResponseException {
+    public ListResult listGames(ListRequest listRequest) throws ResponseException, WrongPasswordException {
         return makeHTTPRequest("GET",
                                "game",
                                null,
@@ -60,7 +67,7 @@ public class ServerFacade {
                                ListResult.class);
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws ResponseException {
+    public LoginResult login(LoginRequest loginRequest) throws ResponseException, WrongPasswordException {
         return makeHTTPRequest("POST",
                                "session",
                                loginRequest,
@@ -68,7 +75,7 @@ public class ServerFacade {
                                LoginResult.class);
     }
 
-    public void logout(LogoutRequest logoutRequest) throws ResponseException {
+    public void logout(LogoutRequest logoutRequest) throws ResponseException, WrongPasswordException {
         makeHTTPRequest("DELETE",
                         "session",
                         null,
@@ -76,7 +83,7 @@ public class ServerFacade {
                         null);
     }
 
-    public RegisterResult register(RegisterRequest registerRequest) throws ResponseException {
+    public RegisterResult register(RegisterRequest registerRequest) throws ResponseException, WrongPasswordException {
         return makeHTTPRequest("POST",
                                "user",
                                registerRequest,
@@ -84,7 +91,11 @@ public class ServerFacade {
                                RegisterResult.class);
     }
 
-    private <T> T makeHTTPRequest(String httpMethod, String path, Object requestBody, String authToken, Class<T> responseType) throws ResponseException {
+    private <T> T makeHTTPRequest(String httpMethod,
+                                  String path,
+                                  Object requestBody,
+                                  String authToken,
+                                  Class<T> responseType) throws ResponseException, WrongPasswordException {
         try {
             URL url = (new URI(SERVER_URL + port + "/" + path)).toURL();
             var httpConnection = (HttpURLConnection) url.openConnection();
@@ -125,7 +136,9 @@ public class ServerFacade {
         }
     }
 
-    private void ensureSuccessful(HttpURLConnection httpConnection) throws IOException, ResponseException {
+    private void ensureSuccessful(HttpURLConnection httpConnection) throws IOException,
+                                                                           ResponseException,
+                                                                           WrongPasswordException {
         int status = httpConnection.getResponseCode();
         if (status / 100 == 2) {
             return;
@@ -136,13 +149,16 @@ public class ServerFacade {
              BufferedReader errorResponseBuffReader = new BufferedReader(errorResponseReader)
         ) {
             String errorResponse = errorResponseBuffReader.lines().collect(Collectors.joining("/n"));
-            if (!errorResponse.trim().isEmpty()) {
-                throw new ResponseException(status + errorResponse);
+            if (errorResponse.trim().isEmpty()) {
+                throw new ResponseException("Unknown failure:" + status);
+            }
+            ErrorMessage errorMessage = new Gson().fromJson(errorResponse, ErrorMessage.class);
+            switch (errorMessage.code()) {
+                case 1 -> throw new WrongPasswordException();
+                case 2 -> throw new WrongUsernameException();
+                default -> throw new ResponseException(errorMessage.message());
             }
         }
-
-        throw new ResponseException("Unknown failure:" + status);
-
     }
 
     private static <T> T readBody(HttpURLConnection http, Class<T> responseClass) throws IOException {

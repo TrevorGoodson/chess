@@ -11,7 +11,11 @@ public abstract class Handler implements Route {
     protected abstract Record parseRequest(Request req);
     protected abstract Record handleRequest(Record request) throws IncompleteRequestException, DataAccessException;
 
-    private record ErrorMessage(String message) {}
+    private record ErrorMessage(String message, int code) {
+        public ErrorMessage(String message) {
+            this(message, 0);
+        }
+    }
 
     @Override
     public Object handle(Request req, Response response) throws Exception {
@@ -26,9 +30,15 @@ public abstract class Handler implements Route {
         } catch (GameFullException e) {
             response.status(403);
             return new Gson().toJson(new ErrorMessage("Error: team already assigned"));
-        } catch (NotLoggedInException | WrongPasswordException | WrongUsernameException e) {
+        } catch (NotLoggedInException e) {
             response.status(401);
             return new Gson().toJson(new ErrorMessage("Error: unauthorized"));
+        } catch (WrongUsernameException e) {
+            response.status(401);
+            return new Gson().toJson(new ErrorMessage("Error: wrong username!", 2));
+        } catch (WrongPasswordException e) {
+            response.status(401);
+            return new Gson().toJson(new ErrorMessage("Error: wrong password", 1));
         } catch (IncompleteRequestException e) {
             response.status(400);
             return new Gson().toJson(new ErrorMessage("Error: bad request"));
