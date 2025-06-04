@@ -101,6 +101,38 @@ public class ServerFacadeTests {
 
     @Test
     @Order(6)
+    public void loginTest() {
+        try {
+            int port = server.port();
+            var serverFacade = new ServerFacade(port);
+            serverFacade.clear();
+            var registerRequest = new RegisterRequest("Trevor", "1234", "1");
+            RegisterResult registerResult = serverFacade.register(registerRequest);
+            var logoutRequest = new LogoutRequest(registerResult.authToken());
+            serverFacade.logout(logoutRequest);
+            var loginRequest = new LoginRequest("Trevor", "1234");
+            LoginResult loginResult = serverFacade.login(loginRequest);
+            assertNotNull(loginResult.authToken());
+        } catch (ResponseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(7)
+    public void loginBadUsernameTest() {
+        try {
+            int port = server.port();
+            var serverFacade = new ServerFacade(port);
+            serverFacade.clear();
+            assertThrows(ResponseException.class, () -> serverFacade.login(new LoginRequest("bad username", "equally bad password")));
+        } catch (ResponseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(8)
     public void createGameTest() {
         try {
             int port = server.port();
@@ -117,7 +149,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    @Order(7)
+    @Order(9)
     public void createGameNotLoggedInTest() {
         try {
             int port = server.port();

@@ -46,8 +46,8 @@ public class ServerFacade {
 
     }
 
-    public void login() {
-
+    public LoginResult login(LoginRequest loginRequest) throws ResponseException {
+        return makeHTTPRequest("POST", "session", loginRequest, null, LoginResult.class);
     }
 
     public void logout(LogoutRequest logoutRequest) throws ResponseException {
