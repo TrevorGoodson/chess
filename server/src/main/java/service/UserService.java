@@ -39,7 +39,6 @@ public class UserService extends Service {
         if (user == null) {
             throw new WrongUsernameException();
         }
-        //String hashedInputPassword = hashPassword(r.password());
         if (!BCrypt.checkpw(r.password(), user.password())) {
             throw new WrongPasswordException();
         }

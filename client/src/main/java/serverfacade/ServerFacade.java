@@ -6,10 +6,7 @@ import java.io.*;
 import java.net.*;
 import java.util.stream.Collectors;
 import exceptions.*;
-import requestresultrecords.CreateGameRequest;
-import requestresultrecords.CreateGameResult;
-import requestresultrecords.RegisterRequest;
-import requestresultrecords.RegisterResult;
+import requestresultrecords.*;
 import usererrorexceptions.NotLoggedInException;
 
 public class ServerFacade {
@@ -53,8 +50,12 @@ public class ServerFacade {
 
     }
 
-    public void logout() {
-
+    public void logout(LogoutRequest logoutRequest) throws ResponseException {
+        makeHTTPRequest("DELETE",
+                        "session",
+                        null,
+                        logoutRequest.authToken(),
+                        null);
     }
 
     public RegisterResult register(RegisterRequest registerRequest) throws ResponseException {

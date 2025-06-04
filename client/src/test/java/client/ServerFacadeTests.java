@@ -2,10 +2,7 @@ package client;
 
 import exceptions.ResponseException;
 import org.junit.jupiter.api.*;
-import requestresultrecords.CreateGameRequest;
-import requestresultrecords.CreateGameResult;
-import requestresultrecords.RegisterRequest;
-import requestresultrecords.RegisterResult;
+import requestresultrecords.*;
 import server.Server;
 import serverfacade.ServerFacade;
 
@@ -75,6 +72,35 @@ public class ServerFacadeTests {
 
     @Test
     @Order(4)
+    public void logoutTest() {
+        try {
+            int port = server.port();
+            var serverFacade = new ServerFacade(port);
+            serverFacade.clear();
+            var registerRequest = new RegisterRequest("Trevor", "1234", "1");
+            RegisterResult registerResult = serverFacade.register(registerRequest);
+            var logoutRequest = new LogoutRequest(registerResult.authToken());
+            serverFacade.logout(logoutRequest);
+        } catch (ResponseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(5)
+    public void logoutNotLoggedInTest() {
+        try {
+            int port = server.port();
+            var serverFacade = new ServerFacade(port);
+            serverFacade.clear();
+            assertThrows(ResponseException.class, () -> serverFacade.logout(new LogoutRequest("bad authToken")));
+        } catch (ResponseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(6)
     public void createGameTest() {
         try {
             int port = server.port();
@@ -91,7 +117,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    @Order(5)
+    @Order(7)
     public void createGameNotLoggedInTest() {
         try {
             int port = server.port();
@@ -103,10 +129,4 @@ public class ServerFacadeTests {
             throw new RuntimeException(e);
         }
     }
-
-    @Test
-    public void sampleTest() {
-        Assertions.assertTrue(true);
-    }
-
 }
