@@ -1,16 +1,24 @@
+package serverfacade;
+
 import com.google.gson.Gson;
 
 import java.io.*;
 import java.net.*;
 import java.util.stream.Collectors;
+import exceptions.*;
 
 public class ServerFacade {
-    private static final String SERVER_URL = "http://localhost:8080";
+    private static final String SERVER_URL = "http://localhost:";
+    private final String port;
     private String authToken;
+
+    public ServerFacade(int port) {
+        this.port = port + "";
+    }
 
     public static void main(String[] args) {
         try {
-            new ServerFacade().clear();
+            new ServerFacade(8080).clear();
         } catch (ResponseException e) {
             throw new RuntimeException(e);
         }
@@ -25,14 +33,14 @@ public class ServerFacade {
     public Integer createGame(String gameName) throws ResponseException, NotLoggedInException {
         ensureLoggedIn();
         return makeHTTPRequest("POST",
-                               "/game",
+                               "game",
                                gameName,
                                authToken,
                                Integer.class);
     }
 
     public void clear() throws ResponseException {
-        makeHTTPRequest("DELETE", "/db", null, authToken, null);
+        makeHTTPRequest("DELETE", "db", null, authToken, null);
     }
 
     public void joinGame() {
@@ -57,7 +65,7 @@ public class ServerFacade {
 
     private <T> T makeHTTPRequest(String httpMethod, String path, Object requestBody, String authToken, Class<T> responseType) throws ResponseException {
         try {
-            URL url = (new URI(SERVER_URL + path)).toURL();
+            URL url = (new URI(SERVER_URL + port + "/" + path)).toURL();
             var httpConnection = (HttpURLConnection) url.openConnection();
 
             httpConnection.setRequestMethod(httpMethod);
