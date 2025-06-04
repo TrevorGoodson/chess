@@ -5,8 +5,16 @@ import java.net.*;
 import java.util.stream.Collectors;
 
 public class ServerFacade {
-    private static final String SERVER_URL = "http//localhost:8080";
+    private static final String SERVER_URL = "http://localhost:8080";
     private String authToken;
+
+    public static void main(String[] args) {
+        try {
+            new ServerFacade().clear();
+        } catch (ResponseException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private void ensureLoggedIn() throws NotLoggedInException {
         if (authToken == null) {
@@ -14,7 +22,8 @@ public class ServerFacade {
         }
     }
 
-    public Integer createGame(String gameName) throws ResponseException {
+    public Integer createGame(String gameName) throws ResponseException, NotLoggedInException {
+        ensureLoggedIn();
         return makeHTTPRequest("POST",
                                "/game",
                                gameName,
@@ -23,7 +32,7 @@ public class ServerFacade {
     }
 
     public void clear() throws ResponseException {
-        makeHTTPRequest("delete", "/db", null, authToken, null);
+        makeHTTPRequest("DELETE", "/db", null, authToken, null);
     }
 
     public void joinGame() {
@@ -108,6 +117,9 @@ public class ServerFacade {
     }
 
     private static <T> T readBody(HttpURLConnection http, Class<T> responseClass) throws IOException {
+        if (responseClass == null) {
+            return null;
+        }
         T response = null;
         try (InputStream responseBodyStream = http.getInputStream();
              InputStreamReader responseBodyReader = new InputStreamReader(responseBodyStream);
