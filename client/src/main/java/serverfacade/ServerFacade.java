@@ -6,13 +6,15 @@ import java.io.*;
 import java.net.*;
 import java.util.stream.Collectors;
 import exceptions.*;
+import requestresultrecords.CreateGameRequest;
+import requestresultrecords.CreateGameResult;
 import requestresultrecords.RegisterRequest;
 import requestresultrecords.RegisterResult;
+import usererrorexceptions.NotLoggedInException;
 
 public class ServerFacade {
     private static final String SERVER_URL = "http://localhost:";
     private final String port;
-    private String authToken;
 
     public ServerFacade(int port) {
         this.port = port + "";
@@ -26,23 +28,17 @@ public class ServerFacade {
         }
     }
 
-    private void ensureLoggedIn() throws NotLoggedInException {
-        if (authToken == null) {
-            throw new NotLoggedInException();
-        }
-    }
-
-    public Integer createGame(String gameName) throws ResponseException, NotLoggedInException {
-        ensureLoggedIn();
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws ResponseException, NotLoggedInException {
+        record PartialRequest(String gameName) {}
         return makeHTTPRequest("POST",
                                "game",
-                               gameName,
-                               authToken,
-                               Integer.class);
+                               new PartialRequest(createGameRequest.gameName()),
+                               createGameRequest.authToken(),
+                               CreateGameResult.class);
     }
 
     public void clear() throws ResponseException {
-        makeHTTPRequest("DELETE", "db", null, authToken, null);
+        makeHTTPRequest("DELETE", "db", null, null, null);
     }
 
     public void joinGame() {
@@ -62,7 +58,11 @@ public class ServerFacade {
     }
 
     public RegisterResult register(RegisterRequest registerRequest) throws ResponseException {
-        return makeHTTPRequest("POST", "user", registerRequest, null, RegisterResult.class);
+        return makeHTTPRequest("POST",
+                               "user",
+                               registerRequest,
+                               null,
+                               RegisterResult.class);
     }
 
     private <T> T makeHTTPRequest(String httpMethod, String path, Object requestBody, String authToken, Class<T> responseType) throws ResponseException {

@@ -2,6 +2,8 @@ package client;
 
 import exceptions.ResponseException;
 import org.junit.jupiter.api.*;
+import requestresultrecords.CreateGameRequest;
+import requestresultrecords.CreateGameResult;
 import requestresultrecords.RegisterRequest;
 import requestresultrecords.RegisterResult;
 import server.Server;
@@ -49,6 +51,54 @@ public class ServerFacadeTests {
             RegisterResult registerResult = serverFacade.register(registerRequest);
             assertEquals(registerRequest.username(), registerResult.username());
             assertNotNull(registerResult.authToken());
+        } catch (ResponseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(3)
+    public void registerTestDuplicateUsername() {
+        try {
+            int port = server.port();
+            var serverFacade = new ServerFacade(port);
+            serverFacade.clear();
+            RegisterRequest registerRequest1 = new RegisterRequest("Trevor", "1234", "1");
+            RegisterRequest registerRequest2 = new RegisterRequest("Trevor", "5678", "2");
+
+            RegisterResult registerResult = serverFacade.register(registerRequest1);
+            assertThrows(ResponseException.class, () -> serverFacade.register(registerRequest2));
+        } catch (ResponseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(4)
+    public void createGameTest() {
+        try {
+            int port = server.port();
+            var serverFacade = new ServerFacade(port);
+            serverFacade.clear();
+            RegisterRequest registerRequest = new RegisterRequest("Trevor", "1234", "1");
+            RegisterResult registerResult = serverFacade.register(registerRequest);
+            CreateGameRequest createGameRequest = new CreateGameRequest(registerResult.authToken(), "game1");
+            CreateGameResult createGameResult = serverFacade.createGame(createGameRequest);
+            assertNotNull(createGameResult);
+        } catch (ResponseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(5)
+    public void createGameNotLoggedInTest() {
+        try {
+            int port = server.port();
+            var serverFacade = new ServerFacade(port);
+            serverFacade.clear();
+            CreateGameRequest createGameRequest = new CreateGameRequest("bad authToken", "game1");
+            assertThrows(ResponseException.class, () -> serverFacade.createGame(createGameRequest));
         } catch (ResponseException e) {
             throw new RuntimeException(e);
         }
