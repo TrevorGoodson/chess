@@ -11,7 +11,6 @@ public class Server {
         Spark.staticFiles.location("web");
 
         Spark.post("/user", new RegisterHandler());
-        Spark.get("/user", (Request req, Response res) -> "Hey there");
         Spark.delete("/session", new LogoutHandler());
         Spark.post("/session", new LoginHandler());
         Spark.get("/game", new ListGamesHandler());

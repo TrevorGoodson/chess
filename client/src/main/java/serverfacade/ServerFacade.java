@@ -6,6 +6,8 @@ import java.io.*;
 import java.net.*;
 import java.util.stream.Collectors;
 import exceptions.*;
+import requestresultrecords.RegisterRequest;
+import requestresultrecords.RegisterResult;
 
 public class ServerFacade {
     private static final String SERVER_URL = "http://localhost:";
@@ -59,8 +61,8 @@ public class ServerFacade {
 
     }
 
-    public void register() {
-
+    public RegisterResult register(RegisterRequest registerRequest) throws ResponseException {
+        return makeHTTPRequest("POST", "user", registerRequest, null, RegisterResult.class);
     }
 
     private <T> T makeHTTPRequest(String httpMethod, String path, Object requestBody, String authToken, Class<T> responseType) throws ResponseException {
