@@ -1,6 +1,5 @@
 package serverfacade;
 
-import chess.ChessGame;
 import com.google.gson.Gson;
 
 import java.io.*;
@@ -9,9 +8,6 @@ import java.util.stream.Collectors;
 import exceptions.*;
 import requestresultrecords.*;
 import usererrorexceptions.NotLoggedInException;
-
-import static chess.ChessGame.TeamColor.BLACK;
-import static chess.ChessGame.TeamColor.WHITE;
 
 public class ServerFacade {
     private static final String SERVER_URL = "http://localhost:";
@@ -49,11 +45,19 @@ public class ServerFacade {
             case BLACK -> "BLACK";
         };
         var partialRequest = new PartialRequest(color, joinGameRequest.gameID());
-        return makeHTTPRequest("PUT", "game", partialRequest, joinGameRequest.authToken(), JoinGameResult.class);
+        return makeHTTPRequest("PUT",
+                               "game",
+                               partialRequest,
+                               joinGameRequest.authToken(),
+                               JoinGameResult.class);
     }
 
     public ListResult listGames(ListRequest listRequest) throws ResponseException {
-        return makeHTTPRequest("GET", "game", null, listRequest.authToken(), ListResult.class);
+        return makeHTTPRequest("GET",
+                               "game",
+                               null,
+                               listRequest.authToken(),
+                               ListResult.class);
     }
 
     public LoginResult login(LoginRequest loginRequest) throws ResponseException {
