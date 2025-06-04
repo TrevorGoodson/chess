@@ -3,8 +3,7 @@ package ui;
 import exceptions.ResponseException;
 import requestresultrecords.*;
 import serverfacade.ServerFacade;
-import usererrorexceptions.WrongPasswordException;
-import usererrorexceptions.WrongUsernameException;
+import usererrorexceptions.*;
 
 import java.util.Scanner;
 
@@ -55,7 +54,7 @@ public class UserInterface {
         RegisterResult registerResult;
         try {
             registerResult = serverFacade.register(registerRequest);
-        } catch (ResponseException e) {
+        } catch (UsernameTakenException e) {
             return "Username already taken!\n";
         } catch (Exception e) {
             return "Unknown error:" + e.getMessage();

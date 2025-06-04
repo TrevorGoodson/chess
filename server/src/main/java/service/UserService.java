@@ -5,7 +5,8 @@ import dataaccess.*;
 import org.mindrot.jbcrypt.BCrypt;
 import requestresultrecords.RegisterRequest;
 import requestresultrecords.*;
-import service.exceptions.*;
+//import service.exceptions.*;
+import usererrorexceptions.*;
 
 import java.util.UUID;
 

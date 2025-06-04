@@ -2,7 +2,8 @@ package handler;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import service.exceptions.*;
+//import service.exceptions.*;
+import usererrorexceptions.*;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -26,7 +27,7 @@ public abstract class Handler implements Route {
         }
         catch (UsernameTakenException e) {
             response.status(403);
-            return new Gson().toJson(new ErrorMessage("Error: username is already taken"));
+            return new Gson().toJson(new ErrorMessage("Error: username is already taken", 3));
         } catch (GameFullException e) {
             response.status(403);
             return new Gson().toJson(new ErrorMessage("Error: team already assigned"));

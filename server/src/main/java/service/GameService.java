@@ -4,10 +4,8 @@ import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import requestresultrecords.*;
-import service.exceptions.GameFullException;
-import service.exceptions.GameNotFoundException;
-import service.exceptions.IncompleteRequestException;
-import service.exceptions.NotLoggedInException;
+//import service.exceptions.*;
+import usererrorexceptions.*;
 
 import java.util.ArrayList;
 import java.util.List;

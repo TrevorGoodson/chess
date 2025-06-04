@@ -7,8 +7,7 @@ import java.net.*;
 import java.util.stream.Collectors;
 import exceptions.*;
 import requestresultrecords.*;
-import usererrorexceptions.WrongPasswordException;
-import usererrorexceptions.WrongUsernameException;
+import usererrorexceptions.*;
 
 public class ServerFacade {
     private static final String SERVER_URL = "http://localhost:";
@@ -32,7 +31,7 @@ public class ServerFacade {
         }
     }
 
-    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws ResponseException, WrongPasswordException {
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws ResponseException {
         record PartialRequest(String gameName) {}
         return makeHTTPRequest("POST",
                                "game",
@@ -41,11 +40,11 @@ public class ServerFacade {
                                CreateGameResult.class);
     }
 
-    public void clear() throws ResponseException, WrongPasswordException {
+    public void clear() throws ResponseException {
         makeHTTPRequest("DELETE", "db", null, null, null);
     }
 
-    public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws ResponseException, WrongPasswordException {
+    public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws ResponseException {
         record PartialRequest(String playerColor, Integer gameID) {}
         String color = switch (joinGameRequest.playerColor()) {
             case WHITE -> "WHITE";
@@ -59,7 +58,7 @@ public class ServerFacade {
                                JoinGameResult.class);
     }
 
-    public ListResult listGames(ListRequest listRequest) throws ResponseException, WrongPasswordException {
+    public ListResult listGames(ListRequest listRequest) throws ResponseException {
         return makeHTTPRequest("GET",
                                "game",
                                null,
@@ -67,7 +66,7 @@ public class ServerFacade {
                                ListResult.class);
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws ResponseException, WrongPasswordException {
+    public LoginResult login(LoginRequest loginRequest) throws ResponseException {
         return makeHTTPRequest("POST",
                                "session",
                                loginRequest,
@@ -75,7 +74,7 @@ public class ServerFacade {
                                LoginResult.class);
     }
 
-    public void logout(LogoutRequest logoutRequest) throws ResponseException, WrongPasswordException {
+    public void logout(LogoutRequest logoutRequest) throws ResponseException {
         makeHTTPRequest("DELETE",
                         "session",
                         null,
@@ -83,7 +82,7 @@ public class ServerFacade {
                         null);
     }
 
-    public RegisterResult register(RegisterRequest registerRequest) throws ResponseException, WrongPasswordException {
+    public RegisterResult register(RegisterRequest registerRequest) throws ResponseException {
         return makeHTTPRequest("POST",
                                "user",
                                registerRequest,
@@ -95,7 +94,7 @@ public class ServerFacade {
                                   String path,
                                   Object requestBody,
                                   String authToken,
-                                  Class<T> responseType) throws ResponseException, WrongPasswordException {
+                                  Class<T> responseType) throws ResponseException {
         try {
             URL url = (new URI(SERVER_URL + port + "/" + path)).toURL();
             var httpConnection = (HttpURLConnection) url.openConnection();
@@ -137,8 +136,7 @@ public class ServerFacade {
     }
 
     private void ensureSuccessful(HttpURLConnection httpConnection) throws IOException,
-                                                                           ResponseException,
-                                                                           WrongPasswordException {
+                                                                           ResponseException {
         int status = httpConnection.getResponseCode();
         if (status / 100 == 2) {
             return;
@@ -156,6 +154,7 @@ public class ServerFacade {
             switch (errorMessage.code()) {
                 case 1 -> throw new WrongPasswordException();
                 case 2 -> throw new WrongUsernameException();
+                case 3 -> throw new UsernameTakenException();
                 default -> throw new ResponseException(errorMessage.message());
             }
         }
