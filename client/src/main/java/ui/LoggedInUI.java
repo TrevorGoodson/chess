@@ -1,9 +1,7 @@
 package ui;
 
 import exceptions.ResponseException;
-import requestresultrecords.CreateGameRequest;
-import requestresultrecords.CreateGameResult;
-import requestresultrecords.LogoutRequest;
+import requestresultrecords.*;
 import serverfacade.ServerFacade;
 
 import java.util.List;
@@ -35,11 +33,12 @@ public class LoggedInUI extends UserInterface{
                 case "help" -> prompt = """
                         "logout": logs you out
                         "create game": create a new chess game
-                        "list game": gives you all the games on the server
+                        "list games": gives you all the games on the server
                         "play": join a game as a player
                         "observe": join a game as an observer
                         """;
                 case "create game" -> prompt = createGame();
+                case "list games" -> prompt = listGames();
                 default -> prompt = "Unknown command. Please try again.\n";
             }
         }
@@ -65,5 +64,32 @@ public class LoggedInUI extends UserInterface{
             throw new RuntimeException(e);
         }
         return "Success! Game ID: " + createGameResult.gameID() + "\n";
+    }
+
+    private String listGames() {
+        var listRequest = new ListRequest(authToken);
+        ListResult listResult;
+        try {
+            listResult = serverFacade.listGames(listRequest);
+        } catch (ResponseException e) {
+            throw new RuntimeException(e);
+        }
+        return createPrettyGameList(listResult);
+    }
+
+    private String createPrettyGameList(ListResult listResult) {
+        StringBuilder builder = new StringBuilder();
+        for (ListSingleGame game : listResult.games()) {
+            builder.append("Game name: ");
+            builder.append(game.gameName());
+            builder.append(" | Game ID: ");
+            builder.append(game.gameID());
+            builder.append("\nWhite Player: ");
+            builder.append(game.whiteUsername());
+            builder.append(" | Black Player: ");
+            builder.append(game.blackUsername());
+            builder.append("\n\n");
+        }
+        return builder.toString();
     }
 }
