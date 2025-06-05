@@ -1,12 +1,17 @@
 package ui;
 
+import chess.ChessGame;
 import exceptions.ResponseException;
 import requestresultrecords.*;
 import serverfacade.ServerFacade;
+import usererrorexceptions.GameFullException;
+import usererrorexceptions.GameNotFoundException;
 
 import java.util.List;
 import java.util.Scanner;
 
+import static chess.ChessGame.TeamColor.BLACK;
+import static chess.ChessGame.TeamColor.WHITE;
 import static java.lang.Integer.parseInt;
 
 public class LoggedInUI extends UserInterface{
@@ -39,6 +44,7 @@ public class LoggedInUI extends UserInterface{
                         """;
                 case "create game" -> prompt = createGame();
                 case "list games" -> prompt = listGames();
+                case "play" -> prompt = joinGame();
                 default -> prompt = "Unknown command. Please try again.\n";
             }
         }
@@ -91,5 +97,32 @@ public class LoggedInUI extends UserInterface{
             builder.append("\n\n");
         }
         return builder.toString();
+    }
+
+    private String joinGame() {
+        List<String> responses = gatherUserInputForRequest(new String[] {"Game ID", "Team Color"});
+        int gameID = parseInt(responses.getFirst());
+        ChessGame.TeamColor color = switch (responses.getLast().toUpperCase()) {
+            case "WHITE" -> WHITE;
+            case "BLACK" -> BLACK;
+            default -> null;
+        };
+        if (color == null) {
+            return "Please enter a valid team color.\n";
+        }
+        var joinGameRequest = new JoinGameRequest(authToken, color, gameID);
+        JoinGameResult joinGameResult;
+        try {
+            joinGameResult = serverFacade.joinGame(joinGameRequest);
+        }
+        catch (GameFullException e) {
+            return "Team not available.\n";
+        } catch (GameNotFoundException e) {
+            return "Please enter a valid game ID.\n";
+        } catch (ResponseException e) {
+            throw new RuntimeException(e);
+        }
+
+        return "Success!\n";
     }
 }

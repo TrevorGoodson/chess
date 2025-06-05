@@ -155,6 +155,8 @@ public class ServerFacade {
                 case 1 -> throw new WrongPasswordException();
                 case 2 -> throw new WrongUsernameException();
                 case 3 -> throw new UsernameTakenException();
+                case 4 -> throw new GameFullException();
+                case 5 -> throw new GameNotFoundException();
                 default -> throw new ResponseException(errorMessage.message());
             }
         }

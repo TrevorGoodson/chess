@@ -28,9 +28,12 @@ public abstract class Handler implements Route {
         catch (UsernameTakenException e) {
             response.status(403);
             return new Gson().toJson(new ErrorMessage("Error: username is already taken", 3));
+        } catch (GameNotFoundException e) {
+            response.status(403);
+            return new Gson().toJson(new ErrorMessage("Error: game ID not found", 5));
         } catch (GameFullException e) {
             response.status(403);
-            return new Gson().toJson(new ErrorMessage("Error: team already assigned"));
+            return new Gson().toJson(new ErrorMessage("Error: team already assigned", 4));
         } catch (NotLoggedInException e) {
             response.status(401);
             return new Gson().toJson(new ErrorMessage("Error: unauthorized"));
