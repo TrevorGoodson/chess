@@ -1,13 +1,18 @@
 package ui;
 
 import exceptions.ResponseException;
+import requestresultrecords.CreateGameRequest;
+import requestresultrecords.CreateGameResult;
 import requestresultrecords.LogoutRequest;
 import serverfacade.ServerFacade;
 
+import java.util.List;
 import java.util.Scanner;
 
-public class LoggedInUI {
-    private ServerFacade serverFacade;
+import static java.lang.Integer.parseInt;
+
+public class LoggedInUI extends UserInterface{
+    private final ServerFacade serverFacade;
     String authToken;
 
     public LoggedInUI(ServerFacade serverFacade, String authToken) {
@@ -27,6 +32,14 @@ public class LoggedInUI {
                     logout();
                     return;
                 }
+                case "help" -> prompt = """
+                        "logout": logs you out
+                        "create game": create a new chess game
+                        "list game": gives you all the games on the server
+                        "play": join a game as a player
+                        "observe": join a game as an observer
+                        """;
+                case "create game" -> prompt = createGame();
                 default -> prompt = "Unknown command. Please try again.\n";
             }
         }
@@ -40,5 +53,17 @@ public class LoggedInUI {
             System.out.println("Something went wrong!" + e.getMessage());
         }
         System.out.println("Success!");
+    }
+
+    private String createGame() {
+        List<String> responses = gatherUserInputForRequest(new String[]{"game name"});
+        var createGameRequest = new CreateGameRequest(authToken, responses.getFirst());
+        CreateGameResult createGameResult;
+        try {
+            createGameResult = serverFacade.createGame(createGameRequest);
+        } catch (ResponseException e) {
+            throw new RuntimeException(e);
+        }
+        return "Success! Game ID: " + createGameResult.gameID() + "\n";
     }
 }

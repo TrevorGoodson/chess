@@ -4,11 +4,13 @@ import exceptions.ResponseException;
 import requestresultrecords.*;
 import serverfacade.ServerFacade;
 import usererrorexceptions.*;
+
+import java.util.List;
 import java.util.Scanner;
 
 import static java.lang.Integer.parseInt;
 
-public class PreLoggedInUI {
+public class PreLoggedInUI extends UserInterface {
     private static final String DEFAULT_PROMPT = "Welcome to Chess!\nType \"help\" for options\n";
 
     public static void main(String[] args) {
@@ -41,13 +43,8 @@ public class PreLoggedInUI {
     }
 
     private String register(ServerFacade serverFacade, Scanner inputScanner) {
-        System.out.print("desired username: ");
-        String username = inputScanner.nextLine();
-        System.out.print("password: ");
-        String password = inputScanner.nextLine();
-        System.out.print("email: ");
-        String email = inputScanner.nextLine();
-        var registerRequest = new RegisterRequest(username, password, email);
+        List<String> responses = gatherUserInputForRequest(new String[] {"desired username", "password", "email"});
+        var registerRequest = new RegisterRequest(responses.getFirst(), responses.get(1), responses.getLast());
         RegisterResult registerResult;
         try {
             registerResult = serverFacade.register(registerRequest);
@@ -61,11 +58,8 @@ public class PreLoggedInUI {
     }
 
     private String login(ServerFacade serverFacade, Scanner inputScanner) {
-        System.out.print("username: ");
-        String username = inputScanner.nextLine();
-        System.out.print("password: ");
-        String password = inputScanner.nextLine();
-        var loginRequest = new LoginRequest(username, password);
+        List<String> responses = gatherUserInputForRequest(new String[] {"username", "password"});
+        var loginRequest = new LoginRequest(responses.getFirst(), responses.getLast());
         LoginResult loginResult;
         try {
             loginResult = serverFacade.login(loginRequest);
