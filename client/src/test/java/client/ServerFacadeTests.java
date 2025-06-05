@@ -6,6 +6,8 @@ import org.junit.jupiter.api.*;
 import requestresultrecords.*;
 import server.Server;
 import serverfacade.ServerFacade;
+import usererrorexceptions.UsernameTakenException;
+import usererrorexceptions.WrongUsernameException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -65,7 +67,7 @@ public class ServerFacadeTests {
             RegisterRequest registerRequest2 = new RegisterRequest("Trevor", "5678", "2");
 
             RegisterResult registerResult = serverFacade.register(registerRequest1);
-            assertThrows(ResponseException.class, () -> serverFacade.register(registerRequest2));
+            assertThrows(UsernameTakenException.class, () -> serverFacade.register(registerRequest2));
         } catch (ResponseException e) {
             throw new RuntimeException(e);
         }
@@ -126,7 +128,7 @@ public class ServerFacadeTests {
             int port = server.port();
             var serverFacade = new ServerFacade(port);
             serverFacade.clear();
-            assertThrows(ResponseException.class, () -> serverFacade.login(new LoginRequest("bad username", "equally bad password")));
+            assertThrows(WrongUsernameException.class, () -> serverFacade.login(new LoginRequest("bad username", "equally bad password")));
         } catch (ResponseException e) {
             throw new RuntimeException(e);
         }
