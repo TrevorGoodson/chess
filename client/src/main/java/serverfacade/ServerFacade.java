@@ -26,10 +26,10 @@ public class ServerFacade {
     }
 
     public CreateGameResult createGame(CreateGameRequest createGameRequest) throws UserErrorException {
-        record PartialRequest(String gameName) {}
+        var partialRequest = new PartialCreateGameRequest(createGameRequest.gameName());
         return makeHTTPRequest("POST",
                                "game",
-                               new PartialRequest(createGameRequest.gameName()),
+                               partialRequest,
                                createGameRequest.authToken(),
                                CreateGameResult.class);
     }
@@ -43,12 +43,11 @@ public class ServerFacade {
     }
 
     public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws UserErrorException {
-        record PartialRequest(String playerColor, Integer gameID) {}
         String color = switch (joinGameRequest.playerColor()) {
             case WHITE -> "WHITE";
             case BLACK -> "BLACK";
         };
-        var partialRequest = new PartialRequest(color, joinGameRequest.gameID());
+        var partialRequest = new PartialJoinGameRequest(color, joinGameRequest.gameID());
         return makeHTTPRequest("PUT",
                                "game",
                                partialRequest,
