@@ -1,7 +1,6 @@
 package client;
 
 import chess.ChessGame;
-import exceptions.ResponseException;
 import org.junit.jupiter.api.*;
 import requestresultrecords.*;
 import server.Server;
@@ -96,7 +95,7 @@ public class ServerFacadeTests {
             int port = server.port();
             var serverFacade = new ServerFacade(port);
             serverFacade.clear();
-            assertThrows(ResponseException.class, () -> serverFacade.logout(new LogoutRequest("bad authToken")));
+            assertThrows(NotLoggedInException.class, () -> serverFacade.logout(new LogoutRequest("bad authToken")));
         } catch (UserErrorException e) {
             throw new RuntimeException(e);
         }
@@ -159,7 +158,7 @@ public class ServerFacadeTests {
             var serverFacade = new ServerFacade(port);
             serverFacade.clear();
             CreateGameRequest createGameRequest = new CreateGameRequest("bad authToken", "game1");
-            assertThrows(ResponseException.class, () -> serverFacade.createGame(createGameRequest));
+            assertThrows(NotLoggedInException.class, () -> serverFacade.createGame(createGameRequest));
         } catch (UserErrorException e) {
             throw new RuntimeException(e);
         }

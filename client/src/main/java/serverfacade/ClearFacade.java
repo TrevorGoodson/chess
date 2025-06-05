@@ -1,6 +1,5 @@
 package serverfacade;
 
-import exceptions.ResponseException;
 import requestresultrecords.ClearResult;
 import usererrorexceptions.UserErrorException;
 
