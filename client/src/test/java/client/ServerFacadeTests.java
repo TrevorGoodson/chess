@@ -6,6 +6,7 @@ import org.junit.jupiter.api.*;
 import requestresultrecords.*;
 import server.Server;
 import serverfacade.ServerFacade;
+import usererrorexceptions.GameFullException;
 import usererrorexceptions.UsernameTakenException;
 import usererrorexceptions.WrongUsernameException;
 
@@ -236,7 +237,7 @@ public class ServerFacadeTests {
             CreateGameResult createGameResult = serverFacade.createGame(createGameRequest);
             JoinGameRequest joinGameRequest = new JoinGameRequest(authToken, ChessGame.TeamColor.WHITE, createGameResult.gameID());
             serverFacade.joinGame(joinGameRequest);
-            assertThrows(ResponseException.class, () -> serverFacade.joinGame(joinGameRequest));
+            assertThrows(GameFullException.class, () -> serverFacade.joinGame(joinGameRequest));
         } catch (ResponseException e) {
             throw new RuntimeException(e);
         }
