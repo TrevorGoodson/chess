@@ -1,11 +1,10 @@
 package ui;
 
 import chess.ChessGame;
-import exceptions.ResponseException;
 import requestresultrecords.*;
 import serverfacade.ServerFacade;
-import usererrorexceptions.GameFullException;
-import usererrorexceptions.GameNotFoundException;
+import usererrorexceptions.UserErrorException;
+import usererrorexceptions.UserErrorExceptionDecoder;
 
 import java.util.List;
 import java.util.Scanner;
@@ -54,8 +53,8 @@ public class LoggedInUI extends UserInterface{
         var logoutRequest = new LogoutRequest(authToken);
         try {
             serverFacade.logout(logoutRequest);
-        } catch (ResponseException e) {
-            System.out.println("Something went wrong!" + e.getMessage());
+        } catch (UserErrorException e) {
+            System.out.println("Something went wrong!" + new UserErrorExceptionDecoder().getMessage(e));
         }
         System.out.println("Success!");
     }
@@ -66,8 +65,8 @@ public class LoggedInUI extends UserInterface{
         CreateGameResult createGameResult;
         try {
             createGameResult = serverFacade.createGame(createGameRequest);
-        } catch (ResponseException e) {
-            throw new RuntimeException(e);
+        } catch (UserErrorException e) {
+            return new UserErrorExceptionDecoder().getMessage(e);
         }
         return "Success! Game ID: " + createGameResult.gameID() + "\n";
     }
@@ -77,8 +76,8 @@ public class LoggedInUI extends UserInterface{
         ListResult listResult;
         try {
             listResult = serverFacade.listGames(listRequest);
-        } catch (ResponseException e) {
-            throw new RuntimeException(e);
+        } catch (UserErrorException e) {
+            return new UserErrorExceptionDecoder().getMessage(e);
         }
         return createPrettyGameList(listResult);
     }
@@ -115,12 +114,8 @@ public class LoggedInUI extends UserInterface{
         try {
             joinGameResult = serverFacade.joinGame(joinGameRequest);
         }
-        catch (GameFullException e) {
-            return "Team not available.\n";
-        } catch (GameNotFoundException e) {
-            return "Please enter a valid game ID.\n";
-        } catch (ResponseException e) {
-            throw new RuntimeException(e);
+        catch (UserErrorException e) {
+            return new UserErrorExceptionDecoder().getMessage(e);
         }
         new DisplayBoard().whitePOV();
         System.out.print("\n");

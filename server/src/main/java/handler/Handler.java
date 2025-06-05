@@ -2,21 +2,12 @@ package handler;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-//import service.exceptions.*;
 import usererrorexceptions.*;
-import spark.Request;
-import spark.Response;
-import spark.Route;
+import spark.*;
 
 public abstract class Handler implements Route {
     protected abstract Record parseRequest(Request req);
-    protected abstract Record handleRequest(Record request) throws IncompleteRequestException, DataAccessException;
-
-    private record ErrorMessage(String message, int code) {
-        public ErrorMessage(String message) {
-            this(message, 0);
-        }
-    }
+    protected abstract Record handleRequest(Record request) throws UserErrorException, DataAccessException;
 
     @Override
     public Object handle(Request req, Response response) throws Exception {
@@ -25,27 +16,12 @@ public abstract class Handler implements Route {
         try {
             result = handleRequest(request);
         }
-        catch (UsernameTakenException e) {
-            response.status(403);
-            return new Gson().toJson(new ErrorMessage("Error: username is already taken", 3));
-        } catch (GameNotFoundException e) {
-            response.status(403);
-            return new Gson().toJson(new ErrorMessage("Error: game ID not found", 5));
-        } catch (GameFullException e) {
-            response.status(403);
-            return new Gson().toJson(new ErrorMessage("Error: team already assigned", 4));
-        } catch (NotLoggedInException e) {
-            response.status(401);
-            return new Gson().toJson(new ErrorMessage("Error: unauthorized"));
-        } catch (WrongUsernameException e) {
-            response.status(401);
-            return new Gson().toJson(new ErrorMessage("Error: wrong username!", 2));
-        } catch (WrongPasswordException e) {
-            response.status(401);
-            return new Gson().toJson(new ErrorMessage("Error: wrong password", 1));
-        } catch (IncompleteRequestException e) {
-            response.status(400);
-            return new Gson().toJson(new ErrorMessage("Error: bad request"));
+        catch (UserErrorException e) {
+            var decoder = new UserErrorExceptionDecoder();
+            response.status(decoder.getHTTPStatusCode(e));
+            String errorMessage = decoder.getMessage(e);
+            int errorCode = decoder.getCode(e);
+            return new Gson().toJson(new ErrorMessage("Error: " + errorMessage, errorCode));
         } catch (DataAccessException e) {
             response.status(500);
             return new Gson().toJson(new ErrorMessage("Error: internal server error"));

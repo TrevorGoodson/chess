@@ -24,7 +24,7 @@ public class UserServiceTests {
             RegisterResult r = new UserService().register(new RegisterRequest("Ian", "FrogLog", "t@gmail.com"));
             assertEquals("Ian", r.username());
             System.out.println("Auth token:" + r.authToken());
-        } catch (IncompleteRequestException | DataAccessException e) {
+        } catch (UserErrorException | DataAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -37,7 +37,7 @@ public class UserServiceTests {
             assertThrows(UsernameTakenException.class, () -> {
                 userService.register(new RegisterRequest("Gavin", "abcd", "b@a.com"));
             });
-        } catch (IncompleteRequestException | DataAccessException e) {
+        } catch (UserErrorException | DataAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -48,7 +48,7 @@ public class UserServiceTests {
             var userService = new UserService();
             RegisterResult r = userService.register(new RegisterRequest("Miles", "FrogLog", ""));
             userService.logout(new LogoutRequest(r.authToken()));
-        } catch (IncompleteRequestException | DataAccessException e) {
+        } catch (UserErrorException | DataAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -66,7 +66,7 @@ public class UserServiceTests {
             RegisterResult r = userService.register(new RegisterRequest("Bartholomew", "FrogLog", ""));
             userService.logout(new LogoutRequest(r.authToken()));
             userService.login(new LoginRequest("Bartholomew", "FrogLog"));
-        } catch (IncompleteRequestException | DataAccessException e) {
+        } catch (UserErrorException | DataAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -78,7 +78,7 @@ public class UserServiceTests {
             RegisterResult r = userService.register(new RegisterRequest("Jeanette", "FrogLog", ""));
             userService.logout(new LogoutRequest(r.authToken()));
             assertThrows(WrongPasswordException.class, () -> userService.login(new LoginRequest("Jeanette", "Wrong Password!")));
-        } catch (IncompleteRequestException | DataAccessException e) {
+        } catch (UserErrorException | DataAccessException e) {
             throw new RuntimeException(e);
         }
     }

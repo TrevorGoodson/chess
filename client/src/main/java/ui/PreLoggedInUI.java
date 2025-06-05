@@ -1,6 +1,5 @@
 package ui;
 
-import exceptions.ResponseException;
 import requestresultrecords.*;
 import serverfacade.ServerFacade;
 import usererrorexceptions.*;
@@ -48,10 +47,8 @@ public class PreLoggedInUI extends UserInterface {
         RegisterResult registerResult;
         try {
             registerResult = serverFacade.register(registerRequest);
-        } catch (UsernameTakenException e) {
-            return "Username already taken!\n";
-        } catch (ResponseException e) {
-            return "Unknown error:" + e.getMessage() + "\n";
+        } catch (UserErrorException e) {
+            return new UserErrorExceptionDecoder().getMessage(e);
         }
         new LoggedInUI(serverFacade, registerResult.authToken()).run();
         return "\n";
@@ -63,12 +60,8 @@ public class PreLoggedInUI extends UserInterface {
         LoginResult loginResult;
         try {
             loginResult = serverFacade.login(loginRequest);
-        } catch (WrongPasswordException e) {
-            return "Wrong password!\n";
-        } catch (WrongUsernameException e) {
-            return "Unknown username!\n";
-        } catch (ResponseException e) {
-            return "Unknown error:" + e.getMessage() + "\n";
+        } catch (UserErrorException e) {
+            return new UserErrorExceptionDecoder().getMessage(e);
         }
         new LoggedInUI(serverFacade, loginResult.authToken()).run();
         return "\n";

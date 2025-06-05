@@ -20,7 +20,7 @@ public class UserService extends Service {
      * @throws UsernameTakenException If the username is already in the database.
      * @throws IncompleteRequestException If any input fields are null.
      */
-    public RegisterResult register(RegisterRequest registerRequest) throws UsernameTakenException, IncompleteRequestException, DataAccessException {
+    public RegisterResult register(RegisterRequest registerRequest) throws UserErrorException, DataAccessException {
         assertRequestComplete(registerRequest);
         if (userDataDAO.getUser(registerRequest.username()) != null) {
             throw new UsernameTakenException();
@@ -31,10 +31,7 @@ public class UserService extends Service {
         return new RegisterResult(registerRequest.username(), authToken);
     }
 
-    public LoginResult login(LoginRequest r) throws WrongUsernameException,
-                                                    WrongPasswordException,
-                                                    IncompleteRequestException,
-                                                    DataAccessException {
+    public LoginResult login(LoginRequest r) throws UserErrorException, DataAccessException {
         assertRequestComplete(r);
         UserData user = userDataDAO.getUser(r.username());
         if (user == null) {
@@ -74,7 +71,7 @@ public class UserService extends Service {
         return newAuthToken;
     }
 
-    public LogoutResult logout(LogoutRequest r) throws NotLoggedInException, IncompleteRequestException, DataAccessException {
+    public LogoutResult logout(LogoutRequest r) throws UserErrorException, DataAccessException {
         assertRequestComplete(r);
         AuthData authData = verifyUser(r.authToken());
         authDataDAO.deleteAuthData(authData);

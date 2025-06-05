@@ -15,7 +15,7 @@ public class LoginHandler extends Handler {
     }
 
     @Override
-    protected Record handleRequest(Record request) throws IncompleteRequestException, DataAccessException {
+    protected Record handleRequest(Record request) throws UserErrorException, DataAccessException {
         return new UserService().login((LoginRequest) request);
     }
 }

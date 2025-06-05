@@ -2,8 +2,6 @@ package service;
 
 import dataaccess.*;
 import model.AuthData;
-//import service.exceptions.IncompleteRequestException;
-//import service.exceptions.NotLoggedInException;
 import usererrorexceptions.*;
 
 public abstract class Service {

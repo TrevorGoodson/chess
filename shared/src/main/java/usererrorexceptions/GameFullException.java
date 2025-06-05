@@ -1,6 +1,6 @@
 package usererrorexceptions;
 
-public class GameFullException extends RuntimeException {
+public class GameFullException extends UserErrorException {
     public GameFullException(String message) {
         super(message);
     }

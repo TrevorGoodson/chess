@@ -6,9 +6,8 @@ import org.junit.jupiter.api.*;
 import requestresultrecords.*;
 import server.Server;
 import serverfacade.ServerFacade;
-import usererrorexceptions.GameFullException;
-import usererrorexceptions.UsernameTakenException;
-import usererrorexceptions.WrongUsernameException;
+import usererrorexceptions.*;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,7 +35,7 @@ public class ServerFacadeTests {
         try {
             int port = server.port();
             new ServerFacade(port).clear();
-        } catch (ResponseException e) {
+        } catch (UserErrorException e) {
             throw new RuntimeException(e);
         }
     }
@@ -52,7 +51,7 @@ public class ServerFacadeTests {
             RegisterResult registerResult = serverFacade.register(registerRequest);
             assertEquals(registerRequest.username(), registerResult.username());
             assertNotNull(registerResult.authToken());
-        } catch (ResponseException e) {
+        } catch (UserErrorException e) {
             throw new RuntimeException(e);
         }
     }
@@ -67,9 +66,9 @@ public class ServerFacadeTests {
             RegisterRequest registerRequest1 = new RegisterRequest("Trevor", "1234", "1");
             RegisterRequest registerRequest2 = new RegisterRequest("Trevor", "5678", "2");
 
-            RegisterResult registerResult = serverFacade.register(registerRequest1);
+            serverFacade.register(registerRequest1);
             assertThrows(UsernameTakenException.class, () -> serverFacade.register(registerRequest2));
-        } catch (ResponseException e) {
+        } catch (UserErrorException e) {
             throw new RuntimeException(e);
         }
     }
@@ -85,7 +84,7 @@ public class ServerFacadeTests {
             RegisterResult registerResult = serverFacade.register(registerRequest);
             var logoutRequest = new LogoutRequest(registerResult.authToken());
             serverFacade.logout(logoutRequest);
-        } catch (ResponseException e) {
+        } catch (UserErrorException e) {
             throw new RuntimeException(e);
         }
     }
@@ -98,7 +97,7 @@ public class ServerFacadeTests {
             var serverFacade = new ServerFacade(port);
             serverFacade.clear();
             assertThrows(ResponseException.class, () -> serverFacade.logout(new LogoutRequest("bad authToken")));
-        } catch (ResponseException e) {
+        } catch (UserErrorException e) {
             throw new RuntimeException(e);
         }
     }
@@ -117,7 +116,7 @@ public class ServerFacadeTests {
             var loginRequest = new LoginRequest("Trevor", "1234");
             LoginResult loginResult = serverFacade.login(loginRequest);
             assertNotNull(loginResult.authToken());
-        } catch (ResponseException e) {
+        } catch (UserErrorException e) {
             throw new RuntimeException(e);
         }
     }
@@ -130,7 +129,7 @@ public class ServerFacadeTests {
             var serverFacade = new ServerFacade(port);
             serverFacade.clear();
             assertThrows(WrongUsernameException.class, () -> serverFacade.login(new LoginRequest("bad username", "equally bad password")));
-        } catch (ResponseException e) {
+        } catch (UserErrorException e) {
             throw new RuntimeException(e);
         }
     }
@@ -147,7 +146,7 @@ public class ServerFacadeTests {
             CreateGameRequest createGameRequest = new CreateGameRequest(registerResult.authToken(), "game1");
             CreateGameResult createGameResult = serverFacade.createGame(createGameRequest);
             assertNotNull(createGameResult);
-        } catch (ResponseException e) {
+        } catch (UserErrorException e) {
             throw new RuntimeException(e);
         }
     }
@@ -161,7 +160,7 @@ public class ServerFacadeTests {
             serverFacade.clear();
             CreateGameRequest createGameRequest = new CreateGameRequest("bad authToken", "game1");
             assertThrows(ResponseException.class, () -> serverFacade.createGame(createGameRequest));
-        } catch (ResponseException e) {
+        } catch (UserErrorException e) {
             throw new RuntimeException(e);
         }
     }
@@ -181,7 +180,7 @@ public class ServerFacadeTests {
             var listRequest = new ListRequest(authToken);
             ListResult listResult = serverFacade.listGames(listRequest);
             assertNotEquals(0, listResult.games().size());
-        } catch (ResponseException e) {
+        } catch (UserErrorException e) {
             throw new RuntimeException(e);
         }
     }
@@ -199,7 +198,7 @@ public class ServerFacadeTests {
             var listRequest = new ListRequest(authToken);
             ListResult listResult = serverFacade.listGames(listRequest);
             assertEquals(0, listResult.games().size());
-        } catch (ResponseException e) {
+        } catch (UserErrorException e) {
             throw new RuntimeException(e);
         }
     }
@@ -218,7 +217,7 @@ public class ServerFacadeTests {
             CreateGameResult createGameResult = serverFacade.createGame(createGameRequest);
             JoinGameRequest joinGameRequest = new JoinGameRequest(authToken, ChessGame.TeamColor.WHITE, createGameResult.gameID());
             assertNotNull(serverFacade.joinGame(joinGameRequest));
-        } catch (ResponseException e) {
+        } catch (UserErrorException e) {
             throw new RuntimeException(e);
         }
     }
@@ -238,7 +237,7 @@ public class ServerFacadeTests {
             JoinGameRequest joinGameRequest = new JoinGameRequest(authToken, ChessGame.TeamColor.WHITE, createGameResult.gameID());
             serverFacade.joinGame(joinGameRequest);
             assertThrows(GameFullException.class, () -> serverFacade.joinGame(joinGameRequest));
-        } catch (ResponseException e) {
+        } catch (UserErrorException e) {
             throw new RuntimeException(e);
         }
     }

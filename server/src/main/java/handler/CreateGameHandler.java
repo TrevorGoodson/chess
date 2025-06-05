@@ -19,7 +19,7 @@ public class CreateGameHandler extends Handler {
     }
 
     @Override
-    protected Record handleRequest(Record request) throws IncompleteRequestException, DataAccessException {
+    protected Record handleRequest(Record request) throws UserErrorException, DataAccessException {
         return new GameService().createGame((CreateGameRequest) request);
     }
 }

@@ -4,7 +4,6 @@ import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import requestresultrecords.*;
-//import service.exceptions.*;
 import usererrorexceptions.*;
 
 import java.util.ArrayList;
@@ -21,9 +20,7 @@ public class GameService extends Service {
      * @throws NotLoggedInException If the user is not logged in
      * @throws IncompleteRequestException If any input fields are null
      */
-    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws NotLoggedInException,
-                                                                                   IncompleteRequestException,
-                                                                                   DataAccessException {
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws UserErrorException, DataAccessException {
         assertRequestComplete(createGameRequest);
         verifyUser(createGameRequest.authToken());
         int gameID = gameDataDAO.createGame(createGameRequest.gameName());
@@ -38,10 +35,7 @@ public class GameService extends Service {
      * @throws GameNotFoundException If the game ID is invalid
      * @throws IncompleteRequestException If any input fields are null.
      */
-    public JoinGameResult joinGame(JoinGameRequest joinRequest) throws NotLoggedInException,
-                                                                       GameNotFoundException,
-                                                                       IncompleteRequestException,
-                                                                       DataAccessException {
+    public JoinGameResult joinGame(JoinGameRequest joinRequest) throws UserErrorException, DataAccessException {
         assertRequestComplete(joinRequest);
         AuthData authData = verifyUser(joinRequest.authToken());
 
@@ -65,7 +59,7 @@ public class GameService extends Service {
      * @throws NotLoggedInException If the user is not logged in.
      * @throws IncompleteRequestException If any input fields are null.
      */
-    public ListResult listGames(ListRequest listRequest) throws NotLoggedInException, IncompleteRequestException, DataAccessException {
+    public ListResult listGames(ListRequest listRequest) throws UserErrorException, DataAccessException {
         assertRequestComplete(listRequest);
         if (authDataDAO.getAuthData(listRequest.authToken()) == null) {
             throw new NotLoggedInException();
