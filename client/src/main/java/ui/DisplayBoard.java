@@ -29,10 +29,10 @@ public class DisplayBoard {
 
     public void blackPOV() {
         printColumnLabels();
-        for (int i = 0; i < 8; ++i) {
+        for (int i = 7; i >= 0; --i) {
             ChessPiece[] row = game.getBoard().getRowToDisplay(i);
             printRowLabel(i);
-            for (int j = 7; j >= 0; --j) {
+            for (int j = 0; j < 8; ++j) {
                 printPiece(row[j]);
             }
             currentSquareWhite = !currentSquareWhite;
@@ -46,25 +46,29 @@ public class DisplayBoard {
 
     private void printColumnLabels() {
         System.out.print(SET_BG_COLOR_DARK_GREY);
-        print(" 12345678 ");
+        print(" ABCDEFGH ");
         System.out.print(RESET_BG_COLOR);
         System.out.print("\n");
     }
 
     private void printRowLabel(int i) {
         System.out.print(SET_BG_COLOR_DARK_GREY);
-        print(Character.toString('A' + i));
+        print(String.valueOf(8-i));
         System.out.print(RESET_BG_COLOR);
     }
 
     private void printPiece(ChessPiece piece) {
         if (currentSquareWhite) {
-            System.out.print(SET_BG_COLOR_WHITE);
-            System.out.print(SET_TEXT_COLOR_BLACK);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY);
         }
         else {
-            System.out.print(SET_BG_COLOR_BLACK);
+            System.out.print(SET_BG_COLOR_DARK_GREY);
+        }
+        if (piece != null && piece.getTeamColor() == WHITE) {
             System.out.print(SET_TEXT_COLOR_WHITE);
+        }
+        else {
+            System.out.print(SET_TEXT_COLOR_BLACK);
         }
         currentSquareWhite = !currentSquareWhite;
         print(pieceToPrettyString(piece));

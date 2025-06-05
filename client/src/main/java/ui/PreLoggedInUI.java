@@ -36,6 +36,8 @@ public class PreLoggedInUI extends UserInterface {
                 }
                 case "register" -> prompt = register(serverFacade, inputScanner) + DEFAULT_PROMPT;
                 case "login" -> prompt = login(serverFacade, inputScanner) + DEFAULT_PROMPT;
+                case "w" -> new DisplayBoard().whitePOV();
+                case "b" -> new DisplayBoard().blackPOV();
                 default -> prompt = "Unknown command, please try again!\n";
             }
         }
