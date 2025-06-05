@@ -5,9 +5,6 @@ import dataaccess.GameDataDAOSQL;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import requestresultrecords.*;
-//import service.exceptions.GameFullException;
-//import service.exceptions.IncompleteRequestException;
-//import service.exceptions.NotLoggedInException;
 import usererrorexceptions.*;
 
 import static chess.ChessGame.TeamColor.*;

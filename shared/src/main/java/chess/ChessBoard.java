@@ -32,6 +32,10 @@ public class ChessBoard {
         }
     }
 
+    public ChessPiece[] getRowToDisplay(int i) {
+        return board[i];
+    }
+
     /**
      * Gets a chess piece on the chessboard
      *

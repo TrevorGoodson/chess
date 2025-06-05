@@ -122,7 +122,9 @@ public class LoggedInUI extends UserInterface{
         } catch (ResponseException e) {
             throw new RuntimeException(e);
         }
-
+        new DisplayBoard().whitePOV();
+        System.out.print("\n");
+        new DisplayBoard().blackPOV();
         return "Success!\n";
     }
 }

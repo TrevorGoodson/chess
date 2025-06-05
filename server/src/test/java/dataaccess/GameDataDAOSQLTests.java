@@ -83,8 +83,8 @@ public class GameDataDAOSQLTests {
     public void badSelectGameTest() {
         try {
             gameDataDAO.clear();
-            int BAD_GAME_ID = 1;
-            GameData game = gameDataDAO.findGame(BAD_GAME_ID);
+            int badGameId = 1;
+            GameData game = gameDataDAO.findGame(badGameId);
             assertNull(game);
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
