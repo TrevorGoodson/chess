@@ -72,7 +72,7 @@ public class LoggedInUI extends UserInterface{
         } catch (UserErrorException e) {
             return new UserErrorExceptionDecoder().getMessage(e);
         }
-        return "Success! Game ID: " + createGameResult.gameID() + "\n";
+        return "Success!\n";
     }
 
     private String listGames() {
@@ -109,13 +109,17 @@ public class LoggedInUI extends UserInterface{
     }
 
     private String joinGame() {
-        List<String> responses = gatherUserInputForRequest(new String[] {"Game ID", "Team Color"});
-        int gameID;
+        List<String> responses = gatherUserInputForRequest(new String[] {"Game number", "Team Color"});
+        int listNum;
         try {
-            gameID = parseInt(responses.getFirst());
-        } catch (NumberFormatException e) {
-            return "Please enter a valid game ID (a number, not a word like \"three\"";
+            listNum = parseInt(responses.getFirst());
+            if (listNum > listNumToGameID.size() || listNum < 1) {
+                throw new RuntimeException();
+            }
+        } catch (RuntimeException e) {
+            return "Please enter a valid game number (a number, not a word like \"three\")\nTo see available games, type \"list games\".\n";
         }
+        int gameID = listNumToGameID.get(listNum);
         ChessGame.TeamColor color = switch (responses.getLast().toUpperCase()) {
             case "WHITE" -> WHITE;
             case "BLACK" -> BLACK;
@@ -132,9 +136,16 @@ public class LoggedInUI extends UserInterface{
         catch (UserErrorException e) {
             return new UserErrorExceptionDecoder().getMessage(e) + "\n";
         }
-        new DisplayBoard().whitePOV();
-        System.out.print("\n");
-        new DisplayBoard().blackPOV();
+        if (color == WHITE) {
+            new DisplayBoard().whitePOV();
+            System.out.print("\n");
+            new DisplayBoard().blackPOV();
+        }
+        else {
+            new DisplayBoard().blackPOV();
+            System.out.print("\n");
+            new DisplayBoard().whitePOV();
+        }
         return "Success!\n";
     }
 }

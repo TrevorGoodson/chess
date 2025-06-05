@@ -10,7 +10,7 @@ import java.util.Scanner;
 import static java.lang.Integer.parseInt;
 
 public class PreLoggedInUI extends UserInterface {
-    private static final String DEFAULT_PROMPT = "Welcome to Chess!\nType \"help\" for options\n";
+    private static final String DEFAULT_PROMPT = "Type \"help\" for options\n";
 
     public static void main(String[] args) {
         new PreLoggedInUI().run(parseInt(args[0]));
@@ -18,7 +18,7 @@ public class PreLoggedInUI extends UserInterface {
 
     public void run(int port) {
         ServerFacade serverFacade = new ServerFacade(port);
-        String prompt = DEFAULT_PROMPT;
+        String prompt = "Welcome to Chess!\n" + DEFAULT_PROMPT;
         Scanner inputScanner = new Scanner(System.in);
 
         while (true) {
