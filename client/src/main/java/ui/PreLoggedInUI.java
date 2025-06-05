@@ -38,6 +38,7 @@ public class PreLoggedInUI extends UserInterface {
                 case "login" -> prompt = login(serverFacade, inputScanner) + DEFAULT_PROMPT;
                 case "w" -> new DisplayBoard().whitePOV();
                 case "b" -> new DisplayBoard().blackPOV();
+                case "clear" -> {try {serverFacade.clear();} catch (UserErrorException e) {throw new RuntimeException(e);}}
                 default -> prompt = "Unknown command, please try again!\n";
             }
         }
@@ -50,7 +51,7 @@ public class PreLoggedInUI extends UserInterface {
         try {
             registerResult = serverFacade.register(registerRequest);
         } catch (UserErrorException e) {
-            return new UserErrorExceptionDecoder().getMessage(e);
+            return new UserErrorExceptionDecoder().getMessage(e)  + "\n";
         }
         new LoggedInUI(serverFacade, registerResult.authToken()).run();
         return "\n";
@@ -63,7 +64,7 @@ public class PreLoggedInUI extends UserInterface {
         try {
             loginResult = serverFacade.login(loginRequest);
         } catch (UserErrorException e) {
-            return new UserErrorExceptionDecoder().getMessage(e);
+            return new UserErrorExceptionDecoder().getMessage(e) + "\n";
         }
         new LoggedInUI(serverFacade, loginResult.authToken()).run();
         return "\n";

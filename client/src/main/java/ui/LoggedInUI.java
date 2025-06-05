@@ -7,7 +7,9 @@ import usererrorexceptions.UserErrorException;
 import usererrorexceptions.UserErrorExceptionDecoder;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
@@ -16,6 +18,7 @@ import static java.lang.Integer.parseInt;
 public class LoggedInUI extends UserInterface{
     private final ServerFacade serverFacade;
     String authToken;
+    Map<Integer, Integer> listNumToGameID = new TreeMap<>();
 
     public LoggedInUI(ServerFacade serverFacade, String authToken) {
         this.serverFacade = serverFacade;
@@ -44,6 +47,7 @@ public class LoggedInUI extends UserInterface{
                 case "create game" -> prompt = createGame();
                 case "list games" -> prompt = listGames();
                 case "play" -> prompt = joinGame();
+                case "observe" -> prompt = "Feature not yet released\n";
                 default -> prompt = "Unknown command. Please try again.\n";
             }
         }
@@ -77,30 +81,41 @@ public class LoggedInUI extends UserInterface{
         try {
             listResult = serverFacade.listGames(listRequest);
         } catch (UserErrorException e) {
-            return new UserErrorExceptionDecoder().getMessage(e);
+            return new UserErrorExceptionDecoder().getMessage(e) + "\n";
         }
         return createPrettyGameList(listResult);
     }
 
     private String createPrettyGameList(ListResult listResult) {
+        if (listResult.games().isEmpty()) {
+            return "No games currently on the server! Type \"create game\" to make a game.\n";
+        }
         StringBuilder builder = new StringBuilder();
+        Integer gameNum = 0;
         for (ListSingleGame game : listResult.games()) {
+            gameNum++;
+            builder.append(gameNum);
+            listNumToGameID.put(gameNum, game.gameID());
+            builder.append(". ");
             builder.append("Game name: ");
             builder.append(game.gameName());
-            builder.append(" | Game ID: ");
-            builder.append(game.gameID());
-            builder.append("\nWhite Player: ");
+            builder.append(" | White Player: ");
             builder.append(game.whiteUsername());
             builder.append(" | Black Player: ");
             builder.append(game.blackUsername());
-            builder.append("\n\n");
+            builder.append("\n");
         }
         return builder.toString();
     }
 
     private String joinGame() {
         List<String> responses = gatherUserInputForRequest(new String[] {"Game ID", "Team Color"});
-        int gameID = parseInt(responses.getFirst());
+        int gameID;
+        try {
+            gameID = parseInt(responses.getFirst());
+        } catch (NumberFormatException e) {
+            return "Please enter a valid game ID (a number, not a word like \"three\"";
+        }
         ChessGame.TeamColor color = switch (responses.getLast().toUpperCase()) {
             case "WHITE" -> WHITE;
             case "BLACK" -> BLACK;
@@ -115,7 +130,7 @@ public class LoggedInUI extends UserInterface{
             joinGameResult = serverFacade.joinGame(joinGameRequest);
         }
         catch (UserErrorException e) {
-            return new UserErrorExceptionDecoder().getMessage(e);
+            return new UserErrorExceptionDecoder().getMessage(e) + "\n";
         }
         new DisplayBoard().whitePOV();
         System.out.print("\n");
