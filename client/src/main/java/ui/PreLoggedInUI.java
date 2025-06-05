@@ -4,7 +4,6 @@ import exceptions.ResponseException;
 import requestresultrecords.*;
 import serverfacade.ServerFacade;
 import usererrorexceptions.*;
-
 import java.util.Scanner;
 
 import static java.lang.Integer.parseInt;
@@ -57,7 +56,8 @@ public class PreLoggedInUI {
         } catch (ResponseException e) {
             return "Unknown error:" + e.getMessage() + "\n";
         }
-        return registerResult.authToken();
+        new LoggedInUI(serverFacade, registerResult.authToken()).run();
+        return "\n";
     }
 
     private String login(ServerFacade serverFacade, Scanner inputScanner) {
@@ -76,6 +76,7 @@ public class PreLoggedInUI {
         } catch (ResponseException e) {
             return "Unknown error:" + e.getMessage() + "\n";
         }
-        return loginResult.authToken();
+        new LoggedInUI(serverFacade, loginResult.authToken()).run();
+        return "\n";
     }
 }
