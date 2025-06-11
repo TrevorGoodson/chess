@@ -6,15 +6,7 @@ import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 
-public class Connection {
-    public String username;
-    public Session session;
-
-    public Connection(String username, Session session) {
-        this.username = username;
-        this.session = session;
-    }
-
+public record Connection(String username, Session session) {
     public void send(ServerMessage message) throws IOException {
         session.getRemote().sendString(new Gson().toJson(message));
     }
