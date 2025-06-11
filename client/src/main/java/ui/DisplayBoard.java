@@ -3,15 +3,16 @@ package ui;
 import chess.ChessGame;
 import chess.ChessPiece;
 
+import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
 import static ui.EscapeSequences.*;
 
 public class DisplayBoard {
-    private ChessGame game = new ChessGame();
+    private final ChessGame game = new ChessGame();
     private boolean currentSquareWhite = true;
 
     public void whitePOV() {
-        printColumnLabels();
+        printColumnLabels(WHITE);
         for (int i = 0; i < 8; ++i) {
             ChessPiece[] row = game.getBoard().getRowToDisplay(i);
             printRowLabel(i);
@@ -24,15 +25,15 @@ public class DisplayBoard {
             printRowLabel(i);
             System.out.print("\n");
         }
-        printColumnLabels();
+        printColumnLabels(WHITE);
     }
 
     public void blackPOV() {
-        printColumnLabels();
+        printColumnLabels(BLACK);
         for (int i = 7; i >= 0; --i) {
             ChessPiece[] row = game.getBoard().getRowToDisplay(i);
             printRowLabel(i);
-            for (int j = 0; j < 8; ++j) {
+            for (int j = 7; j >= 0; --j) {
                 printPiece(row[j]);
             }
             currentSquareWhite = !currentSquareWhite;
@@ -41,12 +42,17 @@ public class DisplayBoard {
             printRowLabel(i);
             System.out.print("\n");
         }
-        printColumnLabels();
+        printColumnLabels(BLACK);
     }
 
-    private void printColumnLabels() {
+    private void printColumnLabels(ChessGame.TeamColor color) {
         System.out.print(SET_BG_COLOR_DARK_GREY);
-        print(" ABCDEFGH ");
+        if (color == WHITE) {
+            print(" ABCDEFGH ");
+        }
+        else {
+            print(" HGFEDCBA ");
+        }
         System.out.print(RESET_BG_COLOR);
         System.out.print("\n");
     }

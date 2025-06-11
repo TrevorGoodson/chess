@@ -47,10 +47,25 @@ public class LoggedInUI extends UserInterface{
                 case "create game" -> prompt = createGame();
                 case "list games" -> prompt = listGames();
                 case "play" -> prompt = joinGame();
-                case "observe" -> prompt = "Feature not yet released\n";
+                case "observe" -> prompt = observe();
                 default -> prompt = "Unknown command. Please try again.\n";
             }
         }
+    }
+
+    private String observe() {
+        List<String> responses = gatherUserInputForRequest(new String[] {"Game number"});
+        int listNum;
+        try {
+            listNum = parseInt(responses.getFirst());
+            if (listNum > listNumToGameID.size() || listNum < 1) {
+                throw new RuntimeException();
+            }
+        } catch (RuntimeException e) {
+            return "Please enter a valid game number (a number, not a word like \"three\")\nTo see available games, type \"list games\".\n";
+        }
+        new DisplayBoard().whitePOV();
+        return "Success!\n";
     }
 
     private void logout() {
@@ -138,13 +153,9 @@ public class LoggedInUI extends UserInterface{
         }
         if (color == WHITE) {
             new DisplayBoard().whitePOV();
-            System.out.print("\n");
-            new DisplayBoard().blackPOV();
         }
         else {
             new DisplayBoard().blackPOV();
-            System.out.print("\n");
-            new DisplayBoard().whitePOV();
         }
         return "Success!\n";
     }
