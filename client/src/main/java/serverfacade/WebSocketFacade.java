@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import static websocket.messages.ServerMessage.ServerMessageType.*;
+
 public class WebSocketFacade extends Endpoint {
 
     Session session;
@@ -24,10 +26,12 @@ public class WebSocketFacade extends Endpoint {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
 
-            //set message handler
-            this.session.addMessageHandler((MessageHandler.Whole<String>) message -> {
-                ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                webSocketMessageHandler.sendMessage(serverMessage);
+            this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+                @Override
+                public void onMessage(String message) {
+                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                    webSocketMessageHandler.sendMessage(serverMessage);
+                }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new ConnectionException(ex.getMessage());
@@ -36,6 +40,15 @@ public class WebSocketFacade extends Endpoint {
 
     public void sendNotification(ServerMessage message) throws ConnectionException {
         try {
+            session.getBasicRemote().sendText(new Gson().toJson(message));
+        } catch (IOException e) {
+            throw new ConnectionException();
+        }
+    }
+
+    public void login(String username) throws ConnectionException {
+        try {
+            ServerMessage message = new ServerMessage(LOGIN, username);
             session.getBasicRemote().sendText(new Gson().toJson(message));
         } catch (IOException e) {
             throw new ConnectionException();

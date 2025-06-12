@@ -59,7 +59,7 @@ public class PreLoggedInUI extends UserInterface {
         } catch (UserErrorException e) {
             return new UserErrorExceptionDecoder().getMessage(e)  + "\n";
         }
-        return logUserIn(registerResult.authToken());
+        return logUserIn(registerResult.authToken(), registerResult.username());
     }
 
     private String login(ServerFacade serverFacade, Scanner inputScanner) {
@@ -71,13 +71,14 @@ public class PreLoggedInUI extends UserInterface {
         } catch (UserErrorException e) {
             return new UserErrorExceptionDecoder().getMessage(e) + "\n";
         }
-        return logUserIn(loginResult.authToken());
+        return logUserIn(loginResult.authToken(), loginResult.username());
     }
 
-    private String logUserIn(String authToken) {
+    private String logUserIn(String authToken, String username) {
         WebSocketFacade newWS;
         try {
             newWS = new WebSocketFacade(port, new WebSocketMessageHandler());
+            newWS.login(username);
         } catch (ConnectionException e) {
             return "Oops! Something went wrong. Please try again.";
         }

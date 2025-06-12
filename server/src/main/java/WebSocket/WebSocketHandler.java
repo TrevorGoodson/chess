@@ -16,6 +16,9 @@ public class WebSocketHandler {
     public void onMessage(Session session, String message) throws IOException {
         ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
         switch (serverMessage.getServerMessageType()) {
+            case LOGIN -> {
+                connections.add(serverMessage.getMessage(), session);
+            }
             case LOAD_GAME -> {
 
             }
