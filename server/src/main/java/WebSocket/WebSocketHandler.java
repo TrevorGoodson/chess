@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import dataaccess.AuthDataDAO;
 import dataaccess.AuthDataDAOSQL;
 import dataaccess.DataAccessException;
-import model.AuthData;
+import model.*;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;

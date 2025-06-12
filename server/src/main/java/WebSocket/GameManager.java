@@ -4,6 +4,7 @@ import chess.ChessGame;
 import chess.ChessGame.TeamColor;
 import chess.ChessMove;
 import chess.InvalidMoveException;
+import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.GameDataDAO;
 import dataaccess.GameDataDAOSQL;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static chess.ChessGame.TeamColor.*;
+import static websocket.messages.ServerMessage.ServerMessageType.LOAD_GAME;
 import static websocket.messages.ServerMessage.ServerMessageType.NOTIFICATION;
 
 public class GameManager {
@@ -27,6 +29,7 @@ public class GameManager {
         else {
             addLiveGame(username, gameID, teamColor, session);
         }
+
     }
 
     private void addPlayerToExistingGame(String username, Integer gameID, TeamColor teamColor, Session session) {
@@ -101,6 +104,21 @@ public class GameManager {
         }
     }
 
+    public void updateGame(Integer gameID, ChessGame game) throws IOException {
+        if (!LIVE_GAMES.containsKey(gameID)) {
+            return;
+        }
+        ServerMessage serverMessage = new ServerMessage(LOAD_GAME, new Gson().toJson(game));
+        Connection whiteConnection = LIVE_GAMES.get(gameID).whiteConnection();
+        Connection blackConnection = LIVE_GAMES.get(gameID).blackConnection();
+        if (whiteConnection != null) {
+            whiteConnection.send(serverMessage);
+        }
+        if (blackConnection != null) {
+            blackConnection.send(serverMessage);
+        }
+    }
+
     public void notifyPlayer(Integer gameID, TeamColor teamColor, String message) throws IOException {
         if (!LIVE_GAMES.containsKey(gameID)) {
             return;
@@ -124,5 +142,6 @@ public class GameManager {
         }
         chessGame.makeMove(chessMove);
         gameDataDAO.updateGame(gameID, chessGame);
+        updateGame(gameID, chessGame);
     }
 }

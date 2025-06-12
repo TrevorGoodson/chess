@@ -39,7 +39,7 @@ public class GameService extends Service {
         assertRequestComplete(joinRequest);
         AuthData authData = verifyUser(joinRequest.authToken());
 
-        GameData game= gameDataDAO.findGame(joinRequest.gameID());
+        GameData game = gameDataDAO.findGame(joinRequest.gameID());
         if (game == null) {
             throw new GameNotFoundException();
         }
@@ -49,7 +49,8 @@ public class GameService extends Service {
             throw new GameFullException();
         }
         gameDataDAO.addUser(joinRequest.gameID(), authData.username(), joinRequest.playerColor());
-        return new JoinGameResult();
+
+        return new JoinGameResult(game.game());
     }
 
     /**

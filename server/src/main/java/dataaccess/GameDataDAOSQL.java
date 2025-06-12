@@ -85,7 +85,7 @@ public class GameDataDAOSQL extends DataAccessSQL implements GameDataDAO {
     @Override
     public void updateGame(int gameID, ChessGame chessGame) throws DataAccessException {
         String sqlStatement = "UPDATE GameData SET chessGameJSON = ? WHERE gameID = ?";
-        executeUpdate(sqlStatement, gameID, chessGame);
+        executeUpdate(sqlStatement, serializeGame(chessGame), gameID);
     }
 
     @Override
@@ -104,5 +104,7 @@ public class GameDataDAOSQL extends DataAccessSQL implements GameDataDAO {
         };
     }
 
-
+    public static void main(String[] args) {
+        System.out.print(new GameDataDAOSQL().serializeGame(new ChessGame()));
+    }
 }

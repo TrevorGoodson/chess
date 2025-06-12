@@ -81,4 +81,8 @@ public class WebSocketFacade extends Endpoint {
     private void send(UserGameCommand userGameCommand) throws IOException {
         session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
     }
+
+    public void setNotificationHandler(WebSocketMessageHandler webSocketMessageHandler) {
+        this.notificationHandler = webSocketMessageHandler;
+    }
 }

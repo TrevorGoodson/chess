@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import requestresultrecords.*;
 import serverfacade.ConnectionException;
 import serverfacade.ServerFacade;
@@ -42,8 +43,8 @@ public class PreLoggedInUI extends UserInterface {
                 }
                 case "register" -> prompt = register(serverFacade, inputScanner) + DEFAULT_PROMPT;
                 case "login" -> prompt = login(serverFacade, inputScanner) + DEFAULT_PROMPT;
-                case "w" -> new DisplayBoard().whitePOV();
-                case "b" -> new DisplayBoard().blackPOV();
+                case "w" -> new DisplayBoard(new ChessGame()).whitePOV();
+                case "b" -> new DisplayBoard(new ChessGame()).blackPOV();
                 case "clear" -> {try {serverFacade.clear();} catch (UserErrorException e) {throw new RuntimeException(e);}}
                 default -> prompt = "Unknown command, please try again!\n";
             }

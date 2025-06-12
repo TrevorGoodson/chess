@@ -1,10 +1,12 @@
 package ui;
 
+import chess.ChessGame;
 import chess.ChessGame.TeamColor;
 import chess.ChessMove;
 import serverfacade.ConnectionException;
 import serverfacade.ServerFacade;
 import serverfacade.WebSocketFacade;
+import serverfacade.WebSocketMessageHandler;
 
 import java.util.List;
 import java.util.Scanner;
@@ -18,6 +20,7 @@ public class GameUI extends UserInterface {
     private final ServerFacade serverFacade;
     private final WebSocketFacade webSocketFacade;
     private final String authToken;
+    private ChessGame chessGame;
 
     public GameUI(TeamColor teamColor, Integer gameID, ServerFacade serverFacade, WebSocketFacade webSocketFacade, String authToken) {
         this.teamColor = teamColor;
@@ -29,13 +32,15 @@ public class GameUI extends UserInterface {
 
     public void run() {
         System.out.print("\033[H\033[2J");
-        displayBoard();
         String prompt = "Let's play! Type \"help\" for options.\n";
         Scanner inputScanner = new Scanner(System.in);
+        WebSocketMessageHandler ws = new WebSocketMessageHandler(teamColor);
+        webSocketFacade.setNotificationHandler(ws);
 
         while (true) {
             System.out.print(prompt);
             String response = inputScanner.nextLine();
+
             prompt = switch (response) {
                 case "make move" -> makeMove();
                 default -> "Unknown command. Please try again.\n";
@@ -60,12 +65,5 @@ public class GameUI extends UserInterface {
         return "";
     }
 
-    private void displayBoard() {
-        if (teamColor == WHITE) {
-            new DisplayBoard().whitePOV();
-        }
-        else {
-            new DisplayBoard().blackPOV();
-        }
-    }
+
 }

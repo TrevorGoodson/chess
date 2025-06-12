@@ -163,6 +163,12 @@ public class LoggedInUI extends UserInterface{
             return CONNECTION_DOWN_PROMPT;
         }
 
+        var db = new DisplayBoard(joinGameResult.chessGame());
+        if ((color == WHITE)) {
+            db.whitePOV();
+        } else {
+            db.blackPOV();
+        }
         new GameUI(color, gameID, serverFacade, webSocketFacade, authToken).run();
         return "Success!\n";
     }

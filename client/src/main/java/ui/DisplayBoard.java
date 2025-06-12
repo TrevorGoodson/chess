@@ -8,8 +8,12 @@ import static chess.ChessGame.TeamColor.WHITE;
 import static ui.EscapeSequences.*;
 
 public class DisplayBoard {
-    private final ChessGame game = new ChessGame();
+    private final ChessGame game;
     private boolean currentSquareWhite = true;
+
+    public DisplayBoard(ChessGame game) {
+        this.game = game;
+    }
 
     public void whitePOV() {
         printColumnLabels(WHITE);
