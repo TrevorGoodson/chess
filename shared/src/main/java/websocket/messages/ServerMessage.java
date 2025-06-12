@@ -4,7 +4,7 @@ import java.util.Objects;
 
 /**
  * Represents a Message the server can send through a WebSocket
- * 
+ * <p>
  * Note: You can add to this class, but you should not alter the existing
  * methods.
  */
@@ -20,6 +20,11 @@ public class ServerMessage {
 
     public ServerMessage(ServerMessageType type) {
         this.serverMessageType = type;
+    }
+
+    public ServerMessage(ServerMessageType serverMessageType, String message) {
+        this.serverMessageType = serverMessageType;
+        this.message = message;
     }
 
     public ServerMessageType getServerMessageType() {

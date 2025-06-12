@@ -4,9 +4,12 @@ import com.google.gson.Gson;
 
 import java.io.*;
 import java.net.*;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import requestresultrecords.*;
 import usererrorexceptions.*;
+
+import static java.lang.Integer.parseInt;
 
 public class ServerFacade {
     private static final String SERVER_URL = "http://localhost:";
@@ -92,7 +95,7 @@ public class ServerFacade {
                                     String authToken,
                                     Class<T> responseType) throws UserErrorException {
         try {
-            URL url = (new URI(SERVER_URL + port + "/" + path)).toURL();
+            URL url = (new URI("http" + getServerUrl() + port + "/" + path)).toURL();
             var httpConnection = (HttpURLConnection) url.openConnection();
 
             httpConnection.setRequestMethod(httpMethod);
@@ -166,5 +169,18 @@ public class ServerFacade {
             }
         }
         return response;
+    }
+
+    public static String getServerUrl() {
+        try (var propStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("server.properties")) {
+            if (propStream == null) {
+                throw new Exception("Unable to load server.properties");
+            }
+            Properties props = new Properties();
+            props.load(propStream);
+            return props.getProperty("server.url");
+        } catch (Exception ex) {
+            throw new RuntimeException("unable to process server.properties", ex);
+        }
     }
 }

@@ -23,8 +23,12 @@ public class WebSocketHandler {
                 //nothing
             }
             case NOTIFICATION -> {
-                //nothing yet
+                sendNotification(serverMessage);
             }
         }
+    }
+
+    private void sendNotification(ServerMessage message) throws IOException {
+        connections.broadcast("", message);
     }
 }

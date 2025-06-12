@@ -2,9 +2,12 @@ package ui;
 
 import chess.ChessGame;
 import requestresultrecords.*;
+import serverfacade.ConnectionException;
 import serverfacade.ServerFacade;
+import serverfacade.WebSocketFacade;
 import usererrorexceptions.UserErrorException;
 import usererrorexceptions.UserErrorExceptionDecoder;
+import websocket.messages.ServerMessage;
 
 import java.util.List;
 import java.util.Map;
@@ -14,14 +17,17 @@ import java.util.TreeMap;
 import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
 import static java.lang.Integer.parseInt;
+import static websocket.messages.ServerMessage.ServerMessageType.*;
 
 public class LoggedInUI extends UserInterface{
     private final ServerFacade serverFacade;
+    private final WebSocketFacade webSocketFacade;
     String authToken;
     Map<Integer, Integer> listNumToGameID = new TreeMap<>();
 
-    public LoggedInUI(ServerFacade serverFacade, String authToken) {
+    public LoggedInUI(ServerFacade serverFacade, WebSocketFacade webSocketFacade, String authToken) {
         this.serverFacade = serverFacade;
+        this.webSocketFacade = webSocketFacade;
         this.authToken = authToken;
     }
 
@@ -48,6 +54,7 @@ public class LoggedInUI extends UserInterface{
                 case "list games" -> prompt = listGames();
                 case "play" -> prompt = joinGame();
                 case "observe" -> prompt = observe();
+                case "test" -> {try {webSocketFacade.sendNotification(new ServerMessage(NOTIFICATION, "hey"));} catch (ConnectionException e) {prompt = "oops!";}}
                 default -> prompt = "Unknown command. Please try again.\n";
             }
         }

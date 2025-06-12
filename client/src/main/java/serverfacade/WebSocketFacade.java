@@ -16,10 +16,9 @@ public class WebSocketFacade extends Endpoint {
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {}
 
-    public WebSocketFacade(String url, WebSocketMessageHandler webSocketMessageHandler) throws ConnectionException {
+    public WebSocketFacade(int port, WebSocketMessageHandler webSocketMessageHandler) throws ConnectionException {
         try {
-            url = url.replace("http", "ws");
-            URI socketURI = new URI(url + "/ws");
+            URI socketURI = new URI("ws" + ServerFacade.getServerUrl() + port + "/ws");
             this.notificationHandler = webSocketMessageHandler;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
@@ -32,6 +31,14 @@ public class WebSocketFacade extends Endpoint {
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new ConnectionException(ex.getMessage());
+        }
+    }
+
+    public void sendNotification(ServerMessage message) throws ConnectionException {
+        try {
+            session.getBasicRemote().sendText(new Gson().toJson(message));
+        } catch (IOException e) {
+            throw new ConnectionException();
         }
     }
 }
