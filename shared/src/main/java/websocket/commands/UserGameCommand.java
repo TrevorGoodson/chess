@@ -1,21 +1,16 @@
 package websocket.commands;
 
-import chess.ChessGame;
 import chess.ChessMove;
-import websocket.WebSocketMessage;
-
 import java.util.Objects;
-
-import static websocket.WebSocketMessage.messageType.USER_GAME;
 import static chess.ChessGame.TeamColor;
 
 /**
  * Represents a command a user can send the server over a websocket
- *
+ * <p>
  * Note: You can add to this class, but you should not alter the existing
  * methods.
  */
-public class UserGameCommand extends WebSocketMessage {
+public class UserGameCommand {
 
     public final CommandType commandType;
     protected final String authToken;
@@ -24,7 +19,6 @@ public class UserGameCommand extends WebSocketMessage {
     protected final ChessMove chessMove;
 
     public UserGameCommand(CommandType commandType, String authToken, Integer gameID) {
-        super.type = USER_GAME;
         this.commandType = commandType;
         this.authToken = authToken;
         this.gameID = gameID;
@@ -33,7 +27,6 @@ public class UserGameCommand extends WebSocketMessage {
     }
 
     public UserGameCommand(CommandType commandType, String authToken, Integer gameID, TeamColor teamColor) {
-        super.type = USER_GAME;
         this.commandType = commandType;
         this.authToken = authToken;
         this.gameID = gameID;
@@ -42,7 +35,6 @@ public class UserGameCommand extends WebSocketMessage {
     }
 
     public UserGameCommand(CommandType commandType, String authToken, Integer gameID, TeamColor teamColor, ChessMove chessMove) {
-        super.type = USER_GAME;
         this.commandType = commandType;
         this.authToken = authToken;
         this.gameID = gameID;
@@ -82,10 +74,9 @@ public class UserGameCommand extends WebSocketMessage {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof UserGameCommand)) {
+        if (!(o instanceof UserGameCommand that)) {
             return false;
         }
-        UserGameCommand that = (UserGameCommand) o;
         return getCommandType() == that.getCommandType() &&
                 Objects.equals(getAuthToken(), that.getAuthToken()) &&
                 Objects.equals(getGameID(), that.getGameID());

@@ -9,13 +9,8 @@ import model.*;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
-import websocket.WebSocketMessage;
 import websocket.commands.UserGameCommand;
-import websocket.messages.ServerMessage;
-
 import java.io.IOException;
-
-import static websocket.WebSocketMessage.messageType.*;
 
 @WebSocket
 public class WebSocketHandler {
@@ -24,15 +19,7 @@ public class WebSocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException, DataAccessException {
-        WebSocketMessage webSocketMessage = new Gson().fromJson(message, WebSocketMessage.class);
-        if (webSocketMessage.type == USER_GAME) {
-            UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
-            handleUserGameCommand(userGameCommand, session);
-        }
-
-    }
-
-    private void handleUserGameCommand(UserGameCommand userGameCommand, Session session) throws DataAccessException, IOException {
+        UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
         switch(userGameCommand.getCommandType()) {
             case CONNECT -> {
                 handleConnectCommand(userGameCommand, session);
@@ -45,6 +32,8 @@ public class WebSocketHandler {
             case RESIGN -> {
             }
         }
+
+
     }
 
     private void handleConnectCommand(UserGameCommand userGameCommand, Session session) throws DataAccessException, IOException {
