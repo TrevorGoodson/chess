@@ -14,8 +14,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
 
-import static chess.ChessGame.TeamColor.BLACK;
-import static chess.ChessGame.TeamColor.WHITE;
+import static chess.ChessGame.TeamColor.*;
+import static chess.ChessGame.TeamColor;
 import static java.lang.Integer.parseInt;
 import static websocket.messages.ServerMessage.ServerMessageType.*;
 
@@ -142,7 +142,7 @@ public class LoggedInUI extends UserInterface{
             return "Please enter a valid game number (a number, not a word like \"three\")\nTo see available games, type \"list games\".\n";
         }
         int gameID = listNumToGameID.get(listNum);
-        ChessGame.TeamColor color = switch (responses.getLast().toUpperCase()) {
+        TeamColor color = switch (responses.getLast().toUpperCase()) {
             case "WHITE" -> WHITE;
             case "BLACK" -> BLACK;
             default -> null;
@@ -150,14 +150,19 @@ public class LoggedInUI extends UserInterface{
         if (color == null) {
             return "Please enter a valid team color.\n";
         }
+
         var joinGameRequest = new JoinGameRequest(authToken, color, gameID);
         JoinGameResult joinGameResult;
         try {
             joinGameResult = serverFacade.joinGame(joinGameRequest);
+            webSocketFacade.joinGame(authToken, gameID, color);
         }
         catch (UserErrorException e) {
             return new UserErrorExceptionDecoder().getMessage(e) + "\n";
+        } catch (ConnectionException e) {
+            return "Something went wrong. Please try again!";
         }
+
         if (color == WHITE) {
             new DisplayBoard().whitePOV();
         }

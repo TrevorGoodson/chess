@@ -1,5 +1,6 @@
 package server;
 
+import WebSocket.GameManager;
 import WebSocket.WebSocketHandler;
 import handler.*;
 import spark.*;

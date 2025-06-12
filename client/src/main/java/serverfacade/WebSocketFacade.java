@@ -1,6 +1,8 @@
 package serverfacade;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
+import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
@@ -9,6 +11,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import static websocket.messages.ServerMessage.ServerMessageType.*;
+import static chess.ChessGame.TeamColor;
+import static websocket.commands.UserGameCommand.CommandType.*;
 
 public class WebSocketFacade extends Endpoint {
 
@@ -50,6 +54,15 @@ public class WebSocketFacade extends Endpoint {
         try {
             ServerMessage message = new ServerMessage(LOGIN, username);
             session.getBasicRemote().sendText(new Gson().toJson(message));
+        } catch (IOException e) {
+            throw new ConnectionException();
+        }
+    }
+
+    public void joinGame(String authToken, Integer gameID, TeamColor teamColor) throws ConnectionException {
+        try {
+            UserGameCommand userGameCommand = new UserGameCommand(CONNECT, authToken, gameID, teamColor);
+            session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
         } catch (IOException e) {
             throw new ConnectionException();
         }

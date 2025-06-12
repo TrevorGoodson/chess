@@ -75,14 +75,14 @@ public class PreLoggedInUI extends UserInterface {
     }
 
     private String logUserIn(String authToken, String username) {
-        WebSocketFacade newWS;
+        WebSocketFacade webSocketFacade;
         try {
-            newWS = new WebSocketFacade(port, new WebSocketMessageHandler());
-            newWS.login(username);
+            webSocketFacade = new WebSocketFacade(port, new WebSocketMessageHandler());
+            webSocketFacade.login(username);
         } catch (ConnectionException e) {
             return "Oops! Something went wrong. Please try again.";
         }
-        new LoggedInUI(serverFacade, newWS, authToken).run();
+        new LoggedInUI(serverFacade, webSocketFacade, authToken).run();
         return "\n";
     }
 }

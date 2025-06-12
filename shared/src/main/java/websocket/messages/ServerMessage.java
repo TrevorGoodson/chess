@@ -1,6 +1,10 @@
 package websocket.messages;
 
+import websocket.WebSocketMessage;
+
 import java.util.Objects;
+
+import static websocket.WebSocketMessage.messageType.SERVER_MESSAGE;
 
 /**
  * Represents a Message the server can send through a WebSocket
@@ -8,7 +12,7 @@ import java.util.Objects;
  * Note: You can add to this class, but you should not alter the existing
  * methods.
  */
-public class ServerMessage {
+public class ServerMessage extends WebSocketMessage {
     ServerMessageType serverMessageType;
     String message;
 
@@ -20,10 +24,12 @@ public class ServerMessage {
     }
 
     public ServerMessage(ServerMessageType type) {
+        super.type = SERVER_MESSAGE;
         this.serverMessageType = type;
     }
 
     public ServerMessage(ServerMessageType serverMessageType, String message) {
+        super.type = SERVER_MESSAGE;
         this.serverMessageType = serverMessageType;
         this.message = message;
     }
@@ -45,10 +51,9 @@ public class ServerMessage {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof ServerMessage)) {
+        if (!(o instanceof ServerMessage that)) {
             return false;
         }
-        ServerMessage that = (ServerMessage) o;
         return getServerMessageType() == that.getServerMessageType();
     }
 

@@ -1,6 +1,12 @@
 package websocket.commands;
 
+import chess.ChessGame;
+import websocket.WebSocketMessage;
+
 import java.util.Objects;
+
+import static websocket.WebSocketMessage.messageType.USER_GAME;
+import static chess.ChessGame.TeamColor;
 
 /**
  * Represents a command a user can send the server over a websocket
@@ -8,18 +14,27 @@ import java.util.Objects;
  * Note: You can add to this class, but you should not alter the existing
  * methods.
  */
-public class UserGameCommand {
+public class UserGameCommand extends WebSocketMessage {
 
-    private final CommandType commandType;
-
-    private final String authToken;
-
-    private final Integer gameID;
+    public final CommandType commandType;
+    protected final String authToken;
+    protected final Integer gameID;
+    protected final TeamColor teamColor;
 
     public UserGameCommand(CommandType commandType, String authToken, Integer gameID) {
+        super.type = USER_GAME;
         this.commandType = commandType;
         this.authToken = authToken;
         this.gameID = gameID;
+        teamColor = null;
+    }
+
+    public UserGameCommand(CommandType commandType, String authToken, Integer gameID, TeamColor teamColor) {
+        super.type = USER_GAME;
+        this.commandType = commandType;
+        this.authToken = authToken;
+        this.gameID = gameID;
+        this.teamColor = teamColor;
     }
 
     public enum CommandType {
@@ -39,6 +54,10 @@ public class UserGameCommand {
 
     public Integer getGameID() {
         return gameID;
+    }
+
+    public TeamColor getTeamColor() {
+        return teamColor;
     }
 
     @Override
