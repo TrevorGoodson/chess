@@ -71,7 +71,7 @@ public class LoggedInUI extends UserInterface{
         } catch (RuntimeException e) {
             return "Please enter a valid game number (a number, not a word like \"three\")\nTo see available games, type \"list games\".\n";
         }
-        new GameUI(WHITE, serverFacade, webSocketFacade, authToken).run();
+        new GameUI(WHITE, listNumToGameID.get(listNum), serverFacade, webSocketFacade, authToken).run();
         return "Success!\n";
     }
 
@@ -160,10 +160,10 @@ public class LoggedInUI extends UserInterface{
         catch (UserErrorException e) {
             return new UserErrorExceptionDecoder().getMessage(e) + "\n";
         } catch (ConnectionException e) {
-            return "Something went wrong. Please try again!";
+            return CONNECTION_DOWN_PROMPT;
         }
 
-        new GameUI(color, serverFacade, webSocketFacade, authToken).run();
+        new GameUI(color, gameID, serverFacade, webSocketFacade, authToken).run();
         return "Success!\n";
     }
 }

@@ -1,6 +1,8 @@
 package ui;
 
 import chess.ChessGame.TeamColor;
+import chess.ChessMove;
+import serverfacade.ConnectionException;
 import serverfacade.ServerFacade;
 import serverfacade.WebSocketFacade;
 
@@ -12,12 +14,14 @@ import static chess.ChessGame.TeamColor.*;
 
 public class GameUI extends UserInterface {
     private final TeamColor teamColor;
+    private final Integer gameID;
     private final ServerFacade serverFacade;
     private final WebSocketFacade webSocketFacade;
     private final String authToken;
 
-    public GameUI(TeamColor teamColor, ServerFacade serverFacade, WebSocketFacade webSocketFacade, String authToken) {
+    public GameUI(TeamColor teamColor, Integer gameID, ServerFacade serverFacade, WebSocketFacade webSocketFacade, String authToken) {
         this.teamColor = teamColor;
+        this.gameID = gameID;
         this.serverFacade = serverFacade;
         this.webSocketFacade = webSocketFacade;
         this.authToken = authToken;
@@ -42,7 +46,18 @@ public class GameUI extends UserInterface {
 
     private String makeMove() {
         List<String> responses = gatherUserInputForRequest(new String[] {"Move"});
+        ChessMove chessMove = ChessMove.parseMove(responses.getFirst());
+        if (chessMove == null) {
+            return "Valid moves are in the form \"a1 -> b2\".\n";
+        }
 
+        try {
+            webSocketFacade.makeMove(authToken, chessMove, gameID, teamColor);
+        } catch (ConnectionException e) {
+            return CONNECTION_DOWN_PROMPT;
+        }
+
+        return "";
     }
 
     private void displayBoard() {

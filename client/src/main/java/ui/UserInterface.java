@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Scanner;
 
 public abstract class UserInterface {
+    protected static final String CONNECTION_DOWN_PROMPT = "Something went wrong. Please try again!\n";
+
     protected List<String> gatherUserInputForRequest(String[] promptList) {
         List<String> responseList = new ArrayList<>();
         var inputScanner = new Scanner(System.in);

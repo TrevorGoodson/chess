@@ -63,8 +63,15 @@ public class ChessPosition {
         if (!Character.isAlphabetic(position.charAt(0)) || !Character.isDigit(position.charAt(1))) {
             return null;
         }
+
         int row = position.charAt(1) - '0';
         int col = position.toLowerCase().charAt(0) - 'a' + 1;
-        return new ChessPosition(row, col);
+        var chessPosition = new ChessPosition(row, col);
+
+        if (!ChessBoard.checkRange(chessPosition)) {
+            return null;
+        }
+
+        return chessPosition;
     }
 }

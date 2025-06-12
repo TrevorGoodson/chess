@@ -94,11 +94,4 @@ public class ChessMove {
         }
         return new ChessMove(startPosition, endPosition);
     }
-
-    public static void main(String[] args) {
-        Scanner inputScanner = new Scanner(System.in);
-        String move = inputScanner.nextLine();
-        System.out.print(ChessMove.parseMove(move));
-    }
-
 }

@@ -2,6 +2,8 @@ package WebSocket;
 
 import chess.ChessGame;
 import chess.ChessGame.TeamColor;
+import chess.ChessMove;
+import chess.InvalidMoveException;
 import dataaccess.DataAccessException;
 import dataaccess.GameDataDAO;
 import dataaccess.GameDataDAOSQL;
@@ -97,5 +99,29 @@ public class GameManager {
         if (blackConnection != null) {
             blackConnection.send(serverMessage);
         }
+    }
+
+    public void notifyPlayer(Integer gameID, TeamColor teamColor, String message) throws IOException {
+        if (!LIVE_GAMES.containsKey(gameID)) {
+            return;
+        }
+        ServerMessage serverMessage = new ServerMessage(NOTIFICATION, message);
+        Connection playerConnection = (teamColor == WHITE) ? LIVE_GAMES.get(gameID).whiteConnection() :
+                                                             LIVE_GAMES.get(gameID).blackConnection();
+        if (playerConnection != null) {
+            playerConnection.send(serverMessage);
+        }
+    }
+
+    public void makeMove(Integer gameID, TeamColor teamColor, ChessMove chessMove) throws InvalidMoveException, IOException {
+        if (!LIVE_GAMES.containsKey(gameID)) {
+            return;
+        }
+        ChessGame chessGame = LIVE_GAMES.get(gameID).chessGame();
+        if (teamColor != chessGame.getTeamTurn()) {
+            notifyPlayer(gameID, teamColor, "You can only play on your turn!");
+            return;
+        }
+        chessGame.makeMove(chessMove);
     }
 }

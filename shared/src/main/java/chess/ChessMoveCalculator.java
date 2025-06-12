@@ -107,7 +107,7 @@ public class ChessMoveCalculator {
 
         //checks forward moves
         var forwardMove = new ChessPosition(row + direction, column);
-        if (board.checkRange(forwardMove) && board.getPiece(forwardMove) == null) {
+        if (ChessBoard.checkRange(forwardMove) && board.getPiece(forwardMove) == null) {
             validMoves.add(new ChessMove(startPosition, forwardMove, null));
 
             var doubleMove = new ChessPosition(row + 2 * direction, column);
@@ -120,7 +120,7 @@ public class ChessMoveCalculator {
         int[][] captureDirections = {{direction,1}, {direction,-1}};
         for (var capture : captureDirections) {
             var capturePosition = new ChessPosition(row + capture[0], column + capture[1]);
-            if (board.checkRange(capturePosition)
+            if (ChessBoard.checkRange(capturePosition)
                     && board.getPiece(capturePosition) != null &&
                     color != board.getPieceColor(capturePosition)) {
                 validMoves.add(new ChessMove(startPosition, capturePosition, null));
@@ -183,7 +183,7 @@ public class ChessMoveCalculator {
                 if (checkMove(nextPosition)) {
                     validMoves.add(new ChessMove(startPosition, nextPosition, null));
                 }
-            } while (board.checkRange(nextPosition) && board.getPiece(nextPosition) == null);
+            } while (ChessBoard.checkRange(nextPosition) && board.getPiece(nextPosition) == null);
         }
         return validMoves;
     }
@@ -202,7 +202,7 @@ public class ChessMoveCalculator {
     }
 
     private boolean checkMove(ChessPosition move) {
-        if (!board.checkRange(move)) {
+        if (!ChessBoard.checkRange(move)) {
             return false;
         }
         return (board.getPiece(move) == null || color != board.getPieceColor(move));

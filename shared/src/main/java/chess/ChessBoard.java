@@ -68,7 +68,7 @@ public class ChessBoard {
      * @param position the position to check
      * @return boolean value: on the board: true, else: false
      */
-    public boolean checkRange(ChessPosition position) {
+    public static boolean checkRange(ChessPosition position) {
         int row = position.getRow();
         int col = position.getColumn();
         return (row >= 1) && (row <= 8) && (col >= 1) && (col <= 8);

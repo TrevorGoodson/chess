@@ -114,9 +114,10 @@ public class ChessGame {
         ChessPosition start = move.getStartPosition();
         Collection<ChessMove> moves = validMoves(start);
 
-        if (moves == null
-                || !moves.contains(move)
-                || board.getPiece(start).getTeamColor() != (whitesTurn ? WHITE : BLACK)) {
+        if (moves == null ||
+            !moves.contains(move) ||
+            board.getPiece(start).getTeamColor() != (whitesTurn ? WHITE : BLACK)
+        ) {
             throw new InvalidMoveException();
         }
         makeMoveNoSafetyChecks(move);
