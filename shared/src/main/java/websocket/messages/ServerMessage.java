@@ -19,8 +19,7 @@ public class ServerMessage extends WebSocketMessage {
     public enum ServerMessageType {
         LOAD_GAME,
         ERROR,
-        NOTIFICATION,
-        LOGIN
+        NOTIFICATION
     }
 
     public ServerMessage(ServerMessageType type) {

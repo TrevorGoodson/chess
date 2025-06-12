@@ -16,6 +16,7 @@ public class DisplayBoard {
     }
 
     public void whitePOV() {
+        System.out.print("\n");
         printColumnLabels(WHITE);
         for (int i = 0; i < 8; ++i) {
             ChessPiece[] row = game.getBoard().getRowToDisplay(i);
@@ -33,6 +34,7 @@ public class DisplayBoard {
     }
 
     public void blackPOV() {
+        System.out.print("\n");
         printColumnLabels(BLACK);
         for (int i = 7; i >= 0; --i) {
             ChessPiece[] row = game.getBoard().getRowToDisplay(i);

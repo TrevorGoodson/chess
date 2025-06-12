@@ -16,6 +16,7 @@ public class WebSocketMessageHandler {
     public WebSocketMessageHandler(TeamColor teamColor) {
         this.teamColor = teamColor;
     }
+
     public void sendMessage(ServerMessage serverMessage) {
         if (serverMessage.getServerMessageType() == LOAD_GAME) {
             loadGame(serverMessage.getMessage());

@@ -1,33 +1,28 @@
 package ui;
 
-import chess.ChessGame;
 import requestresultrecords.*;
 import serverfacade.ConnectionException;
 import serverfacade.ServerFacade;
 import serverfacade.WebSocketFacade;
+import serverfacade.WebSocketMessageHandler;
 import usererrorexceptions.UserErrorException;
 import usererrorexceptions.UserErrorExceptionDecoder;
-import websocket.messages.ServerMessage;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.TreeMap;
+import java.util.*;
 
 import static chess.ChessGame.TeamColor.*;
 import static chess.ChessGame.TeamColor;
 import static java.lang.Integer.parseInt;
-import static websocket.messages.ServerMessage.ServerMessageType.*;
 
 public class LoggedInUI extends UserInterface{
     private final ServerFacade serverFacade;
-    private final WebSocketFacade webSocketFacade;
+    private final int port;
     String authToken;
     Map<Integer, Integer> listNumToGameID = new TreeMap<>();
 
-    public LoggedInUI(ServerFacade serverFacade, WebSocketFacade webSocketFacade, String authToken) {
+    public LoggedInUI(ServerFacade serverFacade, int port, String authToken) {
         this.serverFacade = serverFacade;
-        this.webSocketFacade = webSocketFacade;
+        this.port = port;
         this.authToken = authToken;
     }
 
@@ -54,7 +49,6 @@ public class LoggedInUI extends UserInterface{
                 case "list games" -> prompt = listGames();
                 case "play" -> prompt = joinGame();
                 case "observe" -> prompt = observe();
-                case "test" -> {try {webSocketFacade.sendNotification(new ServerMessage(NOTIFICATION, "hey"));} catch (ConnectionException e) {prompt = "oops!";}}
                 default -> prompt = "Unknown command. Please try again.\n";
             }
         }
@@ -71,7 +65,11 @@ public class LoggedInUI extends UserInterface{
         } catch (RuntimeException e) {
             return "Please enter a valid game number (a number, not a word like \"three\")\nTo see available games, type \"list games\".\n";
         }
-        new GameUI(WHITE, listNumToGameID.get(listNum), serverFacade, webSocketFacade, authToken).run();
+        try {
+            new GameUI(WHITE, listNumToGameID.get(listNum), new WebSocketFacade(port, new WebSocketMessageHandler()), authToken).run();
+        } catch (ConnectionException e) {
+            return CONNECTION_DOWN_PROMPT;
+        }
         return "Success!\n";
     }
 
@@ -153,7 +151,9 @@ public class LoggedInUI extends UserInterface{
 
         var joinGameRequest = new JoinGameRequest(authToken, color, gameID);
         JoinGameResult joinGameResult;
+        WebSocketFacade webSocketFacade;
         try {
+            webSocketFacade = new WebSocketFacade(port, new WebSocketMessageHandler(color));
             joinGameResult = serverFacade.joinGame(joinGameRequest);
             webSocketFacade.joinGame(authToken, gameID, color);
         }
@@ -169,7 +169,9 @@ public class LoggedInUI extends UserInterface{
         } else {
             db.blackPOV();
         }
-        new GameUI(color, gameID, serverFacade, webSocketFacade, authToken).run();
+
+        new GameUI(color, gameID, webSocketFacade, authToken).run();
+
         return "Success!\n";
     }
 }

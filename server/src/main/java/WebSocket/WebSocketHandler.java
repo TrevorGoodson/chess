@@ -19,17 +19,12 @@ import static websocket.WebSocketMessage.messageType.*;
 
 @WebSocket
 public class WebSocketHandler {
-    private final ConnectionManager connections = new ConnectionManager();
     private final GameManager games = new GameManager();
     private final AuthDataDAO authDataDAO = new AuthDataDAOSQL();
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException, DataAccessException {
         WebSocketMessage webSocketMessage = new Gson().fromJson(message, WebSocketMessage.class);
-        if (webSocketMessage.type == SERVER_MESSAGE) {
-            ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-            handleServerMessage(serverMessage, session);
-        }
         if (webSocketMessage.type == USER_GAME) {
             UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
             handleUserGameCommand(userGameCommand, session);
@@ -67,26 +62,5 @@ public class WebSocketHandler {
         } catch (InvalidMoveException e) {
             games.notifyPlayer(userGameCommand.getGameID(), userGameCommand.getTeamColor(), "Invalid move");
         }
-    }
-
-    private void handleServerMessage(ServerMessage serverMessage, Session session) throws IOException {
-        switch (serverMessage.getServerMessageType()) {
-            case LOGIN -> {
-                connections.add(serverMessage.getMessage(), session);
-            }
-            case LOAD_GAME -> {
-
-            }
-            case ERROR -> {
-                //nothing
-            }
-            case NOTIFICATION -> {
-                sendNotification(serverMessage);
-            }
-        }
-    }
-
-    private void sendNotification(ServerMessage message) throws IOException {
-        connections.broadcast("", message);
     }
 }

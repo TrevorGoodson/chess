@@ -2,10 +2,7 @@ package ui;
 
 import chess.ChessGame;
 import requestresultrecords.*;
-import serverfacade.ConnectionException;
 import serverfacade.ServerFacade;
-import serverfacade.WebSocketFacade;
-import serverfacade.WebSocketMessageHandler;
 import usererrorexceptions.*;
 
 import java.util.List;
@@ -76,14 +73,7 @@ public class PreLoggedInUI extends UserInterface {
     }
 
     private String logUserIn(String authToken, String username) {
-        WebSocketFacade webSocketFacade;
-        try {
-            webSocketFacade = new WebSocketFacade(port, new WebSocketMessageHandler());
-            webSocketFacade.login(username);
-        } catch (ConnectionException e) {
-            return "Oops! Something went wrong. Please try again.";
-        }
-        new LoggedInUI(serverFacade, webSocketFacade, authToken).run();
+        new LoggedInUI(serverFacade, port, authToken).run();
         return "\n";
     }
 }

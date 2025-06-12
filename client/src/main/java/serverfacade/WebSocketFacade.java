@@ -16,7 +16,6 @@ import static chess.ChessGame.TeamColor;
 import static websocket.commands.UserGameCommand.CommandType.*;
 
 public class WebSocketFacade extends Endpoint {
-
     Session session;
     WebSocketMessageHandler notificationHandler;
 
@@ -45,15 +44,6 @@ public class WebSocketFacade extends Endpoint {
 
     public void sendNotification(ServerMessage message) throws ConnectionException {
         try {
-            session.getBasicRemote().sendText(new Gson().toJson(message));
-        } catch (IOException e) {
-            throw new ConnectionException();
-        }
-    }
-
-    public void login(String username) throws ConnectionException {
-        try {
-            ServerMessage message = new ServerMessage(LOGIN, username);
             session.getBasicRemote().sendText(new Gson().toJson(message));
         } catch (IOException e) {
             throw new ConnectionException();

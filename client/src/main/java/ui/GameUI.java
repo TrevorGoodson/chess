@@ -17,15 +17,13 @@ import static chess.ChessGame.TeamColor.*;
 public class GameUI extends UserInterface {
     private final TeamColor teamColor;
     private final Integer gameID;
-    private final ServerFacade serverFacade;
     private final WebSocketFacade webSocketFacade;
     private final String authToken;
     private ChessGame chessGame;
 
-    public GameUI(TeamColor teamColor, Integer gameID, ServerFacade serverFacade, WebSocketFacade webSocketFacade, String authToken) {
+    public GameUI(TeamColor teamColor, Integer gameID, WebSocketFacade webSocketFacade, String authToken) {
         this.teamColor = teamColor;
         this.gameID = gameID;
-        this.serverFacade = serverFacade;
         this.webSocketFacade = webSocketFacade;
         this.authToken = authToken;
     }
