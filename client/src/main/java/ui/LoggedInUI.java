@@ -71,7 +71,7 @@ public class LoggedInUI extends UserInterface{
         } catch (RuntimeException e) {
             return "Please enter a valid game number (a number, not a word like \"three\")\nTo see available games, type \"list games\".\n";
         }
-        new DisplayBoard().whitePOV();
+        new GameUI(WHITE, serverFacade, webSocketFacade, authToken).run();
         return "Success!\n";
     }
 
@@ -163,12 +163,7 @@ public class LoggedInUI extends UserInterface{
             return "Something went wrong. Please try again!";
         }
 
-        if (color == WHITE) {
-            new DisplayBoard().whitePOV();
-        }
-        else {
-            new DisplayBoard().blackPOV();
-        }
+        new GameUI(color, serverFacade, webSocketFacade, authToken).run();
         return "Success!\n";
     }
 }

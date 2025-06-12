@@ -35,7 +35,7 @@ public class ChessPosition {
     }
 
     public String toString() {
-        return String.valueOf((char) ('a' + row - 1)) + col;
+        return String.valueOf((char) ('a' + col - 1)) + row;
     }
 
     @Override
@@ -53,6 +53,18 @@ public class ChessPosition {
     }
 
     public ChessPosition copy() {
+        return new ChessPosition(row, col);
+    }
+
+    public static ChessPosition parsePosition(String position) {
+        if (position.length() != 2) {
+            return null;
+        }
+        if (!Character.isAlphabetic(position.charAt(0)) || !Character.isDigit(position.charAt(1))) {
+            return null;
+        }
+        int row = position.charAt(1) - '0';
+        int col = position.toLowerCase().charAt(0) - 'a' + 1;
         return new ChessPosition(row, col);
     }
 }

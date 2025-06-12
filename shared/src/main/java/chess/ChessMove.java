@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Objects;
+import java.util.Scanner;
 
 /**
  * Represents moving a chess piece on a chessboard
@@ -78,4 +79,26 @@ public class ChessMove {
     public ChessMove copy() {
         return new ChessMove(startPosition, endPosition, promotionPiece);
     }
+
+    public static ChessMove parseMove(String move) {
+        if (move.length() != 8) {
+            return null;
+        }
+        if (!move.startsWith(" -> ", 2)) {
+            return null;
+        }
+        ChessPosition startPosition = ChessPosition.parsePosition(move.substring(0,2));
+        ChessPosition endPosition = ChessPosition.parsePosition(move.substring(6));
+        if (startPosition == null || endPosition == null) {
+            return null;
+        }
+        return new ChessMove(startPosition, endPosition);
+    }
+
+    public static void main(String[] args) {
+        Scanner inputScanner = new Scanner(System.in);
+        String move = inputScanner.nextLine();
+        System.out.print(ChessMove.parseMove(move));
+    }
+
 }
