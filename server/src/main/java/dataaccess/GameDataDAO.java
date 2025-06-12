@@ -41,4 +41,6 @@ public interface GameDataDAO {
      * Clears all the games from the database
      */
     void clear() throws DataAccessException;
+
+    void updateGame(int gameID, ChessGame chessGame) throws DataAccessException;
 }

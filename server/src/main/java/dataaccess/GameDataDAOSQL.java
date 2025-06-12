@@ -83,6 +83,12 @@ public class GameDataDAOSQL extends DataAccessSQL implements GameDataDAO {
     }
 
     @Override
+    public void updateGame(int gameID, ChessGame chessGame) throws DataAccessException {
+        String sqlStatement = "UPDATE GameData SET chessGameJSON = ? WHERE gameID = ?";
+        executeUpdate(sqlStatement, gameID, chessGame);
+    }
+
+    @Override
     protected String[] getCreateStatements() {
         return new String[] {
             """
@@ -97,4 +103,6 @@ public class GameDataDAOSQL extends DataAccessSQL implements GameDataDAO {
             """
         };
     }
+
+
 }

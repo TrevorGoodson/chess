@@ -95,4 +95,15 @@ public class UserGameCommand extends WebSocketMessage {
     public int hashCode() {
         return Objects.hash(getCommandType(), getAuthToken(), getGameID());
     }
+
+    @Override
+    public String toString() {
+        return "UserGameCommand{" +
+                "chessMove=" + chessMove +
+                ", teamColor=" + teamColor +
+                ", gameID=" + gameID +
+                ", authToken='" + authToken + '\'' +
+                ", commandType=" + commandType +
+                '}';
+    }
 }

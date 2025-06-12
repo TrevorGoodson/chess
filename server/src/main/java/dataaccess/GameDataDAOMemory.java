@@ -83,4 +83,9 @@ public class GameDataDAOMemory implements GameDataDAO{
     public void clear() {
         gameData.clear();
     }
+
+    @Override
+    public void updateGame(int gameID, ChessGame chessGame) throws DataAccessException {
+        //not yet implemented
+    }
 }

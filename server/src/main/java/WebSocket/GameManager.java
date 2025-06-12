@@ -113,7 +113,7 @@ public class GameManager {
         }
     }
 
-    public void makeMove(Integer gameID, TeamColor teamColor, ChessMove chessMove) throws InvalidMoveException, IOException {
+    public void makeMove(Integer gameID, TeamColor teamColor, ChessMove chessMove) throws InvalidMoveException, IOException, DataAccessException {
         if (!LIVE_GAMES.containsKey(gameID)) {
             return;
         }
@@ -123,5 +123,6 @@ public class GameManager {
             return;
         }
         chessGame.makeMove(chessMove);
+        gameDataDAO.updateGame(gameID, chessGame);
     }
 }
