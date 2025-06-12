@@ -6,9 +6,13 @@ import dataaccess.DataAccessException;
 import dataaccess.GameDataDAO;
 import dataaccess.GameDataDAOSQL;
 import org.eclipse.jetty.websocket.api.Session;
+import websocket.messages.ServerMessage;
+
+import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static chess.ChessGame.TeamColor.*;
+import static websocket.messages.ServerMessage.ServerMessageType.NOTIFICATION;
 
 public class GameManager {
     GameDataDAO gameDataDAO = new GameDataDAOSQL();
@@ -80,4 +84,18 @@ public class GameManager {
         LIVE_GAMES.put(gameID, chessGameData);
     }
 
+    public void notifyGame(Integer gameID, String message) throws IOException {
+        if (!LIVE_GAMES.containsKey(gameID)) {
+            return;
+        }
+        ServerMessage serverMessage = new ServerMessage(NOTIFICATION, message);
+        Connection whiteConnection = LIVE_GAMES.get(gameID).whiteConnection();
+        Connection blackConnection = LIVE_GAMES.get(gameID).blackConnection();
+        if (whiteConnection != null) {
+            whiteConnection.send(serverMessage);
+        }
+        if (blackConnection != null) {
+            blackConnection.send(serverMessage);
+        }
+    }
 }

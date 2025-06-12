@@ -1,6 +1,6 @@
 package websocket;
 
-public abstract class WebSocketMessage {
+public class WebSocketMessage {
     public messageType type;
 
     public enum messageType {

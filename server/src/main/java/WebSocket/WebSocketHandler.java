@@ -26,17 +26,17 @@ public class WebSocketHandler {
     public void onMessage(Session session, String message) throws IOException, DataAccessException {
         WebSocketMessage webSocketMessage = new Gson().fromJson(message, WebSocketMessage.class);
         if (webSocketMessage.type == SERVER_MESSAGE) {
-            ServerMessage serverMessage = (ServerMessage) webSocketMessage;
+            ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
             handleServerMessage(serverMessage, session);
         }
         if (webSocketMessage.type == USER_GAME) {
-            UserGameCommand userGameCommand = (UserGameCommand) webSocketMessage;
+            UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
             handleUserGameCommand(userGameCommand, session);
         }
 
     }
 
-    private void handleUserGameCommand(UserGameCommand userGameCommand, Session session) throws DataAccessException {
+    private void handleUserGameCommand(UserGameCommand userGameCommand, Session session) throws DataAccessException, IOException {
         switch(userGameCommand.getCommandType()) {
             case CONNECT -> {
                 handleConnectCommand(userGameCommand, session);
@@ -50,10 +50,11 @@ public class WebSocketHandler {
         }
     }
 
-    private void handleConnectCommand(UserGameCommand userGameCommand, Session session) throws DataAccessException {
+    private void handleConnectCommand(UserGameCommand userGameCommand, Session session) throws DataAccessException, IOException {
         AuthData authData = authDataDAO.getAuthData(userGameCommand.getAuthToken());
         String username = authData.username();
         games.addPlayer(username, userGameCommand.getGameID(), userGameCommand.getTeamColor(), session);
+        games.notifyGame(userGameCommand.getGameID(), username + " joined the game.");
     }
 
     private void handleServerMessage(ServerMessage serverMessage, Session session) throws IOException {
