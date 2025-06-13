@@ -29,6 +29,9 @@ public class GameManager {
             addLiveGame(username, gameID, teamColor, session);
         }
 
+        String chessGameJson = new Gson().toJson(LIVE_GAMES.get(gameID).getChessGame());
+        ServerMessage loadGame = new ServerMessage(LOAD_GAME, chessGameJson);
+        new Connection(username, session).send(loadGame);
     }
 
     private void addPlayerToExistingGame(String username, Integer gameID, TeamColor teamColor, Session session) {

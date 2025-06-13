@@ -1,5 +1,6 @@
 package WebSocket;
 
+import chess.ChessGame;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.*;
@@ -38,8 +39,13 @@ public class WebSocketHandler {
     private void handleConnectCommand(UserGameCommand userGameCommand, Session session) throws DataAccessException, IOException {
         AuthData authData = authDataDAO.getAuthData(userGameCommand.getAuthToken());
         String username = authData.username();
-        games.addPlayer(username, userGameCommand.getGameID(), userGameCommand.getTeamColor(), session);
-        String color = (userGameCommand.getTeamColor() == WHITE) ? "white" : "black";
+        ChessGame.TeamColor teamColor = userGameCommand.getTeamColor();
+        if (teamColor == null) {
+            teamColor = WHITE;
+        }
+        games.addPlayer(username, userGameCommand.getGameID(), teamColor, session);
+
+        String color = (teamColor == WHITE) ? "white" : "black";
         games.notifyGame(userGameCommand.getGameID(),
                          new ServerMessage(NOTIFICATION, username + " joined the game as the " + color + " player."),
                          username);

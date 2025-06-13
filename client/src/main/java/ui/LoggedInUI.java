@@ -73,8 +73,7 @@ public class LoggedInUI extends UserInterface{
             new GameUI(null,
                     gameID,
                     webSocketFacade,
-                    authToken,
-                    new ChessGame()).run();
+                    authToken).run();
         } catch (ConnectionException e) {
             return CONNECTION_DOWN_PROMPT;
         }
@@ -171,14 +170,7 @@ public class LoggedInUI extends UserInterface{
             return CONNECTION_DOWN_PROMPT;
         }
 
-        var db = new DisplayBoard(joinGameResult.chessGame());
-        if ((color == WHITE)) {
-            db.whitePOV();
-        } else {
-            db.blackPOV();
-        }
-
-        new GameUI(color, gameID, webSocketFacade, authToken, joinGameResult.chessGame()).run();
+        new GameUI(color, gameID, webSocketFacade, authToken).run();
 
         return "Success!\n";
     }

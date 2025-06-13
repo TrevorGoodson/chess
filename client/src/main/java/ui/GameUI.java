@@ -20,15 +20,14 @@ public class GameUI extends UserInterface {
     private final Integer gameID;
     private final WebSocketFacade webSocketFacade;
     private final String authToken;
-    private ChessGame chessGame;
+    private ChessGame chessGame = null;
 
-    public GameUI(TeamColor teamColor, Integer gameID, WebSocketFacade webSocketFacade, String authToken, ChessGame chessGame) {
+    public GameUI(TeamColor teamColor, Integer gameID, WebSocketFacade webSocketFacade, String authToken) {
         this.teamColor = teamColor;
         this.gameID = gameID;
         this.webSocketFacade = webSocketFacade;
         this.webSocketFacade.linkClient(this);
         this.authToken = authToken;
-        this.chessGame = chessGame;
     }
 
     public void run() {
@@ -82,6 +81,10 @@ public class GameUI extends UserInterface {
     }
 
     private String redraw() {
+        if (chessGame == null) {
+            return "Please wait while the board loads for the first time.";
+        }
+
         if (teamColor == null || teamColor == WHITE) {
             new DisplayBoard(chessGame).whitePOV();
         }
