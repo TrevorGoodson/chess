@@ -9,6 +9,7 @@ import serverfacade.ServerFacade;
 import serverfacade.WebSocketFacade;
 import serverfacade.WebSocketMessageHandler;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -59,7 +60,11 @@ public class GameUI extends UserInterface {
                 default -> checkForMove(response);
             };
         }
-
+        try {
+            webSocketFacade.endSession();
+        } catch (IOException e) {
+            System.out.print(CONNECTION_DOWN_PROMPT);
+        }
     }
 
     private String highlight() {

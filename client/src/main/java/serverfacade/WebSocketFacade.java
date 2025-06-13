@@ -15,31 +15,37 @@ import static chess.ChessGame.TeamColor;
 import static websocket.commands.UserGameCommand.CommandType.*;
 
 public class WebSocketFacade extends Endpoint {
-    Session session;
-    WebSocketMessageHandler notificationHandler;
-    GameUI client;
+    private Session session;
+    private WebSocketMessageHandler notificationHandler;
+    private GameUI client;
+    private final URI webSocketUrl;
 
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {}
 
     public WebSocketFacade(int port, WebSocketMessageHandler webSocketMessageHandler) throws ConnectionException {
         try {
-            URI socketURI = new URI("ws" + ServerFacade.getServerUrl() + port + "/ws");
+            webSocketUrl = new URI("ws" + ServerFacade.getServerUrl() + port + "/ws");
             this.notificationHandler = webSocketMessageHandler;
 
-            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            this.session = container.connectToServer(this, socketURI);
+            connectToServer();
 
-            this.session.addMessageHandler(new MessageHandler.Whole<String>() {
-                @Override
-                public void onMessage(String message) {
-                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                    webSocketMessageHandler.sendMessage(serverMessage, client);
-                }
-            });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new ConnectionException(ex.getMessage());
         }
+    }
+
+    private void connectToServer() throws DeploymentException, IOException {
+        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+        this.session = container.connectToServer(this, webSocketUrl);
+
+        this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+            @Override
+            public void onMessage(String message) {
+                ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                notificationHandler.sendMessage(serverMessage, client);
+            }
+        });
     }
 
     public void linkClient(GameUI client) {
@@ -74,10 +80,21 @@ public class WebSocketFacade extends Endpoint {
     }
 
     private void send(UserGameCommand userGameCommand) throws IOException {
+        if (!session.isOpen()) {
+            try {
+                connectToServer();
+            } catch (DeploymentException e) {
+                throw new IOException(e);
+            }
+        }
         session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
     }
 
     public void setNotificationHandler(WebSocketMessageHandler webSocketMessageHandler) {
         this.notificationHandler = webSocketMessageHandler;
+    }
+
+    public void endSession() throws IOException {
+        session.close();
     }
 }

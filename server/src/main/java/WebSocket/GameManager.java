@@ -139,7 +139,9 @@ public class GameManager {
         }
         chessGame.makeMove(chessMove);
         gameDataDAO.updateGame(gameID, chessGame);
+        String username = (teamColor == WHITE) ? LIVE_GAMES.get(gameID).getWhiteUsername() : LIVE_GAMES.get(gameID).getBlackUsername();
         notifyGame(gameID, new ServerMessage(LOAD_GAME, new Gson().toJson(chessGame)), "");
+        notifyGame(gameID, new ServerMessage(NOTIFICATION, username + " has played " + chessMove), username);
     }
 
     public void cleanUpConnections() throws IOException, DataAccessException {
