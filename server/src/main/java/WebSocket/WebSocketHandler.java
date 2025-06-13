@@ -88,20 +88,64 @@ public class WebSocketHandler {
 
     private void handleMakeMove(UserGameCommand userGameCommand, Session session) throws DataAccessException, IOException {
         AuthData authData = authDataDAO.getAuthData(userGameCommand.getAuthToken());
-        GameData gameData = gameDataDAO.findGame(userGameCommand.getGameID());
+        Integer gameID = userGameCommand.getGameID();
+        GameData gameData = gameDataDAO.findGame(gameID);
+
         if (authData == null || gameData == null) {
             sendError(session, "Error: bad request.");
             return;
         }
+        if (gameData.game().isGameOver()) {
+            sendError(session, "Error: the game is over");
+            return;
+        }
 
         String username = authData.username();
+        if (isObserver(username, gameData)) {
+            sendError(session, "Error: you can only make moves as a player.");
+            return;
+        }
+
+        String currentPlayer = getCurrentPLayer(gameData);
+        if (!username.equals(currentPlayer)) {
+            sendError(session, "Error: it's not your turn.");
+            return;
+        }
+
         TeamColor teamColor = (username.equals(gameData.whiteUsername())) ? WHITE : BLACK;
 
         try {
-            games.makeMove(userGameCommand.getGameID(), teamColor, userGameCommand.getMove());
+            games.makeMove(gameID, teamColor, userGameCommand.getMove());
         } catch (InvalidMoveException e) {
             sendError(session, "Error: invalid move");
         }
+
+        gameData = gameDataDAO.findGame(gameID);
+
+        games.notifyGame(gameID, new ServerMessage(LOAD_GAME, gameData.game()), null);
+        ServerMessage moveUpdate
+                = new ServerMessage(NOTIFICATION, username + " has played " + userGameCommand.getMove());
+        games.notifyGame(gameID, moveUpdate, session);
+
+        TeamColor opposingTeamColor = (teamColor == WHITE) ? BLACK : WHITE;
+        if (gameData.game().isInCheck(opposingTeamColor)) {
+            ServerMessage checkNotice
+                    = new ServerMessage(NOTIFICATION, username + " has put his opponent in check!");
+            games.notifyGame(gameID, checkNotice, null);
+        }
+    }
+
+    private String getCurrentPLayer(GameData gameData) {
+        if (gameData.game().getTeamTurn() == WHITE) {
+            return gameData.whiteUsername();
+        }
+        else {
+            return gameData.blackUsername();
+        }
+    }
+
+    private boolean isObserver(String username, GameData gameData) {
+        return !username.equals(gameData.whiteUsername()) && !username.equals(gameData.blackUsername());
     }
 
     private void sendError(Session session, String message) throws IOException {

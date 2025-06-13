@@ -132,26 +132,8 @@ public class GameManager {
         }
 
         ChessGame chessGame = LIVE_GAMES.get(gameID).getChessGame();
-        if (chessGame.isGameOver()) {
-            notifyPlayer(gameID, teamColor, "The game has ended!");
-        }
-        if (teamColor != chessGame.getTeamTurn()) {
-            notifyPlayer(gameID, teamColor, "You can only play on your turn!");
-            return;
-        }
-
         chessGame.makeMove(chessMove);
         gameDataDAO.updateGame(gameID, chessGame);
-
-        Connection user = (teamColor == WHITE) ? LIVE_GAMES.get(gameID).getWhiteConnection() :
-                                                 LIVE_GAMES.get(gameID).getBlackConnection();
-        notifyGame(gameID, new ServerMessage(LOAD_GAME, chessGame), null);
-        notifyGame(gameID, new ServerMessage(NOTIFICATION, user.username() + " has played " + chessMove), user.session());
-
-        TeamColor opposingTeamColor = (teamColor == WHITE) ? BLACK : WHITE;
-        if (chessGame.isInCheck(opposingTeamColor)) {
-            notifyGame(gameID, new ServerMessage(NOTIFICATION, user.username() + " has put his opponent in check!"), null);
-        }
     }
 
     public void cleanUpConnections() throws IOException, DataAccessException {
