@@ -123,7 +123,7 @@ public class GameUI extends UserInterface {
 
     private String executeMove(ChessMove chessMove) {
         try {
-            webSocketFacade.makeMove(authToken, chessMove, gameID, teamColor);
+            webSocketFacade.makeMove(authToken, chessMove, gameID);
             return "";
         } catch (ConnectionException e) {
             return CONNECTION_DOWN_PROMPT;

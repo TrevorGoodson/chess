@@ -26,7 +26,7 @@ public class WebSocketHandler {
         UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
         switch (userGameCommand.getCommandType()) {
             case CONNECT -> handleConnectCommand(userGameCommand, session);
-            case MAKE_MOVE -> handleMakeMove(userGameCommand);
+            case MAKE_MOVE -> handleMakeMove(userGameCommand, session);
             case RESIGN -> handleResign(userGameCommand);
             case OBSERVER_CONNECT -> handleObserver(userGameCommand, session);
         }
@@ -47,7 +47,6 @@ public class WebSocketHandler {
         }
 
         String username = authData.username();
-
         TeamColor teamColor = (username.equals(gameData.whiteUsername())) ? WHITE : BLACK;
 
 //        ChessGame.TeamColor teamColor = userGameCommand.getTeamColor();
@@ -67,11 +66,21 @@ public class WebSocketHandler {
         games.resign(userGameCommand.getGameID(), userGameCommand.getTeamColor());
     }
 
-    private void handleMakeMove(UserGameCommand userGameCommand) throws DataAccessException, IOException {
+    private void handleMakeMove(UserGameCommand userGameCommand, Session session) throws DataAccessException, IOException {
+        AuthData authData = authDataDAO.getAuthData(userGameCommand.getAuthToken());
+        GameData gameData = gameDataDAO.findGame(userGameCommand.getGameID());
+        if (authData == null || gameData == null) {
+            sendError(session, "Error: bad request.");
+            return;
+        }
+
+        String username = authData.username();
+        TeamColor teamColor = (username.equals(gameData.whiteUsername())) ? WHITE : BLACK;
+
         try {
-            games.makeMove(userGameCommand.getGameID(), userGameCommand.getTeamColor(), userGameCommand.getChessMove());
+            games.makeMove(userGameCommand.getGameID(), teamColor, userGameCommand.getMove());
         } catch (InvalidMoveException e) {
-            games.notifyPlayer(userGameCommand.getGameID(), userGameCommand.getTeamColor(), "Error: Invalid move");
+            sendError(session, "Error: invalid move");
         }
     }
 

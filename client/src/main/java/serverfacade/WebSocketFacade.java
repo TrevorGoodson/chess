@@ -70,9 +70,9 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void makeMove(String authToken, ChessMove chessMove, Integer gameID, TeamColor teamColor) throws ConnectionException {
+    public void makeMove(String authToken, ChessMove chessMove, Integer gameID) throws ConnectionException {
         try {
-            UserGameCommand userGameCommand = new UserGameCommand(MAKE_MOVE, authToken, gameID, teamColor, chessMove);
+            UserGameCommand userGameCommand = new UserGameCommand(authToken, gameID, chessMove);
             send(userGameCommand);
         } catch (IOException e) {
             throw new ConnectionException();

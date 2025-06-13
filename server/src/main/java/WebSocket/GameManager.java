@@ -149,7 +149,7 @@ public class GameManager {
 
         Connection user = (teamColor == WHITE) ? LIVE_GAMES.get(gameID).getWhiteConnection() :
                                                  LIVE_GAMES.get(gameID).getBlackConnection();
-        notifyGame(gameID, new ServerMessage(LOAD_GAME, new Gson().toJson(chessGame)), null);
+        notifyGame(gameID, new ServerMessage(LOAD_GAME, chessGame), null);
         notifyGame(gameID, new ServerMessage(NOTIFICATION, user.username() + " has played " + chessMove), user.session());
 
         TeamColor opposingTeamColor = (teamColor == WHITE) ? BLACK : WHITE;

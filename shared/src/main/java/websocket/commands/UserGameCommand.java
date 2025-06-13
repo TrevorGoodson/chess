@@ -3,6 +3,7 @@ package websocket.commands;
 import chess.ChessMove;
 import java.util.Objects;
 import static chess.ChessGame.TeamColor;
+import static websocket.commands.UserGameCommand.CommandType.*;
 
 /**
  * Represents a command a user can send the server over a websocket
@@ -16,14 +17,14 @@ public class UserGameCommand {
     protected final String authToken;
     protected final Integer gameID;
     protected final TeamColor teamColor;
-    protected final ChessMove chessMove;
+    protected final ChessMove move;
 
     public UserGameCommand(CommandType commandType, String authToken, Integer gameID) {
         this.commandType = commandType;
         this.authToken = authToken;
         this.gameID = gameID;
         teamColor = null;
-        chessMove = null;
+        move = null;
     }
 
     public UserGameCommand(CommandType commandType, String authToken, Integer gameID, TeamColor teamColor) {
@@ -31,15 +32,15 @@ public class UserGameCommand {
         this.authToken = authToken;
         this.gameID = gameID;
         this.teamColor = teamColor;
-        chessMove = null;
+        move = null;
     }
 
-    public UserGameCommand(CommandType commandType, String authToken, Integer gameID, TeamColor teamColor, ChessMove chessMove) {
-        this.commandType = commandType;
+    public UserGameCommand(String authToken, Integer gameID, ChessMove move) {
+        this.commandType = MAKE_MOVE;
         this.authToken = authToken;
+        this.move = move;
         this.gameID = gameID;
-        this.teamColor = teamColor;
-        this.chessMove = chessMove;
+        teamColor = null;
     }
 
     public UserGameCommand(CommandType commandType, Integer gameID) {
@@ -47,7 +48,7 @@ public class UserGameCommand {
         this.authToken = null;
         this.gameID = gameID;
         this.teamColor = null;
-        this.chessMove = null;
+        this.move = null;
     }
 
     public enum CommandType {
@@ -74,8 +75,8 @@ public class UserGameCommand {
         return teamColor;
     }
 
-    public ChessMove getChessMove() {
-        return chessMove;
+    public ChessMove getMove() {
+        return move;
     }
 
     @Override
@@ -99,7 +100,7 @@ public class UserGameCommand {
     @Override
     public String toString() {
         return "UserGameCommand{" +
-                "chessMove=" + chessMove +
+                "chessMove=" + move +
                 ", teamColor=" + teamColor +
                 ", gameID=" + gameID +
                 ", authToken='" + authToken + '\'' +

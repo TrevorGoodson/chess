@@ -14,20 +14,21 @@ import static ui.EscapeSequences.*;
 public class DisplayBoard {
     private final ChessGame game;
     private boolean currentSquareWhite = true;
-    private Collection<ChessPosition> highlightSquares = new HashSet<>();
+    private final Collection<ChessPosition> highlightSquares = new HashSet<>();
 
     public DisplayBoard(ChessGame game) {
         this.game = game;
     }
 
     public void whitePOV() {
+        if (game == null) {
+            System.out.println("Oops! null board.");
+        }
         System.out.print("\n");
         printColumnLabels(WHITE);
         for (int i = 0; i < 8; ++i) {
-            ChessPiece[] row = game.getBoard().getRowToDisplay(i);
             printRowLabel(i);
             for (int j = 0; j < 8; ++j) {
-                //printPiece(row[j]);
                 printPosition(new ChessPosition(8 - i,j + 1));
             }
             currentSquareWhite = !currentSquareWhite;
@@ -55,13 +56,15 @@ public class DisplayBoard {
     }
 
     public void blackPOV() {
+        if (game == null) {
+            System.out.println("Oops! null board.");
+        }
         System.out.print("\n");
         printColumnLabels(BLACK);
         for (int i = 7; i >= 0; --i) {
-            ChessPiece[] row = game.getBoard().getRowToDisplay(i);
             printRowLabel(i);
             for (int j = 7; j >= 0; --j) {
-                printPiece(row[j]);
+                printPosition(new ChessPosition(8 - i,j + 1));
             }
             currentSquareWhite = !currentSquareWhite;
             System.out.print(RESET_BG_COLOR);
