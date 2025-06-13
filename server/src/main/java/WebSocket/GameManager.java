@@ -112,18 +112,6 @@ public class GameManager {
         }
     }
 
-    public void notifyPlayer(Integer gameID, TeamColor teamColor, String message) throws IOException {
-        if (!LIVE_GAMES.containsKey(gameID)) {
-            return;
-        }
-        ServerMessage serverMessage = new ServerMessage(NOTIFICATION, message);
-        Connection playerConnection = (teamColor == WHITE) ? LIVE_GAMES.get(gameID).getWhiteConnection() :
-                                                             LIVE_GAMES.get(gameID).getBlackConnection();
-        if (playerConnection != null) {
-            playerConnection.send(serverMessage);
-        }
-    }
-
     public void makeMove(Integer gameID, TeamColor teamColor, ChessMove chessMove) throws InvalidMoveException,
                                                                                           IOException,
                                                                                           DataAccessException {
@@ -134,6 +122,31 @@ public class GameManager {
         ChessGame chessGame = LIVE_GAMES.get(gameID).getChessGame();
         chessGame.makeMove(chessMove);
         gameDataDAO.updateGame(gameID, chessGame);
+    }
+
+    public void removeUser(Integer gameID, TeamColor teamColor) {
+        if (!LIVE_GAMES.containsKey(gameID)) {
+            return;
+        }
+        if (teamColor == null) {
+            return;
+        }
+
+        ChessGameData chessGameData = LIVE_GAMES.get(gameID);
+        if (teamColor == WHITE) {
+            chessGameData.setWhiteConnection(null);
+            chessGameData.setWhiteUsername(null);
+        } else {
+            chessGameData.setBlackConnection(null);
+            chessGameData.setBlackUsername(null);
+        }
+    }
+
+    public void removeObserver(Integer gameID, Session session) {
+        if (!LIVE_GAMES.containsKey(gameID)) {
+            return;
+        }
+        LIVE_GAMES.get(gameID).observers.remove(session);
     }
 
     public void cleanUpConnections() throws IOException, DataAccessException {

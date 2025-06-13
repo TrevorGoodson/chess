@@ -51,7 +51,7 @@ public class GameUI extends UserInterface {
                         "highlight": highlight all legal moves
                         """;
                 case "make move" -> makeMove();
-                case "leave" -> "";
+                case "leave" -> leave();
                 case "redraw" -> redraw();
                 case "resign" -> resign();
                 case "highlight" -> highlight();
@@ -63,6 +63,15 @@ public class GameUI extends UserInterface {
         } catch (IOException e) {
             System.out.print(CONNECTION_DOWN_PROMPT);
         }
+    }
+
+    private String leave() {
+        try {
+            webSocketFacade.leave(gameID, authToken);
+        } catch (ConnectionException e) {
+            return CONNECTION_DOWN_PROMPT;
+        }
+        return "";
     }
 
     private String highlight() {

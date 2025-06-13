@@ -97,4 +97,13 @@ public class WebSocketFacade extends Endpoint {
             throw new ConnectionException();
         }
     }
+
+    public void leave(Integer gameID, String authToken) throws ConnectionException {
+        try {
+            UserGameCommand userGameCommand = new UserGameCommand(LEAVE, authToken, gameID);
+            send(userGameCommand);
+        } catch (IOException e) {
+            throw new ConnectionException();
+        }
+    }
 }
