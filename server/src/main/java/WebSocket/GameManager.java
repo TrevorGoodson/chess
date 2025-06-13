@@ -94,21 +94,23 @@ public class GameManager {
         }
     }
 
-    public void notifyGame(Integer gameID, ServerMessage serverMessage) throws IOException {
+    public void notifyGame(Integer gameID, ServerMessage serverMessage, String username) throws IOException {
         if (!LIVE_GAMES.containsKey(gameID)) {
             return;
         }
         Connection whiteConnection = LIVE_GAMES.get(gameID).getWhiteConnection();
         Connection blackConnection = LIVE_GAMES.get(gameID).getBlackConnection();
 
-        if (whiteConnection != null) {
+        if (whiteConnection != null && !whiteConnection.username().equals(username)) {
             whiteConnection.send(serverMessage);
         }
-        if (blackConnection != null) {
+        if (blackConnection != null && !blackConnection.username().equals(username)) {
             blackConnection.send(serverMessage);
         }
         for (var observer : LIVE_GAMES.get(gameID).observers.values()) {
-            observer.send(serverMessage);
+            if (!observer.username().equals(username)) {
+                observer.send(serverMessage);
+            }
         }
     }
 
@@ -137,7 +139,7 @@ public class GameManager {
         }
         chessGame.makeMove(chessMove);
         gameDataDAO.updateGame(gameID, chessGame);
-        notifyGame(gameID, new ServerMessage(LOAD_GAME, new Gson().toJson(chessGame)));
+        notifyGame(gameID, new ServerMessage(LOAD_GAME, new Gson().toJson(chessGame)), "");
     }
 
     public void cleanUpConnections() throws IOException, DataAccessException {
@@ -150,13 +152,13 @@ public class GameManager {
             if (white != null && !white.session().isOpen()) {
                 gameDataDAO.removeUser(gameID, WHITE);
                 game.setWhiteConnection(null);
-                notifyGame(gameID, new ServerMessage(NOTIFICATION, game.getWhiteUsername() + " has left the game."));
+                notifyGame(gameID, new ServerMessage(NOTIFICATION, game.getWhiteUsername() + " has left the game."), "");
                 game.setWhiteUsername(null);
             }
             if (black != null && !black.session().isOpen()) {
                 gameDataDAO.removeUser(gameID, BLACK);
                 game.setBlackConnection(null);
-                notifyGame(gameID, new ServerMessage(NOTIFICATION, game.getBlackUsername() + " has left the game."));
+                notifyGame(gameID, new ServerMessage(NOTIFICATION, game.getBlackUsername() + " has left the game."), "");
                 game.setBlackUsername(null);
             }
 
@@ -182,7 +184,7 @@ public class GameManager {
         for (Session observer : game.observers.keySet()) {
             if (!observer.isOpen()) {
                 removeList.add(observer);
-                notifyGame(gameID, new ServerMessage(NOTIFICATION, game.observers.get(observer).username() + " has stopped watching."));
+                notifyGame(gameID, new ServerMessage(NOTIFICATION, game.observers.get(observer).username() + " has stopped watching."), "");
             }
         }
 

@@ -2,16 +2,10 @@ package WebSocket;
 
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
-import dataaccess.AuthDataDAO;
-import dataaccess.AuthDataDAOSQL;
-import dataaccess.DataAccessException;
-import dataaccess.GameDataDAOSQL;
+import dataaccess.*;
 import model.*;
 import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
-import org.eclipse.jetty.websocket.api.annotations.WebSocket;
-import usererrorexceptions.GameNotFoundException;
+import org.eclipse.jetty.websocket.api.annotations.*;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -49,7 +43,9 @@ public class WebSocketHandler {
         String username = authData.username();
         games.addPlayer(username, userGameCommand.getGameID(), userGameCommand.getTeamColor(), session);
         String color = (userGameCommand.getTeamColor() == WHITE) ? "white" : "black";
-        games.notifyGame(userGameCommand.getGameID(), new ServerMessage(NOTIFICATION, username + " joined the game as the " + color + " player."));
+        games.notifyGame(userGameCommand.getGameID(),
+                         new ServerMessage(NOTIFICATION, username + " joined the game as the " + color + " player."),
+                         username);
     }
 
     private void handleMakeMove(UserGameCommand userGameCommand) throws DataAccessException, IOException {
@@ -66,6 +62,8 @@ public class WebSocketHandler {
         ServerMessage serverMessage = new ServerMessage(LOAD_GAME, new Gson().toJson(gameData.game()));
         session.getRemote().sendString(new Gson().toJson(serverMessage));
         games.addObserver(authData.username(), userGameCommand.getGameID(), session);
-        games.notifyGame(userGameCommand.getGameID(), new ServerMessage(NOTIFICATION, authData.username() + " started watching the game."));
+        games.notifyGame(userGameCommand.getGameID(),
+                         new ServerMessage(NOTIFICATION, authData.username() + " started watching the game."),
+                         authData.username());
     }
 }
