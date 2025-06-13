@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import static chess.ChessGame.TeamColor.*;
+import static ui.EscapeSequences.ERASE_SCREEN;
 
 public class GameUI extends UserInterface {
     private final TeamColor teamColor;
@@ -31,7 +32,7 @@ public class GameUI extends UserInterface {
     }
 
     public void run() {
-        System.out.print("\033[H\033[2J");
+        System.out.print(ERASE_SCREEN);
         String prompt = (teamColor != null) ? "Let's play! Type \"help\" for options.\n" : "";
         Scanner inputScanner = new Scanner(System.in);
         WebSocketMessageHandler ws = new WebSocketMessageHandler(teamColor);

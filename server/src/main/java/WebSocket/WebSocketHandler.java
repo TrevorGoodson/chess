@@ -14,6 +14,8 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import usererrorexceptions.GameNotFoundException;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
+
+import static chess.ChessGame.TeamColor.WHITE;
 import static websocket.messages.ServerMessage.ServerMessageType.*;
 
 import java.io.IOException;
@@ -46,7 +48,8 @@ public class WebSocketHandler {
         AuthData authData = authDataDAO.getAuthData(userGameCommand.getAuthToken());
         String username = authData.username();
         games.addPlayer(username, userGameCommand.getGameID(), userGameCommand.getTeamColor(), session);
-        games.notifyGame(userGameCommand.getGameID(), new ServerMessage(NOTIFICATION, username + " joined the game."));
+        String color = (userGameCommand.getTeamColor() == WHITE) ? "white" : "black";
+        games.notifyGame(userGameCommand.getGameID(), new ServerMessage(NOTIFICATION, username + " joined the game as the " + color + " player."));
     }
 
     private void handleMakeMove(UserGameCommand userGameCommand) throws DataAccessException, IOException {
