@@ -6,7 +6,7 @@ import chess.ChessMove;
 import chess.ChessPosition;
 import serverfacade.ConnectionException;
 import serverfacade.WebSocketFacade;
-import serverfacade.WebSocketMessageHandler;
+import serverfacade.WebSocketMessenger;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,7 +34,7 @@ public class GameUI extends UserInterface {
         System.out.print(ERASE_SCREEN);
         String prompt = (teamColor != null) ? "Let's play! Type \"help\" for options.\n" : "";
         Scanner inputScanner = new Scanner(System.in);
-        WebSocketMessageHandler ws = new WebSocketMessageHandler(teamColor);
+        WebSocketMessenger ws = new WebSocketMessenger(teamColor);
         webSocketFacade.setNotificationHandler(ws);
         String response = "";
 

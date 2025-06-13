@@ -15,6 +15,10 @@ public class ServerMessage {
     String message = null;
     ChessGame game = null;
 
+    public ChessGame getGame() {
+        return game;
+    }
+
     public enum ServerMessageType {
         LOAD_GAME,
         ERROR,

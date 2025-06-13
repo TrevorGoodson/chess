@@ -9,12 +9,12 @@ import websocket.messages.ServerMessage;
 import static websocket.messages.ServerMessage.ServerMessageType.*;
 import static chess.ChessGame.TeamColor.*;
 
-public class WebSocketMessageHandler {
+public class WebSocketMessenger {
     private TeamColor teamColor = null;
 
-    public WebSocketMessageHandler() {}
+    public WebSocketMessenger() {}
 
-    public WebSocketMessageHandler(TeamColor teamColor) {
+    public WebSocketMessenger(TeamColor teamColor) {
         this.teamColor = teamColor;
     }
 
@@ -24,20 +24,19 @@ public class WebSocketMessageHandler {
             return;
         }
 
-        ChessGame game = loadGame(serverMessage.getMessage());
-        if (client != null) {
-            client.setChessGame(game);
-        }
+        loadGame(serverMessage.getGame(), client);
     }
 
-    private ChessGame loadGame(String chessGameJSON) {
-        ChessGame chessGame = new Gson().fromJson(chessGameJSON, ChessGame.class);
+    private void loadGame(ChessGame chessGame, GameUI client) {
         if (teamColor == null || teamColor == WHITE) {
             new DisplayBoard(chessGame).whitePOV();
         }
         else {
             new DisplayBoard(chessGame).blackPOV();
         }
-        return chessGame;
+
+        if (client != null) {
+            client.setChessGame(chessGame);
+        }
     }
 }

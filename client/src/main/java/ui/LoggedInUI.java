@@ -1,11 +1,10 @@
 package ui;
 
-import chess.ChessGame;
 import requestresultrecords.*;
 import serverfacade.ConnectionException;
 import serverfacade.ServerFacade;
 import serverfacade.WebSocketFacade;
-import serverfacade.WebSocketMessageHandler;
+import serverfacade.WebSocketMessenger;
 import usererrorexceptions.UserErrorException;
 import usererrorexceptions.UserErrorExceptionDecoder;
 
@@ -68,7 +67,7 @@ public class LoggedInUI extends UserInterface{
         }
         try {
             int gameID = listNumToGameID.get(listNum);
-            WebSocketFacade webSocketFacade = new WebSocketFacade(port, new WebSocketMessageHandler());
+            WebSocketFacade webSocketFacade = new WebSocketFacade(port, new WebSocketMessenger());
             webSocketFacade.startObserving(gameID, authToken);
             new GameUI(null,
                     gameID,
@@ -160,7 +159,7 @@ public class LoggedInUI extends UserInterface{
         JoinGameResult joinGameResult;
         WebSocketFacade webSocketFacade;
         try {
-            webSocketFacade = new WebSocketFacade(port, new WebSocketMessageHandler(color));
+            webSocketFacade = new WebSocketFacade(port, new WebSocketMessenger(color));
             joinGameResult = serverFacade.joinGame(joinGameRequest);
             webSocketFacade.joinGame(authToken, gameID, color);
         }

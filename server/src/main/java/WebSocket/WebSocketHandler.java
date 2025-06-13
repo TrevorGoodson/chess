@@ -66,11 +66,14 @@ public class WebSocketHandler {
     private void handleObserver(UserGameCommand userGameCommand, Session session) throws DataAccessException, IOException {
         GameData gameData = new GameDataDAOSQL().findGame(userGameCommand.getGameID());
         AuthData authData = new AuthDataDAOSQL().getAuthData(userGameCommand.getAuthToken());
-        ServerMessage serverMessage = new ServerMessage(LOAD_GAME, new Gson().toJson(gameData.game()));
-        session.getRemote().sendString(new Gson().toJson(serverMessage));
+
+        ServerMessage loadGame = new ServerMessage(LOAD_GAME, gameData.game());
+        new Connection(authData.username(), session).send(loadGame);
+
+        ServerMessage newObserver = new ServerMessage(NOTIFICATION, authData.username() + " started watching the game.");
         games.addObserver(authData.username(), userGameCommand.getGameID(), session);
         games.notifyGame(userGameCommand.getGameID(),
-                         new ServerMessage(NOTIFICATION, authData.username() + " started watching the game."),
+                         newObserver,
                          authData.username());
     }
 }
