@@ -25,10 +25,7 @@ public class WebSocketHandler {
         switch (userGameCommand.getCommandType()) {
             case CONNECT -> handleConnectCommand(userGameCommand, session);
             case MAKE_MOVE -> handleMakeMove(userGameCommand);
-            case LEAVE -> {
-            }
-            case RESIGN -> {
-            }
+            case RESIGN -> handleResign(userGameCommand);
             case OBSERVER_CONNECT -> handleObserver(userGameCommand, session);
         }
     }
@@ -46,6 +43,10 @@ public class WebSocketHandler {
         games.notifyGame(userGameCommand.getGameID(),
                          new ServerMessage(NOTIFICATION, username + " joined the game as the " + color + " player."),
                          username);
+    }
+
+    private void handleResign(UserGameCommand userGameCommand) throws IOException, DataAccessException {
+        games.resign(userGameCommand.getGameID(), userGameCommand.getTeamColor());
     }
 
     private void handleMakeMove(UserGameCommand userGameCommand) throws DataAccessException, IOException {

@@ -5,7 +5,6 @@ import chess.ChessGame.TeamColor;
 import chess.ChessMove;
 import chess.ChessPosition;
 import serverfacade.ConnectionException;
-import serverfacade.ServerFacade;
 import serverfacade.WebSocketFacade;
 import serverfacade.WebSocketMessageHandler;
 
@@ -55,7 +54,7 @@ public class GameUI extends UserInterface {
                 case "make move" -> makeMove();
                 case "leave" -> "";
                 case "redraw" -> redraw();
-                case "resign" -> "";
+                case "resign" -> resign();
                 case "highlight" -> highlight();
                 default -> checkForMove(response);
             };
@@ -88,6 +87,15 @@ public class GameUI extends UserInterface {
         }
         else {
             new DisplayBoard(chessGame).blackPOV();
+        }
+        return "";
+    }
+
+    private String resign() {
+        try {
+            webSocketFacade.resign(gameID, teamColor);
+        } catch (ConnectionException e) {
+            return CONNECTION_DOWN_PROMPT;
         }
         return "";
     }

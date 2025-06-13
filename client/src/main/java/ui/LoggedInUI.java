@@ -128,9 +128,9 @@ public class LoggedInUI extends UserInterface{
             builder.append("Game name: ");
             builder.append(game.gameName());
             builder.append(" | White Player: ");
-            builder.append(game.whiteUsername());
+            builder.append((game.whiteUsername() == null) ? "Available!" : game.whiteUsername());
             builder.append(" | Black Player: ");
-            builder.append(game.blackUsername());
+            builder.append((game.blackUsername() == null) ? "Available!" : game.blackUsername());
             builder.append("\n");
         }
         return builder.toString();

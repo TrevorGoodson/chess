@@ -16,6 +16,8 @@ import static java.lang.Math.abs;
  */
 public class ChessGame {
     private ChessBoard board = new ChessBoard();
+    private boolean gameOver = false;
+    private TeamColor winningTeam = null;
     private boolean whitesTurn = true;
     private final ArrayList<ChessMove> history = new ArrayList<>();
 
@@ -239,6 +241,31 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return board;
+    }
+
+    public void resign(TeamColor teamColor) {
+        winningTeam = (teamColor == BLACK) ? WHITE : BLACK;
+        gameOver = true;
+    }
+
+    public void checkForWinner() {
+        TeamColor currentPlayer = getTeamTurn();
+        if (isInCheckmate(currentPlayer)) {
+            winningTeam = (whitesTurn) ? BLACK : WHITE;
+            gameOver = true;
+            return;
+        }
+        if (isInStalemate(currentPlayer)) {
+            gameOver = true;
+        }
+    }
+
+    public TeamColor getWinningTeam() {
+        return winningTeam;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
     }
 
     public ChessGame copy() {

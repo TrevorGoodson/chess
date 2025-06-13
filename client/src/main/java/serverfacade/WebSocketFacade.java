@@ -97,4 +97,13 @@ public class WebSocketFacade extends Endpoint {
     public void endSession() throws IOException {
         session.close();
     }
+
+    public void resign(Integer gameID, TeamColor teamColor) throws ConnectionException {
+        try {
+            UserGameCommand userGameCommand = new UserGameCommand(RESIGN, null, gameID, teamColor);
+            send(userGameCommand);
+        } catch (IOException e) {
+            throw new ConnectionException();
+        }
+    }
 }

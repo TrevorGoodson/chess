@@ -132,11 +132,16 @@ public class GameManager {
         if (!LIVE_GAMES.containsKey(gameID)) {
             return;
         }
+
         ChessGame chessGame = LIVE_GAMES.get(gameID).getChessGame();
+        if (chessGame.isGameOver()) {
+            notifyPlayer(gameID, teamColor, "The game has ended!");
+        }
         if (teamColor != chessGame.getTeamTurn()) {
             notifyPlayer(gameID, teamColor, "You can only play on your turn!");
             return;
         }
+
         chessGame.makeMove(chessMove);
         gameDataDAO.updateGame(gameID, chessGame);
         String username = (teamColor == WHITE) ? LIVE_GAMES.get(gameID).getWhiteUsername() : LIVE_GAMES.get(gameID).getBlackUsername();
@@ -216,5 +221,27 @@ public class GameManager {
                 gameDataDAO.removeUser(game.gameID(), BLACK);
             }
         }
+    }
+
+    public void resign(Integer gameID, TeamColor teamColor) throws DataAccessException, IOException {
+        if (!LIVE_GAMES.containsKey(gameID)) {
+            return;
+        }
+
+        ChessGame chessGame = LIVE_GAMES.get(gameID).getChessGame();
+        chessGame.resign(teamColor);
+        gameDataDAO.updateGame(gameID, chessGame);
+
+        String username;
+        String opposingUser;
+        if (teamColor == WHITE) {
+            username = LIVE_GAMES.get(gameID).getWhiteUsername();
+            opposingUser = LIVE_GAMES.get(gameID).getBlackUsername();
+        }
+        else {
+            username = LIVE_GAMES.get(gameID).getBlackUsername();
+            opposingUser = LIVE_GAMES.get(gameID).getWhiteUsername();
+        }
+        notifyGame(gameID, new ServerMessage(NOTIFICATION, username + " has resigned! " + opposingUser + " has won!"), "");
     }
 }
