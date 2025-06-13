@@ -73,7 +73,12 @@ public class GameUI extends UserInterface {
         if (chessPosition == null) {
             return "Please enter a valid position.\n";
         }
-        new DisplayBoard(chessGame).highlightSquares(chessPosition).whitePOV();
+        if (teamColor == WHITE) {
+            new DisplayBoard(chessGame).highlightSquares(chessPosition).whitePOV();
+        }
+        else {
+            new DisplayBoard(chessGame).highlightSquares(chessPosition).blackPOV();
+        }
         return "";
     }
 

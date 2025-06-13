@@ -9,7 +9,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static chess.ChessGame.TeamColor.*;
@@ -140,8 +140,14 @@ public class GameManager {
         chessGame.makeMove(chessMove);
         gameDataDAO.updateGame(gameID, chessGame);
         String username = (teamColor == WHITE) ? LIVE_GAMES.get(gameID).getWhiteUsername() : LIVE_GAMES.get(gameID).getBlackUsername();
+
         notifyGame(gameID, new ServerMessage(LOAD_GAME, new Gson().toJson(chessGame)), "");
         notifyGame(gameID, new ServerMessage(NOTIFICATION, username + " has played " + chessMove), username);
+
+        TeamColor opposingTeamColor = (teamColor == WHITE) ? BLACK : WHITE;
+        if (chessGame.isInCheck(opposingTeamColor)) {
+            notifyGame(gameID, new ServerMessage(NOTIFICATION, username + " has put his opponent in check!"), "");
+        }
     }
 
     public void cleanUpConnections() throws IOException, DataAccessException {
@@ -169,6 +175,8 @@ public class GameManager {
             if (game.getWhiteConnection() == null && game.getBlackConnection() == null && game.observers.isEmpty()) {
                 removeList.add(gameID);
             }
+
+            cleanUpDatabase();
         }
 
         for (var gameID : removeList) {
@@ -192,6 +200,21 @@ public class GameManager {
 
         for (Session observer : removeList) {
             game.observers.remove(observer);
+        }
+    }
+
+    private void cleanUpDatabase() throws DataAccessException {
+        List<GameData> dbGames = gameDataDAO.getAllGames();
+        for (GameData game : dbGames) {
+            if (LIVE_GAMES.containsKey(game.gameID())) {
+                continue;
+            }
+            if (game.whiteUsername() != null) {
+                gameDataDAO.removeUser(game.gameID(), WHITE);
+            }
+            if (game.blackUsername() != null) {
+                gameDataDAO.removeUser(game.gameID(), BLACK);
+            }
         }
     }
 }

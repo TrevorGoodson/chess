@@ -52,7 +52,7 @@ public class WebSocketHandler {
         try {
             games.makeMove(userGameCommand.getGameID(), userGameCommand.getTeamColor(), userGameCommand.getChessMove());
         } catch (InvalidMoveException e) {
-            games.notifyPlayer(userGameCommand.getGameID(), userGameCommand.getTeamColor(), "Invalid move");
+            games.notifyPlayer(userGameCommand.getGameID(), userGameCommand.getTeamColor(), "Error: Invalid move");
         }
     }
 
