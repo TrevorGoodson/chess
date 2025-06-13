@@ -6,7 +6,6 @@ import com.google.gson.Gson;
 import dataaccess.*;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
-import usererrorexceptions.GameNotFoundException;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -34,29 +33,22 @@ public class GameManager {
 
     private void addPlayerToExistingGame(String username, Integer gameID, TeamColor teamColor, Session session) {
         ChessGameData chessGameData = LIVE_GAMES.get(gameID);
-        String whiteUsername = chessGameData.getWhiteUsername();
-        String blackUsername = chessGameData.getBlackUsername();
-        Connection whiteConnection = chessGameData.getWhiteConnection();
-        Connection blackConnection = chessGameData.getBlackConnection();
-        ChessGame game = chessGameData.getChessGame();
+        Connection newPlayer = new Connection(username, session);
 
-        if (teamColor == WHITE && whiteUsername != null ||
-            teamColor == BLACK && blackUsername != null
+        if (teamColor == WHITE && chessGameData.getWhiteUsername() != null ||
+            teamColor == BLACK && chessGameData.getBlackUsername() != null
         ) {
             return;
         }
 
         if (teamColor == WHITE) {
-            whiteUsername = username;
-            whiteConnection = new Connection(username, session);
+            chessGameData.setWhiteUsername(username);
+            chessGameData.setWhiteConnection(newPlayer);
         }
         else {
-            blackUsername = username;
-            blackConnection = new Connection(username, session);
+            chessGameData.setBlackUsername(username);
+            chessGameData.setBlackConnection(newPlayer);
         }
-
-        LIVE_GAMES.remove(gameID);
-        LIVE_GAMES.put(gameID, new ChessGameData(whiteUsername, blackUsername, whiteConnection, blackConnection, game));
     }
 
     private void addLiveGame(String username, Integer gameID, TeamColor teamColor, Session session) {

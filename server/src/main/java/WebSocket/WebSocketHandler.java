@@ -63,5 +63,6 @@ public class WebSocketHandler {
         ServerMessage serverMessage = new ServerMessage(LOAD_GAME, new Gson().toJson(gameData.game()));
         session.getRemote().sendString(new Gson().toJson(serverMessage));
         games.addObserver(authData.username(), userGameCommand.getGameID(), session);
+        games.notifyGame(userGameCommand.getGameID(), new ServerMessage(NOTIFICATION, authData.username() + " started watching the game."));
     }
 }
