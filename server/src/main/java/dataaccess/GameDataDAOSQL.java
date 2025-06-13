@@ -78,7 +78,7 @@ public class GameDataDAOSQL extends DataAccessSQL implements GameDataDAO {
         Map<String, Object> gameData = getGameData(gameID);
         String desiredTeam = (color == WHITE) ? "whiteUsername" : "blackUsername";
         if (gameData.get(desiredTeam) == null) {
-            throw new DataAccessException("Player not found");
+            return;
         }
         String sqlStatement = "UPDATE GameData SET " + desiredTeam + " = NULL WHERE gameID = ?";
         executeUpdate(sqlStatement, gameID);

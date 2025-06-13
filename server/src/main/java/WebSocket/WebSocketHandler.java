@@ -40,6 +40,12 @@ public class WebSocketHandler {
     private void handleConnectCommand(UserGameCommand userGameCommand, Session session) throws DataAccessException, IOException {
         AuthData authData = authDataDAO.getAuthData(userGameCommand.getAuthToken());
         GameData gameData = gameDataDAO.findGame(userGameCommand.getGameID());
+
+        if (gameData == null || authData == null) {
+            sendError(session, "Error: invalid request.");
+            return;
+        }
+
         String username = authData.username();
 
         TeamColor teamColor = (username.equals(gameData.whiteUsername())) ? WHITE : BLACK;
@@ -79,5 +85,10 @@ public class WebSocketHandler {
         ServerMessage newObserver = new ServerMessage(NOTIFICATION, authData.username() + " started watching the game.");
         games.addObserver(authData.username(), userGameCommand.getGameID(), session);
         games.notifyGame(userGameCommand.getGameID(), newObserver, session);
+    }
+
+    private void sendError(Session session, String message) throws IOException {
+        ServerMessage errorMessage = new ServerMessage(ERROR, message).updateToError();
+        new Connection("", session).send(errorMessage);
     }
 }
