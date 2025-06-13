@@ -248,18 +248,6 @@ public class ChessGame {
         gameOver = true;
     }
 
-    public void checkForWinner() {
-        TeamColor currentPlayer = getTeamTurn();
-        if (isInCheckmate(currentPlayer)) {
-            winningTeam = (whitesTurn) ? BLACK : WHITE;
-            gameOver = true;
-            return;
-        }
-        if (isInStalemate(currentPlayer)) {
-            gameOver = true;
-        }
-    }
-
     public TeamColor getWinningTeam() {
         return winningTeam;
     }

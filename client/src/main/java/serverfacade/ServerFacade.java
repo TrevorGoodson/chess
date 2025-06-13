@@ -28,6 +28,7 @@ public class ServerFacade {
     }
 
     public CreateGameResult createGame(CreateGameRequest createGameRequest) throws UserErrorException {
+        record PartialCreateGameRequest(String gameName) {}
         var partialRequest = new PartialCreateGameRequest(createGameRequest.gameName());
         return makeHTTPRequest("POST",
                                "game",

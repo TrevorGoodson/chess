@@ -1,6 +1,5 @@
 package handler;
 
-import WebSocket.GameManager;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;

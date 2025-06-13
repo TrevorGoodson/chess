@@ -1,4 +1,4 @@
-package WebSocket;
+package websocket;
 
 import chess.ChessGame;
 import org.eclipse.jetty.websocket.api.Session;

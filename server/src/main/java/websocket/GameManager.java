@@ -1,4 +1,4 @@
-package WebSocket;
+package websocket;
 
 import chess.*;
 import chess.ChessGame.TeamColor;
@@ -182,75 +182,6 @@ public class GameManager {
         }
         return observer.username();
 
-    }
-
-    public void cleanUpConnections() throws IOException, DataAccessException {
-        var removeList = new ArrayList<Integer>();
-
-        for (var gameID : LIVE_GAMES.keySet()) {
-            var game = LIVE_GAMES.get(gameID);
-            Connection white = game.getWhiteConnection();
-            Connection black = game.getBlackConnection();
-            if (white != null && !white.session().isOpen()) {
-                gameDataDAO.removeUser(gameID, WHITE);
-                game.setWhiteConnection(null);
-                notifyGame(gameID, new ServerMessage(NOTIFICATION, game.getWhiteUsername() + " has left the game."), null);
-                game.setWhiteUsername(null);
-            }
-            if (black != null && !black.session().isOpen()) {
-                gameDataDAO.removeUser(gameID, BLACK);
-                game.setBlackConnection(null);
-                notifyGame(gameID, new ServerMessage(NOTIFICATION, game.getBlackUsername() + " has left the game."), null);
-                game.setBlackUsername(null);
-            }
-
-            cleanUpObservers(gameID);
-
-            if (game.getWhiteConnection() == null && game.getBlackConnection() == null && game.observers.isEmpty()) {
-                removeList.add(gameID);
-            }
-
-            cleanUpDatabase();
-        }
-
-        for (var gameID : removeList) {
-            LIVE_GAMES.remove(gameID);
-        }
-    }
-
-    private void cleanUpObservers(Integer gameID) throws IOException {
-        if (!LIVE_GAMES.containsKey(gameID)) {
-            return;
-        }
-
-        ChessGameData game = LIVE_GAMES.get(gameID);
-        var removeList = new ArrayList<Session>();
-        for (Session observer : game.observers.keySet()) {
-            if (!observer.isOpen()) {
-                removeList.add(observer);
-                ServerMessage observerLeave = new ServerMessage(NOTIFICATION, game.observers.get(observer).username() + " has stopped watching.");
-                notifyGame(gameID, observerLeave, null);
-            }
-        }
-
-        for (Session observer : removeList) {
-            game.observers.remove(observer);
-        }
-    }
-
-    private void cleanUpDatabase() throws DataAccessException {
-        List<GameData> dbGames = gameDataDAO.getAllGames();
-        for (GameData game : dbGames) {
-            if (LIVE_GAMES.containsKey(game.gameID())) {
-                continue;
-            }
-            if (game.whiteUsername() != null) {
-                gameDataDAO.removeUser(game.gameID(), WHITE);
-            }
-            if (game.blackUsername() != null) {
-                gameDataDAO.removeUser(game.gameID(), BLACK);
-            }
-        }
     }
 
     public void resign(Integer gameID, TeamColor teamColor) throws DataAccessException, IOException {

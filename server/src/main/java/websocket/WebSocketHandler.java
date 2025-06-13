@@ -1,4 +1,4 @@
-package WebSocket;
+package websocket;
 
 import chess.ChessGame.TeamColor;
 import chess.InvalidMoveException;

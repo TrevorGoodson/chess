@@ -93,23 +93,6 @@ public class DisplayBoard {
         System.out.print(RESET_BG_COLOR);
     }
 
-    private void printPiece(ChessPiece piece) {
-        if (currentSquareWhite) {
-            System.out.print(SET_BG_COLOR_LIGHT_GREY);
-        }
-        else {
-            System.out.print(SET_BG_COLOR_DARK_GREY);
-        }
-        if (piece != null && piece.getTeamColor() == WHITE) {
-            System.out.print(SET_TEXT_COLOR_WHITE);
-        }
-        else {
-            System.out.print(SET_TEXT_COLOR_BLACK);
-        }
-        currentSquareWhite = !currentSquareWhite;
-        print(pieceToPrettyString(piece));
-    }
-
     private void printPosition(ChessPosition position) {
         String squareColor;
         if ((position.getRow() + position.getColumn()) % 2 == 1) {
