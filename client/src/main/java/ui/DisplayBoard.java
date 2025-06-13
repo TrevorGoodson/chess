@@ -1,7 +1,11 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.ChessPiece;
+import chess.ChessPosition;
+
+import java.util.*;
 
 import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
@@ -10,6 +14,7 @@ import static ui.EscapeSequences.*;
 public class DisplayBoard {
     private final ChessGame game;
     private boolean currentSquareWhite = true;
+    private Collection<ChessPosition> highlightSquares = new HashSet<>();
 
     public DisplayBoard(ChessGame game) {
         this.game = game;
@@ -22,7 +27,8 @@ public class DisplayBoard {
             ChessPiece[] row = game.getBoard().getRowToDisplay(i);
             printRowLabel(i);
             for (int j = 0; j < 8; ++j) {
-                printPiece(row[j]);
+                //printPiece(row[j]);
+                printPosition(new ChessPosition(8 - i,j + 1));
             }
             currentSquareWhite = !currentSquareWhite;
             System.out.print(RESET_BG_COLOR);
@@ -31,6 +37,21 @@ public class DisplayBoard {
             System.out.print("\n");
         }
         printColumnLabels(WHITE);
+    }
+
+    public DisplayBoard highlightSquares(ChessPosition chessPosition) {
+        highlightSquares.clear();
+
+        Collection<ChessMove> moves = game.validMoves(chessPosition);
+        if (moves == null) {
+            return this;
+        }
+
+        highlightSquares.add(chessPosition);
+        for (var move : moves) {
+            highlightSquares.add(move.getEndPosition());
+        }
+        return this;
     }
 
     public void blackPOV() {
@@ -83,6 +104,27 @@ public class DisplayBoard {
             System.out.print(SET_TEXT_COLOR_BLACK);
         }
         currentSquareWhite = !currentSquareWhite;
+        print(pieceToPrettyString(piece));
+    }
+
+    private void printPosition(ChessPosition position) {
+        String squareColor;
+        if ((position.getRow() + position.getColumn()) % 2 == 1) {
+            squareColor = (highlightSquares.contains(position)) ? SET_BG_COLOR_GREEN : SET_BG_COLOR_LIGHT_GREY;
+        }
+        else {
+            squareColor = (highlightSquares.contains(position)) ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_DARK_GREY;
+        }
+        System.out.print(squareColor);
+
+        ChessPiece piece = game.getBoard().getPiece(position);
+        if (piece != null && piece.getTeamColor() == WHITE) {
+            System.out.print(SET_TEXT_COLOR_WHITE);
+        }
+        else {
+            System.out.print(SET_TEXT_COLOR_BLACK);
+        }
+
         print(pieceToPrettyString(piece));
     }
 

@@ -3,6 +3,7 @@ package ui;
 import chess.ChessGame;
 import chess.ChessGame.TeamColor;
 import chess.ChessMove;
+import chess.ChessPosition;
 import serverfacade.ConnectionException;
 import serverfacade.ServerFacade;
 import serverfacade.WebSocketFacade;
@@ -52,10 +53,22 @@ public class GameUI extends UserInterface {
                 case "make move" -> makeMove();
                 case "leave" -> "";
                 case "redraw" -> redraw();
+                case "resign" -> "";
+                case "highlight" -> highlight();
                 default -> checkForMove(response);
             };
         }
 
+    }
+
+    private String highlight() {
+        List<String> responses = gatherUserInputForRequest(new String[] {"Piece in position"});
+        ChessPosition chessPosition = ChessPosition.parsePosition(responses.getFirst());
+        if (chessPosition == null) {
+            return "Please enter a valid position.\n";
+        }
+        new DisplayBoard(chessGame).highlightSquares(chessPosition).whitePOV();
+        return "";
     }
 
     private String redraw() {

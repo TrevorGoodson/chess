@@ -71,7 +71,7 @@ public class ChessGame {
      * startPosition or startPosition is out of range
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        if (!board.checkRange(startPosition)) {
+        if (!ChessBoard.checkRange(startPosition)) {
             return null;
         }
         ChessPiece piece = board.getPiece(startPosition);
