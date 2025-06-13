@@ -150,8 +150,10 @@ public class GameManager {
     public Integer findGameID(Session session) {
         for (Integer gameID : LIVE_GAMES.keySet()) {
             var game = LIVE_GAMES.get(gameID);
-            if (game.getWhiteConnection().session().equals(session) ||
-                game.getBlackConnection().session().equals(session) ||
+            Connection white = game.getWhiteConnection();
+            Connection black = game.getBlackConnection();
+            if (white != null && white.session().equals(session) ||
+                black != null && black.session().equals(session) ||
                 game.observers.containsKey(session)
             ) {
                 return gameID;
@@ -165,10 +167,12 @@ public class GameManager {
             return null;
         }
         var game = LIVE_GAMES.get(gameID);
-        if (game.getWhiteConnection().session().equals(session)) {
+        Connection white = game.getWhiteConnection();
+        Connection black = game.getBlackConnection();
+        if (white != null && white.session().equals(session)) {
             return game.getWhiteUsername();
         }
-        else if (game.getBlackConnection().session().equals(session)) {
+        else if (black != null && black.session().equals(session)) {
             return game.getBlackUsername();
         }
 
@@ -272,5 +276,23 @@ public class GameManager {
         ServerMessage resignAnnouncement
                 = new ServerMessage(NOTIFICATION, username + " has resigned! " + opposingUser + " has won!");
         notifyGame(gameID, resignAnnouncement, null);
+    }
+
+    public void cleanUpGames() {
+        var removeList = new ArrayList<Integer>();
+
+        for (Integer gameID : LIVE_GAMES.keySet()) {
+            var game = LIVE_GAMES.get(gameID);
+            if (game.getWhiteUsername() == null &&
+                game.getBlackUsername() == null &&
+                game.observers.isEmpty()
+            ) {
+                removeList.add(gameID);
+            }
+        }
+
+        for (Integer gameID : removeList) {
+            LIVE_GAMES.remove(gameID);
+        }
     }
 }

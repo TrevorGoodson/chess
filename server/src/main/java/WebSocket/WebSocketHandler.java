@@ -43,7 +43,6 @@ public class WebSocketHandler {
 
         String username = authData.username();
         removeUser(gameID, username, session);
-
     }
 
     private void removeUser(Integer gameID, String username, Session session) throws DataAccessException, IOException {
@@ -60,6 +59,8 @@ public class WebSocketHandler {
         ServerMessage playerLeave
                 = new ServerMessage(NOTIFICATION, username + " has left the game.");
         games.notifyGame(gameID, playerLeave, session);
+        session.close();
+        games.cleanUpGames();
     }
 
     @OnWebSocketClose
