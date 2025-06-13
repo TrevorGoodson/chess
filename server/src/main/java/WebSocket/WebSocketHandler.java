@@ -35,14 +35,19 @@ public class WebSocketHandler {
     private void handleLeave(UserGameCommand userGameCommand, Session session) throws IOException, DataAccessException {
         Integer gameID = userGameCommand.getGameID();
         AuthData authData = authDataDAO.getAuthData(userGameCommand.getAuthToken());
-        GameData gameData = gameDataDAO.findGame(gameID);
 
-        if (authData == null || gameData == null) {
+        if (authData == null) {
             sendError(session, "Error: invalid request.");
             return;
         }
 
         String username = authData.username();
+        removeUser(gameID, username, session);
+
+    }
+
+    private void removeUser(Integer gameID, String username, Session session) throws DataAccessException, IOException {
+        GameData gameData = gameDataDAO.findGame(gameID);
         TeamColor playerColor = getPlayerColor(username, gameData);
         if (playerColor != null) {
             gameDataDAO.removeUser(gameID, playerColor);
@@ -53,13 +58,23 @@ public class WebSocketHandler {
         }
 
         ServerMessage playerLeave
-                = new ServerMessage(NOTIFICATION, authData.username() + " has left the game.");
+                = new ServerMessage(NOTIFICATION, username + " has left the game.");
         games.notifyGame(gameID, playerLeave, session);
     }
 
     @OnWebSocketClose
     public void onWebSocketClose(Session session, int integer, String message) throws IOException, DataAccessException {
-        //games.cleanUpConnections();
+        Integer gameID = games.findGameID(session);
+        if (gameID == null) {
+            return;
+        }
+
+        String username = games.findUsername(gameID, session);
+        if (username == null) {
+            return;
+        }
+
+        removeUser(gameID, username, session);
     }
 
     private void handleConnect(UserGameCommand userGameCommand, Session session) throws DataAccessException, IOException {

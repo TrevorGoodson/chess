@@ -147,6 +147,39 @@ public class GameManager {
         LIVE_GAMES.get(gameID).observers.remove(session);
     }
 
+    public Integer findGameID(Session session) {
+        for (Integer gameID : LIVE_GAMES.keySet()) {
+            var game = LIVE_GAMES.get(gameID);
+            if (game.getWhiteConnection().session().equals(session) ||
+                game.getBlackConnection().session().equals(session) ||
+                game.observers.containsKey(session)
+            ) {
+                return gameID;
+            }
+        }
+        return null;
+    }
+
+    public String findUsername(Integer gameID, Session session) {
+        if (!LIVE_GAMES.containsKey(gameID)) {
+            return null;
+        }
+        var game = LIVE_GAMES.get(gameID);
+        if (game.getWhiteConnection().session().equals(session)) {
+            return game.getWhiteUsername();
+        }
+        else if (game.getBlackConnection().session().equals(session)) {
+            return game.getBlackUsername();
+        }
+
+        Connection observer = game.observers.get(session);
+        if (observer == null) {
+            return null;
+        }
+        return observer.username();
+
+    }
+
     public void cleanUpConnections() throws IOException, DataAccessException {
         var removeList = new ArrayList<Integer>();
 
