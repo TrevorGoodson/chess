@@ -50,7 +50,7 @@ public class GameService extends Service {
         }
         gameDataDAO.addUser(joinRequest.gameID(), authData.username(), joinRequest.playerColor());
 
-        return new JoinGameResult(game.game());
+        return new JoinGameResult();
     }
 
     /**
