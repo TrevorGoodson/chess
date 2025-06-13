@@ -52,18 +52,9 @@ public class WebSocketFacade extends Endpoint {
         this.client = client;
     }
 
-    public void startObserving(Integer gameID, String authToken) throws ConnectionException {
+    public void joinGame(String authToken, Integer gameID) throws ConnectionException {
         try {
-            UserGameCommand userGameCommand = new UserGameCommand(OBSERVER_CONNECT, authToken, gameID);
-            send(userGameCommand);
-        } catch (IOException e) {
-            throw new ConnectionException();
-        }
-    }
-
-    public void joinGame(String authToken, Integer gameID, TeamColor teamColor) throws ConnectionException {
-        try {
-            UserGameCommand userGameCommand = new UserGameCommand(CONNECT, authToken, gameID, teamColor);
+            UserGameCommand userGameCommand = new UserGameCommand(CONNECT, authToken, gameID);
             send(userGameCommand);
         } catch (IOException e) {
             throw new ConnectionException();

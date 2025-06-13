@@ -25,10 +25,9 @@ public class WebSocketHandler {
     public void onMessage(Session session, String message) throws IOException, DataAccessException {
         UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
         switch (userGameCommand.getCommandType()) {
-            case CONNECT -> handleConnectCommand(userGameCommand, session);
+            case CONNECT -> handleConnect(userGameCommand, session);
             case MAKE_MOVE -> handleMakeMove(userGameCommand, session);
             case RESIGN -> handleResign(userGameCommand);
-            case OBSERVER_CONNECT -> handleObserver(userGameCommand, session);
         }
     }
 
@@ -37,7 +36,7 @@ public class WebSocketHandler {
         games.cleanUpConnections();
     }
 
-    private void handleConnectCommand(UserGameCommand userGameCommand, Session session) throws DataAccessException, IOException {
+    private void handleConnect(UserGameCommand userGameCommand, Session session) throws DataAccessException, IOException {
         AuthData authData = authDataDAO.getAuthData(userGameCommand.getAuthToken());
         GameData gameData = gameDataDAO.findGame(userGameCommand.getGameID());
 
@@ -47,19 +46,40 @@ public class WebSocketHandler {
         }
 
         String username = authData.username();
-        TeamColor teamColor = (username.equals(gameData.whiteUsername())) ? WHITE : BLACK;
+        TeamColor teamColor;
+        if (username.equals(gameData.whiteUsername())) {
+            teamColor = WHITE;
+        } else if (username.equals(gameData.blackUsername())) {
+            teamColor = BLACK;
+        }
+        else {
+            teamColor = null;
+        }
 
-//        ChessGame.TeamColor teamColor = userGameCommand.getTeamColor();
-//        if (teamColor == null) {
-//            teamColor = gameData.;
-//        }
+        ServerMessage loadGame = new ServerMessage(LOAD_GAME, gameData.game());
+        new Connection(username, session).send(loadGame);
 
-        games.addPlayer(username, userGameCommand.getGameID(), teamColor, session);
+        if (teamColor == null) {
+            addObserver(username, userGameCommand.getGameID(), session);
+        }
+        else {
+            addPLayer(username, userGameCommand.getGameID(), teamColor, session);
+        }
+    }
 
+    private void addPLayer(String username, Integer gameID, TeamColor teamColor, Session session) throws IOException, DataAccessException {
+        games.addPlayer(username, gameID, teamColor, session);
         String color = (teamColor == WHITE) ? "white" : "black";
-        games.notifyGame(userGameCommand.getGameID(),
-                         new ServerMessage(NOTIFICATION, username + " joined the game as the " + color + " player."),
-                         session);
+        ServerMessage newPlayer
+                = new ServerMessage(NOTIFICATION, username + " joined the game as the " + color + " player.");
+        games.notifyGame(gameID, newPlayer, session);
+    }
+
+    private void addObserver(String username, Integer gameID, Session session) throws DataAccessException, IOException {
+        games.addObserver(username, gameID, session);
+        ServerMessage newObserver
+                = new ServerMessage(NOTIFICATION, username + " started watching the game.");
+        games.notifyGame(gameID, newObserver, session);
     }
 
     private void handleResign(UserGameCommand userGameCommand) throws IOException, DataAccessException {
@@ -82,18 +102,6 @@ public class WebSocketHandler {
         } catch (InvalidMoveException e) {
             sendError(session, "Error: invalid move");
         }
-    }
-
-    private void handleObserver(UserGameCommand userGameCommand, Session session) throws DataAccessException, IOException {
-        GameData gameData = new GameDataDAOSQL().findGame(userGameCommand.getGameID());
-        AuthData authData = new AuthDataDAOSQL().getAuthData(userGameCommand.getAuthToken());
-
-        ServerMessage loadGame = new ServerMessage(LOAD_GAME, gameData.game());
-        new Connection(authData.username(), session).send(loadGame);
-
-        ServerMessage newObserver = new ServerMessage(NOTIFICATION, authData.username() + " started watching the game.");
-        games.addObserver(authData.username(), userGameCommand.getGameID(), session);
-        games.notifyGame(userGameCommand.getGameID(), newObserver, session);
     }
 
     private void sendError(Session session, String message) throws IOException {

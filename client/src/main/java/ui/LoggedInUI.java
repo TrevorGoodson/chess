@@ -68,7 +68,7 @@ public class LoggedInUI extends UserInterface{
         try {
             int gameID = listNumToGameID.get(listNum);
             WebSocketFacade webSocketFacade = new WebSocketFacade(port, new WebSocketMessenger());
-            webSocketFacade.startObserving(gameID, authToken);
+            webSocketFacade.joinGame(authToken, gameID);
             new GameUI(null,
                     gameID,
                     webSocketFacade,
@@ -156,12 +156,11 @@ public class LoggedInUI extends UserInterface{
         }
 
         var joinGameRequest = new JoinGameRequest(authToken, color, gameID);
-        JoinGameResult joinGameResult;
         WebSocketFacade webSocketFacade;
         try {
             webSocketFacade = new WebSocketFacade(port, new WebSocketMessenger(color));
-            joinGameResult = serverFacade.joinGame(joinGameRequest);
-            webSocketFacade.joinGame(authToken, gameID, color);
+            serverFacade.joinGame(joinGameRequest);
+            webSocketFacade.joinGame(authToken, gameID);
         }
         catch (UserErrorException e) {
             return new UserErrorExceptionDecoder().getMessage(e) + "\n";

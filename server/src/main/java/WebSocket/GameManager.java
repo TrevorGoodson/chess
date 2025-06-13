@@ -2,7 +2,6 @@ package WebSocket;
 
 import chess.*;
 import chess.ChessGame.TeamColor;
-import com.google.gson.Gson;
 import dataaccess.*;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
@@ -28,9 +27,6 @@ public class GameManager {
         else {
             addLiveGame(username, gameID, teamColor, session);
         }
-
-        ServerMessage loadGame = new ServerMessage(LOAD_GAME, LIVE_GAMES.get(gameID).getChessGame());
-        new Connection(username, session).send(loadGame);
     }
 
     private void addPlayerToExistingGame(String username, Integer gameID, TeamColor teamColor, Session session) {
