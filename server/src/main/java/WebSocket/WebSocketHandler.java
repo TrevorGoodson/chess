@@ -118,11 +118,12 @@ public class WebSocketHandler {
             games.makeMove(gameID, teamColor, userGameCommand.getMove());
         } catch (InvalidMoveException e) {
             sendError(session, "Error: invalid move");
+            return;
         }
 
         gameData = gameDataDAO.findGame(gameID);
-
         games.notifyGame(gameID, new ServerMessage(LOAD_GAME, gameData.game()), null);
+
         ServerMessage moveUpdate
                 = new ServerMessage(NOTIFICATION, username + " has played " + userGameCommand.getMove());
         games.notifyGame(gameID, moveUpdate, session);
