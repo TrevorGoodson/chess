@@ -12,6 +12,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static chess.ChessGame.TeamColor.*;
@@ -34,11 +35,11 @@ public class GameManager {
 
     private void addPlayerToExistingGame(String username, Integer gameID, TeamColor teamColor, Session session) {
         ChessGameData chessGameData = LIVE_GAMES.get(gameID);
-        String whiteUsername = chessGameData.whiteUsername();
-        String blackUsername = chessGameData.blackUsername();
-        Connection whiteConnection = chessGameData.whiteConnection();
-        Connection blackConnection = chessGameData.blackConnection();
-        ChessGame game = chessGameData.chessGame();
+        String whiteUsername = chessGameData.getWhiteUsername();
+        String blackUsername = chessGameData.getBlackUsername();
+        Connection whiteConnection = chessGameData.getWhiteConnection();
+        Connection blackConnection = chessGameData.getBlackConnection();
+        ChessGame game = chessGameData.getChessGame();
 
         if (teamColor == WHITE && whiteUsername != null ||
             teamColor == BLACK && blackUsername != null
@@ -94,8 +95,8 @@ public class GameManager {
             return;
         }
         ServerMessage serverMessage = new ServerMessage(NOTIFICATION, message);
-        Connection whiteConnection = LIVE_GAMES.get(gameID).whiteConnection();
-        Connection blackConnection = LIVE_GAMES.get(gameID).blackConnection();
+        Connection whiteConnection = LIVE_GAMES.get(gameID).getWhiteConnection();
+        Connection blackConnection = LIVE_GAMES.get(gameID).getBlackConnection();
         if (whiteConnection != null) {
             whiteConnection.send(serverMessage);
         }
@@ -109,8 +110,8 @@ public class GameManager {
             return;
         }
         ServerMessage serverMessage = new ServerMessage(LOAD_GAME, new Gson().toJson(game));
-        Connection whiteConnection = LIVE_GAMES.get(gameID).whiteConnection();
-        Connection blackConnection = LIVE_GAMES.get(gameID).blackConnection();
+        Connection whiteConnection = LIVE_GAMES.get(gameID).getWhiteConnection();
+        Connection blackConnection = LIVE_GAMES.get(gameID).getBlackConnection();
         if (whiteConnection != null) {
             whiteConnection.send(serverMessage);
         }
@@ -124,8 +125,8 @@ public class GameManager {
             return;
         }
         ServerMessage serverMessage = new ServerMessage(NOTIFICATION, message);
-        Connection playerConnection = (teamColor == WHITE) ? LIVE_GAMES.get(gameID).whiteConnection() :
-                                                             LIVE_GAMES.get(gameID).blackConnection();
+        Connection playerConnection = (teamColor == WHITE) ? LIVE_GAMES.get(gameID).getWhiteConnection() :
+                                                             LIVE_GAMES.get(gameID).getBlackConnection();
         if (playerConnection != null) {
             playerConnection.send(serverMessage);
         }
@@ -135,7 +136,7 @@ public class GameManager {
         if (!LIVE_GAMES.containsKey(gameID)) {
             return;
         }
-        ChessGame chessGame = LIVE_GAMES.get(gameID).chessGame();
+        ChessGame chessGame = LIVE_GAMES.get(gameID).getChessGame();
         if (teamColor != chessGame.getTeamTurn()) {
             notifyPlayer(gameID, teamColor, "You can only play on your turn!");
             return;
@@ -143,5 +144,32 @@ public class GameManager {
         chessGame.makeMove(chessMove);
         gameDataDAO.updateGame(gameID, chessGame);
         updateGame(gameID, chessGame);
+    }
+
+    public void cleanUpConnections() throws IOException {
+        var removeList = new ArrayList<Integer>();
+
+        for (var gameID : LIVE_GAMES.keySet()) {
+            var game = LIVE_GAMES.get(gameID);
+            Connection white = game.getWhiteConnection();
+            Connection black = game.getBlackConnection();
+            if (white != null && !white.session().isOpen()) {
+                notifyGame(gameID, game.getWhiteUsername() + " has left the game.");
+                game.setWhiteUsername(null);
+                game.setWhiteConnection(null);
+            }
+            if (black != null && !black.session().isOpen()) {
+                notifyGame(gameID, game.getBlackUsername() + " has left the game.");
+                game.setBlackUsername(null);
+                game.setBlackConnection(null);
+            }
+            if (game.getWhiteConnection() == null && game.getBlackConnection() == null) {
+                removeList.add(gameID);
+            }
+        }
+
+        for (var gameID : removeList) {
+            LIVE_GAMES.remove(gameID);
+        }
     }
 }

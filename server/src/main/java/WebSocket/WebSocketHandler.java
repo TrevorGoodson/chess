@@ -7,6 +7,7 @@ import dataaccess.AuthDataDAOSQL;
 import dataaccess.DataAccessException;
 import model.*;
 import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import websocket.commands.UserGameCommand;
@@ -25,15 +26,22 @@ public class WebSocketHandler {
                 handleConnectCommand(userGameCommand, session);
             }
             case MAKE_MOVE -> {
-                handleMakeMove(userGameCommand, session);
+                handleMakeMove(userGameCommand);
             }
             case LEAVE -> {
             }
             case RESIGN -> {
             }
         }
+    }
 
-
+    @OnWebSocketClose
+    public void onWebSocketClose(Session session, int integer, String message) {
+        try {
+            games.cleanUpConnections();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void handleConnectCommand(UserGameCommand userGameCommand, Session session) throws DataAccessException, IOException {
@@ -43,9 +51,7 @@ public class WebSocketHandler {
         games.notifyGame(userGameCommand.getGameID(), username + " joined the game.");
     }
 
-    private void handleMakeMove(UserGameCommand userGameCommand, Session session) throws DataAccessException, IOException {
-        AuthData authData = authDataDAO.getAuthData(userGameCommand.getAuthToken());
-        String username = authData.username();
+    private void handleMakeMove(UserGameCommand userGameCommand) throws DataAccessException, IOException {
         try {
             games.makeMove(userGameCommand.getGameID(), userGameCommand.getTeamColor(), userGameCommand.getChessMove());
         } catch (InvalidMoveException e) {
