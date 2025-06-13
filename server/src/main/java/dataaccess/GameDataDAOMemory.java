@@ -88,4 +88,9 @@ public class GameDataDAOMemory implements GameDataDAO{
     public void updateGame(int gameID, ChessGame chessGame) throws DataAccessException {
         //not yet implemented
     }
+
+    @Override
+    public void removeUser(int gameID, TeamColor color) throws DataAccessException {
+        //also not yet implemented
+    }
 }

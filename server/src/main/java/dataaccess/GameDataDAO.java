@@ -4,8 +4,7 @@ import chess.ChessGame;
 import model.GameData;
 import java.util.List;
 
-import static chess.ChessGame.TeamColor.BLACK;
-import static chess.ChessGame.TeamColor.WHITE;
+import static chess.ChessGame.TeamColor;
 
 public interface GameDataDAO {
     /**
@@ -43,4 +42,6 @@ public interface GameDataDAO {
     void clear() throws DataAccessException;
 
     void updateGame(int gameID, ChessGame chessGame) throws DataAccessException;
+
+    void removeUser(int gameID, TeamColor color) throws DataAccessException;
 }

@@ -11,7 +11,6 @@ import serverfacade.WebSocketMessageHandler;
 import java.util.List;
 import java.util.Scanner;
 
-import static ui.EscapeSequences.*;
 import static chess.ChessGame.TeamColor.*;
 
 public class GameUI extends UserInterface {
@@ -21,30 +20,60 @@ public class GameUI extends UserInterface {
     private final String authToken;
     private ChessGame chessGame;
 
-    public GameUI(TeamColor teamColor, Integer gameID, WebSocketFacade webSocketFacade, String authToken) {
+    public GameUI(TeamColor teamColor, Integer gameID, WebSocketFacade webSocketFacade, String authToken, ChessGame chessGame) {
         this.teamColor = teamColor;
         this.gameID = gameID;
         this.webSocketFacade = webSocketFacade;
+        this.webSocketFacade.linkClient(this);
         this.authToken = authToken;
+        this.chessGame = chessGame;
     }
 
     public void run() {
         System.out.print("\033[H\033[2J");
-        String prompt = "Let's play! Type \"help\" for options.\n";
+        String prompt = (teamColor != null) ? "Let's play! Type \"help\" for options.\n" : "";
         Scanner inputScanner = new Scanner(System.in);
         WebSocketMessageHandler ws = new WebSocketMessageHandler(teamColor);
         webSocketFacade.setNotificationHandler(ws);
+        String response = "";
 
-        while (true) {
+        while (!response.equals("leave")) {
             System.out.print(prompt);
-            String response = inputScanner.nextLine();
+            response = inputScanner.nextLine();
 
             prompt = switch (response) {
+                case "help" -> """
+                        "redraw": redraws the chess board
+                        "leave": leave the game
+                        "make move": make a move. Alternatively, you can type in the move directly
+                        "resign": resign from the game
+                        "highlight": highlight all legal moves
+                        """;
                 case "make move" -> makeMove();
-                default -> "Unknown command. Please try again.\n";
+                case "leave" -> "";
+                case "redraw" -> redraw();
+                default -> checkForMove(response);
             };
         }
 
+    }
+
+    private String redraw() {
+        if (teamColor == null || teamColor == WHITE) {
+            new DisplayBoard(chessGame).whitePOV();
+        }
+        else {
+            new DisplayBoard(chessGame).blackPOV();
+        }
+        return "";
+    }
+
+    private String checkForMove(String input) {
+        ChessMove chessMove = ChessMove.parseMove(input);
+        if (chessMove == null) {
+            return "Unknown command. Please try again.\n";
+        }
+        return executeMove(chessMove);
     }
 
     private String makeMove() {
@@ -54,14 +83,20 @@ public class GameUI extends UserInterface {
             return "Valid moves are in the form \"a1 -> b2\".\n";
         }
 
+        return executeMove(chessMove);
+    }
+
+    private String executeMove(ChessMove chessMove) {
         try {
             webSocketFacade.makeMove(authToken, chessMove, gameID, teamColor);
+            return "";
         } catch (ConnectionException e) {
             return CONNECTION_DOWN_PROMPT;
         }
-
-        return "";
     }
 
 
+    public void setChessGame(ChessGame chessGame) {
+        this.chessGame = chessGame;
+    }
 }

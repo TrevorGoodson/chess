@@ -42,11 +42,20 @@ public class UserGameCommand {
         this.chessMove = chessMove;
     }
 
+    public UserGameCommand(CommandType commandType, Integer gameID) {
+        this.commandType = commandType;
+        this.authToken = null;
+        this.gameID = gameID;
+        this.teamColor = null;
+        this.chessMove = null;
+    }
+
     public enum CommandType {
         CONNECT,
         MAKE_MOVE,
         LEAVE,
-        RESIGN
+        RESIGN,
+        OBSERVER_CONNECT
     }
 
     public CommandType getCommandType() {

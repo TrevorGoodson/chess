@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import requestresultrecords.*;
 import serverfacade.ConnectionException;
 import serverfacade.ServerFacade;
@@ -66,7 +67,14 @@ public class LoggedInUI extends UserInterface{
             return "Please enter a valid game number (a number, not a word like \"three\")\nTo see available games, type \"list games\".\n";
         }
         try {
-            new GameUI(WHITE, listNumToGameID.get(listNum), new WebSocketFacade(port, new WebSocketMessageHandler()), authToken).run();
+            int gameID = listNumToGameID.get(listNum);
+            WebSocketFacade webSocketFacade = new WebSocketFacade(port, new WebSocketMessageHandler());
+            webSocketFacade.startObserving(gameID, authToken);
+            new GameUI(null,
+                    gameID,
+                    webSocketFacade,
+                    authToken,
+                    new ChessGame()).run();
         } catch (ConnectionException e) {
             return CONNECTION_DOWN_PROMPT;
         }
@@ -170,7 +178,7 @@ public class LoggedInUI extends UserInterface{
             db.blackPOV();
         }
 
-        new GameUI(color, gameID, webSocketFacade, authToken).run();
+        new GameUI(color, gameID, webSocketFacade, authToken, joinGameResult.chessGame()).run();
 
         return "Success!\n";
     }

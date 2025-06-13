@@ -1,8 +1,8 @@
 package serverfacade;
 
-import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
+import ui.GameUI;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -11,13 +11,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static websocket.messages.ServerMessage.ServerMessageType.*;
 import static chess.ChessGame.TeamColor;
 import static websocket.commands.UserGameCommand.CommandType.*;
 
 public class WebSocketFacade extends Endpoint {
     Session session;
     WebSocketMessageHandler notificationHandler;
+    GameUI client;
 
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {}
@@ -34,7 +34,7 @@ public class WebSocketFacade extends Endpoint {
                 @Override
                 public void onMessage(String message) {
                     ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                    webSocketMessageHandler.sendMessage(serverMessage);
+                    webSocketMessageHandler.sendMessage(serverMessage, client);
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
@@ -42,9 +42,14 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void sendNotification(ServerMessage message) throws ConnectionException {
+    public void linkClient(GameUI client) {
+        this.client = client;
+    }
+
+    public void startObserving(Integer gameID, String authToken) throws ConnectionException {
         try {
-            session.getBasicRemote().sendText(new Gson().toJson(message));
+            UserGameCommand userGameCommand = new UserGameCommand(OBSERVER_CONNECT, authToken, gameID);
+            send(userGameCommand);
         } catch (IOException e) {
             throw new ConnectionException();
         }

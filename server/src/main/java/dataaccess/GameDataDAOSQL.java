@@ -6,6 +6,7 @@ import model.GameData;
 
 import java.sql.*;
 import java.util.*;
+import chess.ChessGame.TeamColor;
 
 import static chess.ChessGame.TeamColor.*;
 
@@ -62,18 +63,33 @@ public class GameDataDAOSQL extends DataAccessSQL implements GameDataDAO {
     }
 
     @Override
-    public void addUser(int gameID, String username, ChessGame.TeamColor color) throws DataAccessException {
+    public void addUser(int gameID, String username, TeamColor color) throws DataAccessException {
+        Map<String, Object> gameData = getGameData(gameID);
+        String desiredTeam = (color == WHITE) ? "whiteUsername" : "blackUsername";
+        if (gameData.get(desiredTeam) != null) {
+            throw new DataAccessException("Team already taken");
+        }
+        String sqlStatement = "UPDATE GameData SET " + desiredTeam + " = ? WHERE gameID = ?";
+        executeUpdate(sqlStatement, username, gameID);
+    }
+
+    @Override
+    public void removeUser(int gameID, TeamColor color) throws DataAccessException {
+        Map<String, Object> gameData = getGameData(gameID);
+        String desiredTeam = (color == WHITE) ? "whiteUsername" : "blackUsername";
+        if (gameData.get(desiredTeam) == null) {
+            throw new DataAccessException("Player not found");
+        }
+        String sqlStatement = "UPDATE GameData SET " + desiredTeam + " = NULL WHERE gameID = ?";
+        executeUpdate(sqlStatement, gameID);
+    }
+
+    private Map<String, Object> getGameData(int gameID) throws DataAccessException {
         List<Map<String, Object>> table = executeSelect("GameData", "gameID", gameID);
         if (table.isEmpty()) {
             throw new DataAccessException("Game not found");
         }
-        Map<String, Object> gameData = table.getFirst();
-        String desiredTeam = (color == WHITE) ? "whiteUsername" : "blackUsername";
-        if (gameData.get(desiredTeam) != null) {
-            throw new DataAccessException("Game already full");
-        }
-        String sqlStatement = "UPDATE GameData SET " + desiredTeam + " = ? WHERE gameID = ?";
-        executeUpdate(sqlStatement, username, gameID);
+        return table.getFirst();
     }
 
     @Override

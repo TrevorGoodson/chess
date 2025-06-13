@@ -1,6 +1,9 @@
 package WebSocket;
 
 import chess.ChessGame;
+import org.eclipse.jetty.websocket.api.Session;
+
+import java.util.*;
 
 public class ChessGameData {
     String whiteUsername;
@@ -8,6 +11,7 @@ public class ChessGameData {
     Connection whiteConnection;
     Connection blackConnection;
     ChessGame chessGame;
+    Map<Session, Connection> observers = new HashMap<>();
 
     public ChessGameData(String whiteUsername, String blackUsername, Connection whiteConnection, Connection blackConnection, ChessGame chessGame) {
         this.whiteUsername = whiteUsername;

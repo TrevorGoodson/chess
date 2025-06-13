@@ -1,14 +1,12 @@
 package WebSocket;
 
-import chess.ChessGame;
+import chess.*;
 import chess.ChessGame.TeamColor;
-import chess.ChessMove;
-import chess.InvalidMoveException;
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
-import dataaccess.GameDataDAO;
-import dataaccess.GameDataDAOSQL;
+import dataaccess.*;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
+import usererrorexceptions.GameNotFoundException;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -16,14 +14,15 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static chess.ChessGame.TeamColor.*;
-import static websocket.messages.ServerMessage.ServerMessageType.LOAD_GAME;
-import static websocket.messages.ServerMessage.ServerMessageType.NOTIFICATION;
+import static websocket.messages.ServerMessage.ServerMessageType.*;
 
 public class GameManager {
     GameDataDAO gameDataDAO = new GameDataDAOSQL();
     private static final ConcurrentHashMap<Integer, ChessGameData> LIVE_GAMES = new ConcurrentHashMap<>();
 
-    public void addPlayer(String username, Integer gameID, TeamColor teamColor, Session session) {
+    public void addPlayer(String username, Integer gameID, TeamColor teamColor, Session session) throws IOException, DataAccessException {
+        cleanUpConnections();
+
         if (LIVE_GAMES.containsKey(gameID)) {
             addPlayerToExistingGame(username, gameID, teamColor, session);
         }
@@ -90,33 +89,34 @@ public class GameManager {
         LIVE_GAMES.put(gameID, chessGameData);
     }
 
-    public void notifyGame(Integer gameID, String message) throws IOException {
-        if (!LIVE_GAMES.containsKey(gameID)) {
-            return;
+    public void addObserver(String username, Integer gameID, Session session) throws DataAccessException {
+        Connection observer = new Connection(username, session);
+
+        if (LIVE_GAMES.containsKey(gameID)) {
+            LIVE_GAMES.get(gameID).observers.put(session, observer);
         }
-        ServerMessage serverMessage = new ServerMessage(NOTIFICATION, message);
-        Connection whiteConnection = LIVE_GAMES.get(gameID).getWhiteConnection();
-        Connection blackConnection = LIVE_GAMES.get(gameID).getBlackConnection();
-        if (whiteConnection != null) {
-            whiteConnection.send(serverMessage);
-        }
-        if (blackConnection != null) {
-            blackConnection.send(serverMessage);
+        else {
+            GameData gameData = gameDataDAO.findGame(gameID);
+            LIVE_GAMES.put(gameID, new ChessGameData(null, null, null, null, gameData.game()));
+            LIVE_GAMES.get(gameID).observers.put(session, observer);
         }
     }
 
-    public void updateGame(Integer gameID, ChessGame game) throws IOException {
+    public void notifyGame(Integer gameID, ServerMessage serverMessage) throws IOException {
         if (!LIVE_GAMES.containsKey(gameID)) {
             return;
         }
-        ServerMessage serverMessage = new ServerMessage(LOAD_GAME, new Gson().toJson(game));
         Connection whiteConnection = LIVE_GAMES.get(gameID).getWhiteConnection();
         Connection blackConnection = LIVE_GAMES.get(gameID).getBlackConnection();
+
         if (whiteConnection != null) {
             whiteConnection.send(serverMessage);
         }
         if (blackConnection != null) {
             blackConnection.send(serverMessage);
+        }
+        for (var observer : LIVE_GAMES.get(gameID).observers.values()) {
+            observer.send(serverMessage);
         }
     }
 
@@ -132,7 +132,9 @@ public class GameManager {
         }
     }
 
-    public void makeMove(Integer gameID, TeamColor teamColor, ChessMove chessMove) throws InvalidMoveException, IOException, DataAccessException {
+    public void makeMove(Integer gameID, TeamColor teamColor, ChessMove chessMove) throws InvalidMoveException,
+                                                                                          IOException,
+                                                                                          DataAccessException {
         if (!LIVE_GAMES.containsKey(gameID)) {
             return;
         }
@@ -143,10 +145,10 @@ public class GameManager {
         }
         chessGame.makeMove(chessMove);
         gameDataDAO.updateGame(gameID, chessGame);
-        updateGame(gameID, chessGame);
+        notifyGame(gameID, new ServerMessage(LOAD_GAME, new Gson().toJson(chessGame)));
     }
 
-    public void cleanUpConnections() throws IOException {
+    public void cleanUpConnections() throws IOException, DataAccessException {
         var removeList = new ArrayList<Integer>();
 
         for (var gameID : LIVE_GAMES.keySet()) {
@@ -154,22 +156,46 @@ public class GameManager {
             Connection white = game.getWhiteConnection();
             Connection black = game.getBlackConnection();
             if (white != null && !white.session().isOpen()) {
-                notifyGame(gameID, game.getWhiteUsername() + " has left the game.");
-                game.setWhiteUsername(null);
+                gameDataDAO.removeUser(gameID, WHITE);
                 game.setWhiteConnection(null);
+                notifyGame(gameID, new ServerMessage(NOTIFICATION, game.getWhiteUsername() + " has left the game."));
+                game.setWhiteUsername(null);
             }
             if (black != null && !black.session().isOpen()) {
-                notifyGame(gameID, game.getBlackUsername() + " has left the game.");
-                game.setBlackUsername(null);
+                gameDataDAO.removeUser(gameID, BLACK);
                 game.setBlackConnection(null);
+                notifyGame(gameID, new ServerMessage(NOTIFICATION, game.getBlackUsername() + " has left the game."));
+                game.setBlackUsername(null);
             }
-            if (game.getWhiteConnection() == null && game.getBlackConnection() == null) {
+
+            cleanUpObservers(gameID);
+
+            if (game.getWhiteConnection() == null && game.getBlackConnection() == null && game.observers.isEmpty()) {
                 removeList.add(gameID);
             }
         }
 
         for (var gameID : removeList) {
             LIVE_GAMES.remove(gameID);
+        }
+    }
+
+    private void cleanUpObservers(Integer gameID) throws IOException {
+        if (!LIVE_GAMES.containsKey(gameID)) {
+            return;
+        }
+
+        ChessGameData game = LIVE_GAMES.get(gameID);
+        var removeList = new ArrayList<Session>();
+        for (Session observer : game.observers.keySet()) {
+            if (!observer.isOpen()) {
+                removeList.add(observer);
+                notifyGame(gameID, new ServerMessage(NOTIFICATION, game.observers.get(observer).username() + " has stopped watching."));
+            }
+        }
+
+        for (Session observer : removeList) {
+            game.observers.remove(observer);
         }
     }
 }

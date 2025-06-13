@@ -40,10 +40,6 @@ public class ServerFacade {
         makeHTTPRequest("DELETE", "db", null, null, null);
     }
 
-    public Record handleRequest(Record request) throws UserErrorException {
-        return null;
-    }
-
     public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws UserErrorException {
         String color = switch (joinGameRequest.playerColor()) {
             case WHITE -> "WHITE";
