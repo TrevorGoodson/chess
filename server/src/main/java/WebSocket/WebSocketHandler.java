@@ -74,15 +74,7 @@ public class WebSocketHandler {
         }
 
         String username = authData.username();
-        TeamColor teamColor;
-        if (username.equals(gameData.whiteUsername())) {
-            teamColor = WHITE;
-        } else if (username.equals(gameData.blackUsername())) {
-            teamColor = BLACK;
-        }
-        else {
-            teamColor = null;
-        }
+        TeamColor teamColor = getPlayerColor(username, gameData);
 
         ServerMessage loadGame = new ServerMessage(LOAD_GAME, gameData.game());
         new Connection(username, session).send(loadGame);
@@ -91,11 +83,11 @@ public class WebSocketHandler {
             addObserver(username, userGameCommand.getGameID(), session);
         }
         else {
-            addPLayer(username, userGameCommand.getGameID(), teamColor, session);
+            addPlayer(username, userGameCommand.getGameID(), teamColor, session);
         }
     }
 
-    private void addPLayer(String username, Integer gameID, TeamColor teamColor, Session session) throws IOException, DataAccessException {
+    private void addPlayer(String username, Integer gameID, TeamColor teamColor, Session session) throws IOException, DataAccessException {
         games.addPlayer(username, gameID, teamColor, session);
         String color = (teamColor == WHITE) ? "white" : "black";
         ServerMessage newPlayer

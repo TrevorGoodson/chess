@@ -19,8 +19,6 @@ public class GameManager {
     private static final ConcurrentHashMap<Integer, ChessGameData> LIVE_GAMES = new ConcurrentHashMap<>();
 
     public void addPlayer(String username, Integer gameID, TeamColor teamColor, Session session) throws IOException, DataAccessException {
-        cleanUpConnections();
-
         if (LIVE_GAMES.containsKey(gameID)) {
             addPlayerToExistingGame(username, gameID, teamColor, session);
         }
