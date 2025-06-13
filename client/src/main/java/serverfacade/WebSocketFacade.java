@@ -16,7 +16,7 @@ import static websocket.commands.UserGameCommand.CommandType.*;
 
 public class WebSocketFacade extends Endpoint {
     private Session session;
-    private WebSocketMessenger notificationHandler;
+    private WebSocketMessenger webSocketMessenger;
     private GameUI client;
     private final URI webSocketUrl;
 
@@ -26,7 +26,7 @@ public class WebSocketFacade extends Endpoint {
     public WebSocketFacade(int port, WebSocketMessenger webSocketMessageHandler) throws ConnectionException {
         try {
             webSocketUrl = new URI("ws" + ServerFacade.getServerUrl() + port + "/ws");
-            this.notificationHandler = webSocketMessageHandler;
+            this.webSocketMessenger = webSocketMessageHandler;
 
             connectToServer();
 
@@ -43,7 +43,7 @@ public class WebSocketFacade extends Endpoint {
             @Override
             public void onMessage(String message) {
                 ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                notificationHandler.sendMessage(serverMessage, client);
+                webSocketMessenger.sendMessage(serverMessage, client);
             }
         });
     }
@@ -90,8 +90,8 @@ public class WebSocketFacade extends Endpoint {
         session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
     }
 
-    public void setNotificationHandler(WebSocketMessenger webSocketMessageHandler) {
-        this.notificationHandler = webSocketMessageHandler;
+    public void setWebSocketMessenger(WebSocketMessenger webSocketMessenger) {
+        this.webSocketMessenger = webSocketMessenger;
     }
 
     public void endSession() throws IOException {

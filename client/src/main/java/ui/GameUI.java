@@ -35,7 +35,7 @@ public class GameUI extends UserInterface {
         String prompt = (teamColor != null) ? "Let's play! Type \"help\" for options.\n" : "";
         Scanner inputScanner = new Scanner(System.in);
         WebSocketMessenger ws = new WebSocketMessenger(teamColor);
-        webSocketFacade.setNotificationHandler(ws);
+        webSocketFacade.setWebSocketMessenger(ws);
         String response = "";
 
         while (!response.equals("leave")) {

@@ -96,21 +96,21 @@ public class GameManager {
         }
     }
 
-    public void notifyGame(Integer gameID, ServerMessage serverMessage, String username) throws IOException {
+    public void notifyGame(Integer gameID, ServerMessage serverMessage, Session excludeSession) throws IOException {
         if (!LIVE_GAMES.containsKey(gameID)) {
             return;
         }
         Connection whiteConnection = LIVE_GAMES.get(gameID).getWhiteConnection();
         Connection blackConnection = LIVE_GAMES.get(gameID).getBlackConnection();
 
-        if (whiteConnection != null && !whiteConnection.username().equals(username)) {
+        if (whiteConnection != null && !whiteConnection.session().equals(excludeSession)) {
             whiteConnection.send(serverMessage);
         }
-        if (blackConnection != null && !blackConnection.username().equals(username)) {
+        if (blackConnection != null && !blackConnection.session().equals(excludeSession)) {
             blackConnection.send(serverMessage);
         }
         for (var observer : LIVE_GAMES.get(gameID).observers.values()) {
-            if (!observer.username().equals(username)) {
+            if (!observer.session().equals(excludeSession)) {
                 observer.send(serverMessage);
             }
         }
@@ -146,14 +146,15 @@ public class GameManager {
 
         chessGame.makeMove(chessMove);
         gameDataDAO.updateGame(gameID, chessGame);
-        String username = (teamColor == WHITE) ? LIVE_GAMES.get(gameID).getWhiteUsername() : LIVE_GAMES.get(gameID).getBlackUsername();
 
-        notifyGame(gameID, new ServerMessage(LOAD_GAME, new Gson().toJson(chessGame)), "");
-        notifyGame(gameID, new ServerMessage(NOTIFICATION, username + " has played " + chessMove), username);
+        Connection user = (teamColor == WHITE) ? LIVE_GAMES.get(gameID).getWhiteConnection() :
+                                                 LIVE_GAMES.get(gameID).getBlackConnection();
+        notifyGame(gameID, new ServerMessage(LOAD_GAME, new Gson().toJson(chessGame)), null);
+        notifyGame(gameID, new ServerMessage(NOTIFICATION, user.username() + " has played " + chessMove), user.session());
 
         TeamColor opposingTeamColor = (teamColor == WHITE) ? BLACK : WHITE;
         if (chessGame.isInCheck(opposingTeamColor)) {
-            notifyGame(gameID, new ServerMessage(NOTIFICATION, username + " has put his opponent in check!"), "");
+            notifyGame(gameID, new ServerMessage(NOTIFICATION, user.username() + " has put his opponent in check!"), null);
         }
     }
 
@@ -167,13 +168,13 @@ public class GameManager {
             if (white != null && !white.session().isOpen()) {
                 gameDataDAO.removeUser(gameID, WHITE);
                 game.setWhiteConnection(null);
-                notifyGame(gameID, new ServerMessage(NOTIFICATION, game.getWhiteUsername() + " has left the game."), "");
+                notifyGame(gameID, new ServerMessage(NOTIFICATION, game.getWhiteUsername() + " has left the game."), null);
                 game.setWhiteUsername(null);
             }
             if (black != null && !black.session().isOpen()) {
                 gameDataDAO.removeUser(gameID, BLACK);
                 game.setBlackConnection(null);
-                notifyGame(gameID, new ServerMessage(NOTIFICATION, game.getBlackUsername() + " has left the game."), "");
+                notifyGame(gameID, new ServerMessage(NOTIFICATION, game.getBlackUsername() + " has left the game."), null);
                 game.setBlackUsername(null);
             }
 
@@ -201,7 +202,8 @@ public class GameManager {
         for (Session observer : game.observers.keySet()) {
             if (!observer.isOpen()) {
                 removeList.add(observer);
-                notifyGame(gameID, new ServerMessage(NOTIFICATION, game.observers.get(observer).username() + " has stopped watching."), "");
+                ServerMessage observerLeave = new ServerMessage(NOTIFICATION, game.observers.get(observer).username() + " has stopped watching.");
+                notifyGame(gameID, observerLeave, null);
             }
         }
 
@@ -244,6 +246,9 @@ public class GameManager {
             username = LIVE_GAMES.get(gameID).getBlackUsername();
             opposingUser = LIVE_GAMES.get(gameID).getWhiteUsername();
         }
-        notifyGame(gameID, new ServerMessage(NOTIFICATION, username + " has resigned! " + opposingUser + " has won!"), "");
+
+        ServerMessage resignAnnouncement
+                = new ServerMessage(NOTIFICATION, username + " has resigned! " + opposingUser + " has won!");
+        notifyGame(gameID, resignAnnouncement, null);
     }
 }

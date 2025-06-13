@@ -1,6 +1,6 @@
 package WebSocket;
 
-import chess.ChessGame;
+import chess.ChessGame.TeamColor;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.*;
@@ -10,7 +10,7 @@ import org.eclipse.jetty.websocket.api.annotations.*;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
-import static chess.ChessGame.TeamColor.WHITE;
+import static chess.ChessGame.TeamColor.*;
 import static websocket.messages.ServerMessage.ServerMessageType.*;
 
 import java.io.IOException;
@@ -19,6 +19,7 @@ import java.io.IOException;
 public class WebSocketHandler {
     private final GameManager games = new GameManager();
     private final AuthDataDAO authDataDAO = new AuthDataDAOSQL();
+    private final GameDataDAO gameDataDAO = new GameDataDAOSQL();
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException, DataAccessException {
@@ -38,17 +39,22 @@ public class WebSocketHandler {
 
     private void handleConnectCommand(UserGameCommand userGameCommand, Session session) throws DataAccessException, IOException {
         AuthData authData = authDataDAO.getAuthData(userGameCommand.getAuthToken());
+        GameData gameData = gameDataDAO.findGame(userGameCommand.getGameID());
         String username = authData.username();
-        ChessGame.TeamColor teamColor = userGameCommand.getTeamColor();
-        if (teamColor == null) {
-            teamColor = WHITE;
-        }
+
+        TeamColor teamColor = (username.equals(gameData.whiteUsername())) ? WHITE : BLACK;
+
+//        ChessGame.TeamColor teamColor = userGameCommand.getTeamColor();
+//        if (teamColor == null) {
+//            teamColor = gameData.;
+//        }
+
         games.addPlayer(username, userGameCommand.getGameID(), teamColor, session);
 
         String color = (teamColor == WHITE) ? "white" : "black";
         games.notifyGame(userGameCommand.getGameID(),
                          new ServerMessage(NOTIFICATION, username + " joined the game as the " + color + " player."),
-                         username);
+                         session);
     }
 
     private void handleResign(UserGameCommand userGameCommand) throws IOException, DataAccessException {
@@ -72,8 +78,6 @@ public class WebSocketHandler {
 
         ServerMessage newObserver = new ServerMessage(NOTIFICATION, authData.username() + " started watching the game.");
         games.addObserver(authData.username(), userGameCommand.getGameID(), session);
-        games.notifyGame(userGameCommand.getGameID(),
-                         newObserver,
-                         authData.username());
+        games.notifyGame(userGameCommand.getGameID(), newObserver, session);
     }
 }
